@@ -1,103 +1,123 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { authService } from '@/services/auth';
+import Link from 'next/link';
+import { getCookie } from 'cookies-next';
+
+export default function HomePage() {
+  const { user, setAuth } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        // 이미 인증 정보가 있다면 스킵
+        if (user) return;
+
+        // refreshToken 쿠키가 있는지 확인
+        const refreshToken = getCookie('REFRESH_TOKEN');
+        if (!refreshToken) return;
+
+        // 1. 토큰 재발급 요청
+        const accessToken = await authService.reissueToken();
+        
+        // 2. 사용자 정보 요청
+        const userInfo = await authService.getUserInfo();
+        
+        // 3. 전역 상태에 사용자 정보 저장
+        setAuth(userInfo);
+      } catch (error) {
+        console.error('인증 초기화 실패:', error);
+        // 에러 발생 시 조용히 실패 (이미 로그인 페이지로의 리다이렉트는 인터셉터에서 처리)
+      }
+    };
+
+    initializeAuth();
+  }, [user, setAuth]);
+
+  // useEffect(() => {
+  //   if (user && !user.coupleId) {
+  //     router.replace('/couple/link');
+  //   }
+  // }, [user, router]);
+
+  // 커플 연결이 안 된 경우엔 아무것도 렌더링하지 않음 (리다이렉트)
+  // if (!user || !user.coupleId) return null;
+
+  // 하드코딩된 리뷰 데이터 (2번 그림 참고)
+  const review = {
+    date: '2025-04-03',
+    place: '맛있는 한식당',
+    tags: ['맛집', '서울'],
+    male: {
+      stars: 4,
+      text: '맛있고 분위기도 좋았어요. 특히 갈비찜이 일품이었습니다.'
+    },
+    female: {
+      stars: 5,
+      text: '서비스도 좋고 음식도 맛있어요. 데이트하기 좋은 분위기였습니다.'
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex flex-col space-y-4">
+        <Link 
+          href="/posts/grid" 
+          className="text-xl font-semibold text-indigo-600 hover:text-indigo-500"
+        >
+          카드형 게시판 보기
+        </Link>
+        <Link 
+          href="/posts/list" 
+          className="text-xl font-semibold text-indigo-600 hover:text-indigo-500"
+        >
+          테이블형 게시판 보기
+        </Link>
+      </div>
+      {user && (
+        <div className="mt-4">
+          <p>안녕하세요, {user.name}님!</p>
+        </div>
+      )}
+      <main className="max-w-md mx-auto px-2 py-4">
+        {/* 필터 영역 */}
+        <div className="flex flex-col gap-2 mb-4">
+          <select className="w-full rounded-lg border px-3 py-2 text-sm">
+            <option>카테고리</option>
+          </select>
+          <select className="w-full rounded-lg border px-3 py-2 text-sm">
+            <option>지역</option>
+          </select>
+          <select className="w-full rounded-lg border px-3 py-2 text-sm">
+            <option>정렬</option>
+          </select>
+        </div>
+        {/* 리뷰 카드 */}
+        <div className="bg-white rounded-2xl shadow p-4 mb-4">
+          <div className="text-lg font-bold mb-1">{review.date}</div>
+          <div className="text-base font-semibold mb-1">{review.place}</div>
+          <div className="flex gap-2 mb-2">
+            {review.tags.map(tag => (
+              <span key={tag} className="bg-gray-100 text-gray-700 rounded px-2 py-0.5 text-xs">{tag}</span>
+            ))}
+          </div>
+          <div className="mb-2">
+            <div className="font-semibold text-sm mb-0.5">남자 리뷰</div>
+            <div className="text-yellow-400 text-base mb-0.5">{'★'.repeat(review.male.stars)}{'☆'.repeat(5 - review.male.stars)}</div>
+            <div className="text-sm">{review.male.text}</div>
+          </div>
+          <div className="mb-2">
+            <div className="font-semibold text-sm mb-0.5">여자 리뷰</div>
+            <div className="text-yellow-400 text-base mb-0.5">{'★'.repeat(review.female.stars)}{'☆'.repeat(5 - review.female.stars)}</div>
+            <div className="text-sm">{review.female.text}</div>
+          </div>
+          <button className="w-full mt-2 py-2 rounded-lg border text-sm bg-gray-50 hover:bg-gray-100">자세히 보기</button>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </main>
   );
 }

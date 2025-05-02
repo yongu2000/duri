@@ -1,0 +1,22 @@
+# 빌드 결과물
+.next
+out
+
+# 의존성
+node_modules
+
+# 설정/캐시
+.vscode
+*.log
+*.cache
+
+# Git
+.git
+.gitignore
+
+# 기타
+Dockerfile
+docker-compose.yml
+next-app.tar
+*.tar
+*.tar.gz
