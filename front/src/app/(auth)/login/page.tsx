@@ -51,21 +51,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            보일러플레이트
+        <div className="text-center">
+          <h2 className="text-5xl font-black text-gray-900 tracking-tight" style={{ fontFamily: "'BMDOHYEON', sans-serif" }}>
+            <span style={{ fontFamily: "'Cafe24Supermagic-Bold-v1.0', cursive", fontSize: '1.2em', verticalAlign: 'middle' }}>“</span>
+            두리
+            <span style={{ fontFamily: "'Cafe24Supermagic-Bold-v1.0', cursive", fontSize: '1.2em', verticalAlign: 'middle' }}>”</span>
           </h2>
+          <p className="mt-1 text-2xl text-gray-900 iceJaram-Rg-important">추억도 별점도, 둘이</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="rounded-md shadow-sm space-y-4">
+        <form className="mt-8 space-y-6 px-2 sm:px-0" onSubmit={handleSubmit(onSubmit)}>
+          <div className="rounded-md space-y-4">
             <div>
               <input
                 {...register('username')}
                 type="text"
                 placeholder="아이디 또는 이메일"
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-4 py-3 border-b-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:border-black focus:z-10 sm:text-sm"
               />
               {errors.username && (
                 <p className="mt-1 text-sm text-red-600">{errors.username.message as string}</p>
@@ -76,92 +79,61 @@ export default function LoginPage() {
                 {...register('password')}
                 type="password"
                 placeholder="비밀번호"
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-4 py-3 border-b-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:border-black focus:z-10 sm:text-sm"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password.message as string}</p>
               )}
             </div>
           </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                {...register('rememberMe')}
-                type="checkbox"
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                로그인 상태 유지
-              </label>
-            </div>
-            <div className="text-sm">
-              <Link href="/find-password" className="text-indigo-600 hover:text-indigo-500">
-                비밀번호 찾기
-              </Link>
-            </div>
+          <button
+            type="submit"
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black rounded-l-xl rounded-r-xl mt-4"
+          >
+            로그인
+          </button>
+          <div className="w-full flex items-center gap-2 text-sm justify-center mb-3 mt-2">
+            <Link href="/find-password" className="font-medium text-gray-400 hover:text-black">
+              비밀번호 찾기
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/join" className="font-medium text-gray-400 hover:text-black">
+              회원가입
+            </Link>
           </div>
-
-          {rememberMe && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-yellow-700">
-                    로그인 상태 유지를 선택하면 30일 동안 자동 로그인이 유지됩니다. 
-                    공용 컴퓨터에서는 보안을 위해 선택하지 마세요.
-                  </p>
-                </div>
-              </div>
+          <div className="flex items-center my-8">
+            <div className="flex-grow border-t border-gray-200"></div>
+          </div>
+          <div className="my-4">
+            <div className="text-center mb-6 text-sm font-medium text-gray-400">간편 로그인</div>
+            <div className="flex justify-center gap-8">
+              <button
+                type="button"
+                aria-label="카카오 로그인"
+                onClick={() => window.location.href = `${API_URL}/oauth2/authorization/kakao`}
+                className="p-0 bg-transparent border-none shadow-none hover:bg-transparent focus:outline-none"
+              >
+                <img src="/kakao.png" alt="카카오" className="w-14 h-14" />
+              </button>
+              <button
+                type="button"
+                aria-label="구글 로그인"
+                onClick={() => window.location.href = `${API_URL}/oauth2/authorization/google`}
+                className="p-0 bg-transparent border-none shadow-none hover:bg-transparent focus:outline-none"
+              >
+                <img src="/google.png" alt="구글" className="w-14 h-14" />
+              </button>
+              <button
+                type="button"
+                aria-label="네이버 로그인"
+                onClick={() => window.location.href = `${API_URL}/oauth2/authorization/naver`}
+                className="p-0 bg-transparent border-none shadow-none hover:bg-transparent focus:outline-none"
+              >
+                <img src="/naver.png" alt="네이버" className="w-14 h-14" />
+              </button>
             </div>
-          )}
-
-          <div className="space-y-3">
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              로그인
-            </button>
-
-            <button
-              type="button"
-              onClick={() => window.location.href = `${API_URL}/oauth2/authorization/kakao`}
-              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-black bg-[#FEE500] hover:bg-[#FDD800] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-            >
-              카카오 로그인
-            </button>
-
-            <button
-              type="button"
-              onClick={() => window.location.href = `${API_URL}/oauth2/authorization/google`}
-              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#4285F4] hover:bg-[#3367D6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              구글 로그인
-            </button>
-
-            <button
-              type="button"
-              onClick={() => window.location.href = `${API_URL}/oauth2/authorization/naver`}
-              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#03C75A] hover:bg-[#02B150] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
-              네이버 로그인
-            </button>
           </div>
         </form>
-
-        <div className="text-center">
-          <Link 
-            href="/join" 
-            className="w-full inline-block py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            회원가입
-          </Link>
-        </div>
       </div>
     </div>
   );

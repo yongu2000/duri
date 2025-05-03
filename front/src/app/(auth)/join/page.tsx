@@ -75,13 +75,6 @@ export default function RegisterPage() {
 
   const handleSendVerificationCode = async () => {
     try {
-      // 이메일 형식 검증
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!email || !emailRegex.test(email)) {
-        toast.error('올바른 이메일 형식이 아닙니다.');
-        return;
-      }
-
       // 5분 후의 시간을 설정
       setEndTime(Date.now() + 5 * 60 * 1000);
       setIsCodeSent(true);
@@ -115,6 +108,12 @@ export default function RegisterPage() {
 
   const handleCheckEmailDuplicate = async () => {
     try {
+      // 이메일 형식 검증
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!email || !emailRegex.test(email)) {
+        toast.error('올바른 이메일 형식이 아닙니다.');
+        return;
+      }
       const isDuplicate = await authService.checkEmailDuplicate(email);
       if (isDuplicate) {
         toast.error('이미 사용 중인 이메일입니다.');
@@ -149,28 +148,31 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <h2 className="text-center text-3xl font-bold">회원가입</h2>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+    <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md mx-auto">
+        <div className="text-center">
+          <h2 className="text-5xl font-black text-gray-900 tracking-tight mb-2" style={{ fontFamily: "'BMDOHYEON', sans-serif" }}>
+            회원가입
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6 px-2 sm:px-0" onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              이메일
-            </label>
             <div className="mt-1 flex space-x-2">
               <input
                 {...register('email')}
                 type="email"
+                placeholder="이메일"
                 disabled={isEmailChecked}
-                className="block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
+                className="block w-0 min-w-0 flex-1 px-4 py-3 border-b-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:border-black focus:z-10 sm:text-sm disabled:bg-gray-100"
               />
               <button
                 type="button"
                 onClick={isEmailChecked ? handleSendVerificationCode : handleCheckEmailDuplicate}
                 disabled={!email || isEmailVerified}
-                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
+                className="flex-shrink-0 px-4 py-2 text-sm font-medium text-white bg-black rounded-l-xl rounded-r-xl hover:bg-gray-800 disabled:bg-gray-300"
+                style={{ whiteSpace: 'nowrap' }}
               >
-                {isEmailChecked ? '인증코드 전송' : '이메일 중복 확인'}
+                {isEmailChecked ? '인증코드 전송' : '중복 확인'}
               </button>
             </div>
             {errors.email && (
@@ -183,7 +185,7 @@ export default function RegisterPage() {
               <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700">
                 인증코드
                 {endTime !== null && (
-                  <span className="ml-2 text-indigo-600">{formatTime(remainingTime)}</span>
+                  <span className="ml-2 text-black">{formatTime(remainingTime)}</span>
                 )}
               </label>
               <div className="mt-1 flex space-x-2">
@@ -193,14 +195,14 @@ export default function RegisterPage() {
                   maxLength={6}
                   pattern="[0-9]*"
                   inputMode="numeric"
-                  className="block w-full rounded-md border-gray-300 shadow-sm"
+                  className="block w-full px-4 py-3 border-b-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:border-black focus:z-10 sm:text-sm"
                   placeholder="인증코드 6자리를 입력하세요"
                 />
                 <button
                   type="button"
                   onClick={handleVerifyCode}
                   disabled={!verificationCode || isEmailVerified}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
+                  className="px-4 py-2 text-sm font-medium text-white bg-black rounded-l-xl rounded-r-xl hover:bg-gray-800 disabled:bg-gray-300"
                 >
                   확인
                 </button>
@@ -212,14 +214,14 @@ export default function RegisterPage() {
                 <p className="mt-1 text-sm text-green-600">이메일이 인증되었습니다!</p>
               )}
               {isTimerExpired && !isEmailVerified && (
-                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">
+                <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                  <p className="text-sm text-gray-600">
                     인증 시간이 만료되었습니다. 인증코드를 다시 전송해주세요.
                   </p>
                   <button
                     type="button"
                     onClick={handleSendVerificationCode}
-                    className="mt-2 text-sm font-medium text-red-600 hover:text-red-700"
+                    className="mt-2 text-sm font-medium text-black hover:underline"
                   >
                     인증코드 다시 전송하기
                   </button>
@@ -229,13 +231,11 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              비밀번호
-            </label>
             <input
               {...register('password')}
               type="password"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              placeholder="비밀번호"
+              className="mt-1 block w-full px-4 py-3 border-b-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:border-black focus:z-10 sm:text-sm"
             />
             {errors.password && (
               <p className="mt-1 text-sm text-red-600">{errors.password.message as string}</p>
@@ -243,13 +243,11 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700">
-              비밀번호 확인
-            </label>
             <input
               {...register('passwordConfirm')}
               type="password"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              placeholder="비밀번호 확인"
+              className="mt-1 block w-full px-4 py-3 border-b-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:border-black focus:z-10 sm:text-sm"
             />
             {errors.passwordConfirm && (
               <p className="mt-1 text-sm text-red-600">{errors.passwordConfirm.message as string}</p>
@@ -259,13 +257,13 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={!isEmailVerified}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-l-xl rounded-r-xl text-sm font-medium text-white bg-black hover:bg-gray-800 disabled:bg-gray-300 mt-4"
           >
             회원가입
           </button>
 
-          <div className="text-center">
-            <Link href="/login" className="text-indigo-600 hover:text-indigo-500">
+          <div className="w-full flex items-center gap-2 text-sm justify-center mt-2">
+            <Link href="/login" className="font-medium text-gray-400 hover:text-black">
               이미 계정이 있으신가요? 로그인하기
             </Link>
           </div>
