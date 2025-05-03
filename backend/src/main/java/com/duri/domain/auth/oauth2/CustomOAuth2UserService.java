@@ -2,6 +2,7 @@ package com.duri.domain.auth.oauth2;
 
 
 import com.duri.domain.auth.CustomUserDetails;
+import com.duri.domain.image.service.ImageService;
 import com.duri.domain.user.entity.Role;
 import com.duri.domain.user.entity.User;
 import com.duri.domain.user.repository.UserRepository;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-//    private final ImageService imageService;
+    private final ImageService imageService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -46,15 +47,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private User getUser(String username, OAuth2UserInfo oAuth2UserInfo, String provider) {
         return userRepository.findByEmail(oAuth2UserInfo.getEmail())
             .orElseGet(() -> {
-//                Image image = imageService.saveExternalImage(
-//                    oAuth2UserInfo.getProfileImageUrl());
+                String imageUrl = imageService.saveExternalImage(
+                    oAuth2UserInfo.getProfileImageUrl());
                 User newUser = User.builder()
                     .username(username)
                     .password(oAuth2UserInfo.getPassword())
                     .name(oAuth2UserInfo.getName())
                     .email(oAuth2UserInfo.getEmail())
                     .role(Role.USER)
-//                    .profileImageUrl(image.getUrl())
+                    .profileImageUrl(imageUrl)
                     .provider(provider)
                     .build();
                 return userRepository.save(newUser);

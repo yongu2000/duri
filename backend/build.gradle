@@ -53,6 +53,12 @@ dependencies {
     // DB
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // AWS
+    implementation platform("software.amazon.awssdk:bom:2.31.18")
+    implementation "software.amazon.awssdk:s3"
+    implementation "software.amazon.awssdk:auth"
+    implementation "software.amazon.awssdk:regions"
+
     // TEST
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
