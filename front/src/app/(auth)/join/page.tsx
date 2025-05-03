@@ -34,11 +34,12 @@ const registerSchema = z.object({
 export default function RegisterPage() {
   const router = useRouter();
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isEmailChecked, setIsEmailChecked] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number>(0);
-  const { register, handleSubmit, formState: { errors }, watch } = useForm({
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm({
     resolver: zodResolver(registerSchema),
   });
 
@@ -112,6 +113,21 @@ export default function RegisterPage() {
     }
   };
 
+  const handleCheckEmailDuplicate = async () => {
+    try {
+      const isDuplicate = await authService.checkEmailDuplicate(email);
+      if (isDuplicate) {
+        toast.error('이미 사용 중인 이메일입니다.');
+        return;
+      }
+      setIsEmailChecked(true);
+      toast.success('사용 가능한 이메일입니다.');
+    } catch (error) {
+      console.error('이메일 중복 확인 실패:', error);
+      toast.error('이메일 중복 확인에 실패했습니다.');
+    }
+  };
+
   const onSubmit = async (data: any) => {
     if (!isEmailVerified) {
       toast.error('이메일 인증이 필요합니다.');
@@ -145,15 +161,16 @@ export default function RegisterPage() {
               <input
                 {...register('email')}
                 type="email"
-                className="block w-full rounded-md border-gray-300 shadow-sm"
+                disabled={isEmailChecked}
+                className="block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
               />
               <button
                 type="button"
-                onClick={handleSendVerificationCode}
+                onClick={isEmailChecked ? handleSendVerificationCode : handleCheckEmailDuplicate}
                 disabled={!email || isEmailVerified}
                 className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
               >
-                인증코드 전송
+                {isEmailChecked ? '인증코드 전송' : '이메일 중복 확인'}
               </button>
             </div>
             {errors.email && (
