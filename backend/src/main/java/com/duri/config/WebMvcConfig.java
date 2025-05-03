@@ -1,8 +1,10 @@
 package com.duri.config;
 
+import com.duri.global.log.LoggingInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -22,6 +24,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
             // 자원 공유를 허락할 origin (프론트)
             .allowCredentials(true)
             .allowedOrigins(FRONTEND_URL);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LoggingInterceptor());
     }
 
 }

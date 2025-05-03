@@ -3,11 +3,13 @@ package com.duri.domain.auth.jwt.service;
 import com.duri.domain.auth.jwt.dto.JoinRequest;
 import com.duri.domain.auth.jwt.dto.JoinResponse;
 import com.duri.domain.auth.jwt.exception.DuplicateUserException;
+import com.duri.domain.auth.jwt.exception.EmailNotVerifiedException;
 import com.duri.domain.user.entity.Role;
 import com.duri.domain.user.entity.User;
 import com.duri.domain.user.repository.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JoinService {
 
+    private static final String EMAIL_VERIFIED_KEY = "EMAIL:VERIFIED:";
+
+    private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public JoinResponse join(JoinRequest request) {
         validateEmailExistence(request.getEmail());
+        validateEmailVerification(request.getEmail());
 
         String username = generateUniqueUsername(request.getEmail());
         String name = parseEmailToUsername(request.getEmail());
@@ -38,6 +44,13 @@ public class JoinService {
             .id(newUser.getId())
             .username(newUser.getUsername())
             .build();
+    }
+
+    private void validateEmailVerification(String email) {
+        String value = redisTemplate.opsForValue().get(EMAIL_VERIFIED_KEY + email);
+        if (!Boolean.parseBoolean(value)) {
+            throw new EmailNotVerifiedException();
+        }
     }
 
     private void validateEmailExistence(String email) {

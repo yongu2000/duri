@@ -53,4 +53,9 @@ public class User extends BaseEntity {
         this.profileImageUrl = profileImageUrl;
         this.provider = provider;
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
 }

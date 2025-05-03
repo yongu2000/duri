@@ -8,6 +8,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum AuthError implements ErrorCode {
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다"),
+    
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다"),
+
+    EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "이메일 인증이 되지 않았습니다"),
 
     USER_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "유효한 인증 정보가 없습니다"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),
