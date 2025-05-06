@@ -1,6 +1,5 @@
 package com.duri.domain.auth.exception;
 
-import com.duri.domain.auth.jwt.exception.AuthError;
 import com.duri.global.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

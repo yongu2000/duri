@@ -2,9 +2,9 @@ package com.duri.domain.auth.jwt.service;
 
 import com.duri.config.JwtConfig;
 import com.duri.domain.auth.CustomUserDetails;
+import com.duri.domain.auth.exception.InvalidRefreshTokenException;
 import com.duri.domain.auth.jwt.constant.Claim;
 import com.duri.domain.auth.jwt.constant.TokenType;
-import com.duri.domain.auth.jwt.exception.InvalidRefreshTokenException;
 import com.duri.domain.auth.jwt.util.JwtUtil;
 import com.duri.domain.user.service.UserService;
 import com.duri.global.util.CookieUtil;

@@ -1,4 +1,4 @@
-package com.duri.domain.auth.jwt.exception;
+package com.duri.domain.auth.exception;
 
 import com.duri.global.exception.ErrorCode;
 import lombok.Getter;
@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum AuthError implements ErrorCode {
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다"),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다"),
     
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다"),
+
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다"),
 
     EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "이메일 인증이 되지 않았습니다"),

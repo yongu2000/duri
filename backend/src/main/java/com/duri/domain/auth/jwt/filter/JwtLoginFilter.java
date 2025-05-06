@@ -2,8 +2,8 @@ package com.duri.domain.auth.jwt.filter;
 
 
 import com.duri.domain.auth.CustomUserDetails;
+import com.duri.domain.auth.exception.AuthError;
 import com.duri.domain.auth.jwt.dto.LoginRequest;
-import com.duri.domain.auth.jwt.exception.AuthError;
 import com.duri.domain.auth.jwt.service.JwtTokenService;
 import com.duri.global.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

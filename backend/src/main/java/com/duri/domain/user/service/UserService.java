@@ -3,7 +3,7 @@ package com.duri.domain.user.service;
 import static com.duri.domain.email.constant.EmailRedisKey.PASSWORD_RESET_TOKEN_KEY;
 
 import com.duri.domain.auth.CustomUserDetails;
-import com.duri.domain.auth.jwt.exception.UserDetailNotFoundException;
+import com.duri.domain.auth.exception.UserDetailNotFoundException;
 import com.duri.domain.user.dto.EmailDuplicateCheckResponse;
 import com.duri.domain.user.dto.PasswordResetRequest;
 import com.duri.domain.user.dto.UserResponse;

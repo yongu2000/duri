@@ -1,4 +1,4 @@
-package com.duri.domain.auth.jwt.exception;
+package com.duri.domain.auth.exception;
 
 
 import com.duri.global.exception.BusinessException;

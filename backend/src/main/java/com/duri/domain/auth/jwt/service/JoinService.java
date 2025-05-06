@@ -1,9 +1,9 @@
 package com.duri.domain.auth.jwt.service;
 
+import com.duri.domain.auth.exception.DuplicateUserException;
+import com.duri.domain.auth.exception.EmailNotVerifiedException;
 import com.duri.domain.auth.jwt.dto.JoinRequest;
 import com.duri.domain.auth.jwt.dto.JoinResponse;
-import com.duri.domain.auth.jwt.exception.DuplicateUserException;
-import com.duri.domain.auth.jwt.exception.EmailNotVerifiedException;
 import com.duri.domain.user.entity.Role;
 import com.duri.domain.user.entity.User;
 import com.duri.domain.user.repository.UserRepository;
