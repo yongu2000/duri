@@ -1,16 +1,22 @@
 package com.duri.domain.couple.service;
 
+import static com.duri.domain.couple.constant.CoupleConnectionStatus.ACCEPT;
+import static com.duri.domain.couple.constant.CoupleConnectionStatus.CANCEL;
 import static com.duri.domain.couple.constant.CoupleConnectionStatus.PENDING;
+import static com.duri.domain.couple.constant.CoupleConnectionStatus.REJECT;
 import static com.duri.domain.couple.constant.CoupleRedisKey.COUPLE_CONNECTION_CODE_TO_USERID_KEY;
 import static com.duri.domain.couple.constant.CoupleRedisKey.COUPLE_CONNECTION_USERID_TO_CODE_KEY;
 
 import com.duri.domain.auth.CustomUserDetails;
+import com.duri.domain.couple.constant.CoupleConnectionStatus;
+import com.duri.domain.couple.controller.CoupleConnectionWebSocketController;
 import com.duri.domain.couple.dto.CoupleConnectionCodeResponse;
 import com.duri.domain.couple.dto.CoupleConnectionSendRequest;
 import com.duri.domain.couple.dto.CoupleConnectionStatusResponse;
 import com.duri.domain.couple.entity.CoupleConnection;
 import com.duri.domain.couple.exception.ExistingCoupleConnectionException;
 import com.duri.domain.couple.exception.InvalidCoupleConnectionCodeException;
+import com.duri.domain.couple.exception.InvalidCoupleConnectionException;
 import com.duri.domain.couple.repository.CoupleConnectionRepository;
 import com.duri.domain.user.entity.User;
 import com.duri.domain.user.service.UserService;
@@ -31,6 +37,7 @@ public class CoupleConnectionService {
     private final RedisTemplate<String, String> redisTemplate;
     private final UserService userService;
     private final CoupleConnectionRepository coupleConnectionRepository;
+    private final CoupleConnectionWebSocketController coupleConnectionWebSocketController;
 
     public CoupleConnectionCodeResponse getCode(CustomUserDetails userDetails) {
         // 유저 ID 에 대한 코드가 존재하면 불러오기
@@ -42,8 +49,8 @@ public class CoupleConnectionService {
             // 겹치는 코드가 없을 때 까지 코드 생성
             do {
                 code = generateCodeFromUUID();
-            } while (redisTemplate.hasKey(
-                COUPLE_CONNECTION_CODE_TO_USERID_KEY + code));
+            } while (Boolean.TRUE.equals(redisTemplate.hasKey(
+                COUPLE_CONNECTION_CODE_TO_USERID_KEY + code)));
 
             // 코드 : 유저 ID 생성
             redisTemplate.opsForValue().set(
@@ -92,9 +99,10 @@ public class CoupleConnectionService {
             .status(PENDING)
             .build();
 
+        // WebSocket 커플 연결 요청 보내기
+        coupleConnectionWebSocketController.sendConnectionRequest(connection);
+
         //응답자(오른쪽)
-        //
-        //-> WebSocket 이용해서 요청자로부터 커플 연결 요청이 왔다는 모달 띄우기
         //
         //-> FCM 이용해서 푸시 알람 생성
 
@@ -102,15 +110,71 @@ public class CoupleConnectionService {
     }
 
     public CoupleConnectionStatusResponse getSentConnectionStatus(CustomUserDetails userDetails) {
-        Optional<CoupleConnection> requester = coupleConnectionRepository.findByRequester(
+        Optional<CoupleConnection> connection = coupleConnectionRepository.findByRequester(
             userDetails.getUser());
-        return null;
+
+        return connection.map(CoupleConnectionStatusResponse::of).orElse(null);
+
     }
 
     public CoupleConnectionStatusResponse getReceivedConnectionStatus(
         CustomUserDetails userDetails) {
-        Optional<CoupleConnection> respondent = coupleConnectionRepository.findByRespondent(
+        Optional<CoupleConnection> connection = coupleConnectionRepository.findByRespondent(
             userDetails.getUser());
+
+        if (connection.isEmpty()) {
+            return null;
+        }
+        CoupleConnection coupleConnection = connection.get();
+        CoupleConnectionStatus status = coupleConnection.getStatus();
+
+        if (status.equals(PENDING)) {
+            return CoupleConnectionStatusResponse.of(coupleConnection);
+        }
+
+        coupleConnectionRepository.delete(coupleConnection);
+        return CoupleConnectionStatusResponse.of(coupleConnection);
+    }
+
+    public Void rejectConnection(CustomUserDetails userDetails) {
+        User respondent = userDetails.getUser();
+        CoupleConnection connection = coupleConnectionRepository.findByRespondent(respondent).orElseThrow(
+            InvalidCoupleConnectionException::new);
+        connection.changeStatus(REJECT);
+
+        // WebSocket 연결 거부 메세지 보내기
+        coupleConnectionWebSocketController.sendConnectionStatus(connection.getRequester(), connection);
+
+        // FCM 상대방이 요청 거절했다는 푸시 보내기
+
+        return null;
+    }
+
+    public Void acceptConnection(CustomUserDetails userDetails) {
+        User respondent = userDetails.getUser();
+        CoupleConnection connection = coupleConnectionRepository.findByRespondent(respondent).orElseThrow(
+            InvalidCoupleConnectionException::new);
+        connection.changeStatus(ACCEPT);
+
+        // WebSocket 메인페이지로 이동시키는 메세지 보내기
+        coupleConnectionWebSocketController.sendConnectionStatus(connection.getRequester(), connection);
+
+        // FCM 상대방이 요청 수락했다는 푸시 보내기
+
+        return null;
+    }
+
+    public Void cancelConnection(CustomUserDetails userDetails) {
+        User requester = userDetails.getUser();
+        CoupleConnection connection = coupleConnectionRepository.findByRequester(requester).orElseThrow(
+            InvalidCoupleConnectionException::new);
+        connection.changeStatus(CANCEL);
+
+        // WebSocket 상대방이 요청 취소했다는 메세지 보내기
+        coupleConnectionWebSocketController.sendConnectionStatus(connection.getRespondent(), connection);
+
+        // FCM 상대방이 요청 취소했다는 푸시 보내기
+
         return null;
     }
 
@@ -120,4 +184,5 @@ public class CoupleConnectionService {
         return new BigInteger(uuid.toString().replace("-", ""), 16).toString(36).toUpperCase()
             .substring(0, 8);
     }
+
 }

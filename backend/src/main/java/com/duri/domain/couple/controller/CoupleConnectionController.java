@@ -3,7 +3,6 @@ package com.duri.domain.couple.controller;
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.couple.dto.CoupleConnectionCodeResponse;
 import com.duri.domain.couple.dto.CoupleConnectionSendRequest;
-import com.duri.domain.couple.dto.CoupleConnectionStatusRequest;
 import com.duri.domain.couple.dto.CoupleConnectionStatusResponse;
 import com.duri.domain.couple.service.CoupleConnectionService;
 import jakarta.validation.Valid;
@@ -53,24 +52,24 @@ public class CoupleConnectionController {
     }
 
     @PostMapping("/reject")
-    public ResponseEntity<CoupleConnectionStatusResponse> linkCouple(
-        @Valid @RequestBody CoupleConnectionStatusRequest request
+    public ResponseEntity<Void> rejectConnection(
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-//        return ResponseEntity.ok(coupleService.linkCouple(request));
+        return ResponseEntity.ok(coupleConnectionService.rejectConnection(userDetails));
     }
 
     @PostMapping("/accept")
-    public ResponseEntity<CoupleConnectionStatusResponse> linkCouple(
-        @Valid @RequestBody CoupleConnectionStatusRequest request
+    public ResponseEntity<Void> acceptConnection(
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-//        return ResponseEntity.ok(coupleService.linkCouple(request));
+        return ResponseEntity.ok(coupleConnectionService.acceptConnection(userDetails));
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<CoupleConnectionStatusResponse> linkCouple(
-        @Valid @RequestBody CoupleConnectionStatusRequest request
+    public ResponseEntity<Void> cancelConnection(
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-//        return ResponseEntity.ok(coupleService.linkCouple(request));
+        return ResponseEntity.ok(coupleConnectionService.cancelConnection(userDetails));
     }
 }
 

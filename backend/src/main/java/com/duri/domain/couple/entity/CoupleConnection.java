@@ -36,4 +36,8 @@ public class CoupleConnection {
         this.respondent = respondent;
         this.status = status;
     }
+
+    public void changeStatus(CoupleConnectionStatus status) {
+        this.status = status;
+    }
 }
