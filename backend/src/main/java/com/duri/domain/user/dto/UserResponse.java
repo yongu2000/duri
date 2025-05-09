@@ -15,7 +15,7 @@ public class UserResponse {
     private String email;
     private String username;
     private String name;
-    private String coupleName;
+    private Long coupleId;
     private String profileImageUrl;
     private LocalDateTime createdAt;
 
@@ -25,6 +25,7 @@ public class UserResponse {
             .email(user.getEmail())
             .username(user.getUsername())
             .name(user.getName())
+            .coupleId(user.getCouple().getId())
             .profileImageUrl(user.getProfileImageUrl())
             .createdAt(user.getCreatedAt())
             .build();

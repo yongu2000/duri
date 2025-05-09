@@ -53,14 +53,7 @@ public class UserService {
         if (principal instanceof UserDetails) {
             CustomUserDetails userDetails = (CustomUserDetails) principal;
             User user = findByUsername(userDetails.getUsername()); // DB 조회
-            return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .name(user.getName())
-                .profileImageUrl(user.getProfileImageUrl())
-                .createdAt(user.getCreatedAt())
-                .build();
+            return UserResponse.of(user);
         } else {
             throw new UserDetailNotFoundException();
         }
