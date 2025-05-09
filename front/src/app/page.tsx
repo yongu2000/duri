@@ -29,6 +29,11 @@ export default function HomePage() {
         
         // 3. 전역 상태에 사용자 정보 저장
         setAuth(userInfo);
+
+        // 4. 커플 ID 체크
+        if (!userInfo.coupleId) {
+          router.push('/couple/link');
+        }
       } catch (error) {
         console.error('인증 초기화 실패:', error);
         // 에러 발생 시 조용히 실패 (이미 로그인 페이지로의 리다이렉트는 인터셉터에서 처리)
@@ -36,25 +41,7 @@ export default function HomePage() {
     };
 
     initializeAuth();
-  }, [user, setAuth]);
-
-  useEffect(() => {
-    const checkCoupleId = async () => {
-      try {
-        const userInfo = await authService.getUserInfo();
-        if (!userInfo.coupleId) {
-          router.push('/couple/link');
-        }
-      } catch (error) {
-        console.error("사용자 정보 조회 실패:", error);
-      }
-    };
-
-    checkCoupleId();
-  }, [router]);
-
-  // 커플 연결이 안 된 경우엔 아무것도 렌더링하지 않음 (리다이렉트)
-  // if (!user || !user.coupleId) return null;
+  }, [user, setAuth, router]);
 
   // 하드코딩된 리뷰 데이터 (2번 그림 참고)
   const review = {

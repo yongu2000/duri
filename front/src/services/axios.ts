@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosHeaders } from 'axios';
 import { useAuth } from '@/hooks/useAuth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -6,11 +6,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 // 토큰 재발급 상태 관리
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshPromise: Promise<string> | null = null;
 
 // 토큰 재발급 완료 후 대기 중인 요청 실행
 const onRefreshed = (token: string) => {
   refreshSubscribers.forEach(callback => callback(token));
   refreshSubscribers = [];
+  isRefreshing = false;
+  refreshPromise = null;
 };
 
 // 토큰 재발급 중인 요청을 큐에 추가
@@ -57,6 +60,9 @@ const reissueAccessToken = async () => {
     
     // 새 토큰을 localStorage에 저장
     localStorage.setItem('accessToken', accessToken);
+
+    // axiosInstance의 기본 헤더에 새 토큰 설정
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     
     return accessToken;
   } catch (error) {
@@ -73,14 +79,9 @@ axiosInstance.interceptors.request.use(
     
     // accessToken이 있으면 Authorization 헤더에 추가
     if (accessToken) {
-      if (config.headers instanceof axios.AxiosHeaders) {
-        config.headers.set('Authorization', `Bearer ${accessToken}`);
-      } else {
-        // 새로운 AxiosHeaders 객체 생성
-        const newHeaders = new axios.AxiosHeaders();
-        newHeaders.set('Authorization', `Bearer ${accessToken}`);
-        config.headers = newHeaders;
-      }
+      const headers = new AxiosHeaders(config.headers);
+      headers.set('Authorization', `Bearer ${accessToken}`);
+      config.headers = headers;
     }
     
     return config;
@@ -106,9 +107,9 @@ axiosInstance.interceptors.response.use(
         // 토큰 재발급 중이면 Promise를 반환하여 대기
         return new Promise((resolve) => {
           addRefreshSubscriber((token: string) => {
-            originalRequest.headers = new axios.AxiosHeaders({
-              Authorization: `Bearer ${token}`
-            });
+            const headers = new AxiosHeaders(originalRequest.headers);
+            headers.set('Authorization', `Bearer ${token}`);
+            originalRequest.headers = headers;
             resolve(axiosInstance(originalRequest));
           });
         });
@@ -118,31 +119,39 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const newAccessToken = await reissueAccessToken();
-        isRefreshing = false;
+        // 이미 진행 중인 재발급 Promise가 있다면 그것을 사용
+        if (!refreshPromise) {
+          refreshPromise = reissueAccessToken();
+        }
+        
+        const newAccessToken = await refreshPromise;
         onRefreshed(newAccessToken);
         
-        if (originalRequest.headers instanceof axios.AxiosHeaders) {
-          originalRequest.headers.set('Authorization', `Bearer ${newAccessToken}`);
-        } else {
-          originalRequest.headers = new axios.AxiosHeaders({
-            Authorization: `Bearer ${newAccessToken}`
-          });
-        }
+        // 원래 요청의 헤더에 새 토큰 설정
+        const headers = new AxiosHeaders(originalRequest.headers);
+        headers.set('Authorization', `Bearer ${newAccessToken}`);
+        originalRequest.headers = headers;
+        
         return axiosInstance(originalRequest);
       } catch (reissueError) {
         isRefreshing = false;
+        refreshPromise = null;
+        // 토큰 재발급 실패 시에만 로그인 페이지로 리다이렉트
+        handleAuthError();
         return Promise.reject(reissueError);
       }
     }
 
     // 2. 인증 관련 에러 처리 (401, 403)
     if (error.response?.status === 401 || error.response?.status === 403) {
-      // 로그인 페이지가 아닐 때만 현재 URL 저장
-      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-        localStorage.setItem('redirectAfterLogin', window.location.pathname);
+      // 토큰 재발급 헤더가 없는 경우에만 로그인 페이지로 리다이렉트
+      if (!error.response.headers['x-reissue-token']) {
+        // 로그인 페이지가 아닐 때만 현재 URL 저장
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          localStorage.setItem('redirectAfterLogin', window.location.pathname);
+        }
+        handleAuthError();
       }
-      handleAuthError();
       return Promise.reject(error);
     }
 
