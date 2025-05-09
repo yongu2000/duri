@@ -6,6 +6,7 @@ import com.duri.domain.auth.exception.InvalidRefreshTokenException;
 import com.duri.domain.auth.jwt.constant.Claim;
 import com.duri.domain.auth.jwt.constant.TokenType;
 import com.duri.domain.auth.jwt.util.JwtUtil;
+import com.duri.domain.user.entity.User;
 import com.duri.domain.user.service.UserService;
 import com.duri.global.util.CookieUtil;
 import io.jsonwebtoken.Jwts;
@@ -17,6 +18,9 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,7 @@ public class JwtTokenService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtConfig jwtConfig;
     private final UserService userService;
+    private final JwtUserDetailsService jwtUserDetailsService;
 
     public String createAccessToken(CustomUserDetails userDetails) {
         Date now = new Date();
@@ -183,5 +188,17 @@ public class JwtTokenService {
         }
         deleteRefreshToken(refreshToken);
         CookieUtil.deleteCookie(request, response, jwtConfig.getRefreshTokenCookieName());
+    }
+
+    public Authentication getAuthentication(String token) {
+        Long userId = JwtUtil.getId(token, jwtConfig.getSecretKey());
+        User user = userService.findById(userId);
+        UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(user.getUsername());
+
+        return new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
     }
 }

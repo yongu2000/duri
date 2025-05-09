@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String TOKEN_REISSUE_URL = "/token/reissue";
+    private static final String WEBSOCKET_URL = "/ws";
     private final JwtTokenService jwtTokenService;
     private final JwtConfig jwtConfig;
 
@@ -32,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // /api/token/reissue 요청은 필터를 건너뛰도록 예외 처리
-        if (requestURI.equals(TOKEN_REISSUE_URL)) {
+        if (requestURI.startsWith(WEBSOCKET_URL) || requestURI.equals(TOKEN_REISSUE_URL)) {
             filterChain.doFilter(request, response);
             return;
         }

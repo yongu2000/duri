@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,10 +28,21 @@ public class Couple extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "couple_id", updatable = false)
     private Long id;
+    private String name;
     private String bio;
 
     @OneToMany(mappedBy = "couple", fetch = FetchType.LAZY)
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
+    public static Couple of(User a, User b) {
+        Couple couple = new Couple();
+        couple.users.add(a);
+        couple.users.add(b);
+        // 성별에 따라 순서 결정하도록 여기서 결정
+        a.setCouple(couple);
+        b.setCouple(couple);
+        couple.name = a.getName() + "&" + b.getName();
+        return couple;
+    }
 
 }

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,10 +31,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
 
     private static final String[] PERMIT_URL_ARRAY = {
-        "/error", "/login", "/join", "/token/reissue", "/email/**", "/user/password/reset"
+        "/error", "/login", "/join", "/token/reissue", "/email/**", "/user/password/reset", "/ws/**"
     };
     private static final String[] PERMIT_GET_URL_ARRAY = {
         "/user/**"
@@ -71,6 +73,7 @@ public class SecurityConfig {
                     .userService(customOAuth2UserService))
                 .successHandler(oAuth2SuccessHandler)
                 .failureHandler((request, response, exception) -> {
+                    log.error("OAUTH2 LOGIN FAILURE");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 })
             )

@@ -43,7 +43,14 @@ public class CoupleConnectionController {
         return ResponseEntity.ok(coupleConnectionService.getReceivedConnectionStatus(userDetails));
     }
 
-    @PostMapping("/")
+    @PostMapping("/status/confirm")
+    public ResponseEntity<Void> confirmConnectionStatus(
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.ok(coupleConnectionService.confirmConnectionStatus(userDetails));
+    }
+
+    @PostMapping
     public ResponseEntity<CoupleConnectionStatusResponse> linkCouple(
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @Valid @RequestBody CoupleConnectionSendRequest request

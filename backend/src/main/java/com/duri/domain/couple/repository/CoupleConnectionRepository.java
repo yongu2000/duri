@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CoupleConnectionRepository extends JpaRepository<CoupleConnection, Long> {
 
+
+    Optional<CoupleConnection> findByRequesterAndRespondent(User requester, User Respondent);
+
     Optional<CoupleConnection> findByRequesterAndRespondentAndStatus(User requester,
         User Respondent, CoupleConnectionStatus status);
 
@@ -15,5 +18,5 @@ public interface CoupleConnectionRepository extends JpaRepository<CoupleConnecti
 
     Optional<CoupleConnection> findByRespondent(User respondent);
 
-
+    Optional<CoupleConnection> findByRequesterOrRespondent(User requester, User respondent);
 }
