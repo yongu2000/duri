@@ -3,6 +3,20 @@ import { useAuth } from '@/hooks/useAuth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
+// 토큰 재발급 상태 관리
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+// 토큰 재발급 완료 후 대기 중인 요청 실행
+const onRefreshed = (token: string) => {
+  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers = [];
+};
+
+// 토큰 재발급 중인 요청을 큐에 추가
+const addRefreshSubscriber = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -88,9 +102,26 @@ axiosInstance.interceptors.response.use(
       error.response.headers['x-reissue-token'] === 'true' &&
       !(originalRequest as any)._retry
     ) {
+      if (isRefreshing) {
+        // 토큰 재발급 중이면 Promise를 반환하여 대기
+        return new Promise((resolve) => {
+          addRefreshSubscriber((token: string) => {
+            originalRequest.headers = new axios.AxiosHeaders({
+              Authorization: `Bearer ${token}`
+            });
+            resolve(axiosInstance(originalRequest));
+          });
+        });
+      }
+
       (originalRequest as any)._retry = true;
+      isRefreshing = true;
+
       try {
         const newAccessToken = await reissueAccessToken();
+        isRefreshing = false;
+        onRefreshed(newAccessToken);
+        
         if (originalRequest.headers instanceof axios.AxiosHeaders) {
           originalRequest.headers.set('Authorization', `Bearer ${newAccessToken}`);
         } else {
@@ -100,6 +131,7 @@ axiosInstance.interceptors.response.use(
         }
         return axiosInstance(originalRequest);
       } catch (reissueError) {
+        isRefreshing = false;
         return Promise.reject(reissueError);
       }
     }

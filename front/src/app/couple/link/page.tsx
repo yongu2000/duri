@@ -7,6 +7,7 @@ import { ConnectionStatusResponse } from "@/types/coupleConnect";
 import { websocketService } from "@/services/websocket";
 import CoupleConnectionModal from "@/components/CoupleConnectionModal";
 import { useAuth } from '@/hooks/useAuth';
+import { authService } from "@/services/auth";
 
 export default function CoupleLinkPage() {
   const router = useRouter();
@@ -20,6 +21,22 @@ export default function CoupleLinkPage() {
   const [showConnectionModal, setShowConnectionModal] = useState(false);
   const [modalType, setModalType] = useState<'request' | 'response'>('request');
   const [modalStatus, setModalStatus] = useState<ConnectionStatusResponse['status']>('null');
+
+  // coupleId 체크
+  useEffect(() => {
+    const checkCoupleId = async () => {
+      try {
+        const userInfo = await authService.getUserInfo();
+        if (userInfo.coupleId) {
+          router.push('/');
+        }
+      } catch (error) {
+        console.error("사용자 정보 조회 실패:", error);
+      }
+    };
+
+    checkCoupleId();
+  }, [router]);
 
   // 인증코드 발급/조회
   const fetchMyCode = async () => {

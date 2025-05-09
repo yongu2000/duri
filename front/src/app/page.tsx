@@ -38,11 +38,20 @@ export default function HomePage() {
     initializeAuth();
   }, [user, setAuth]);
 
-  // useEffect(() => {
-  //   if (user && !user.coupleId) {
-  //     router.replace('/couple/link');
-  //   }
-  // }, [user, router]);
+  useEffect(() => {
+    const checkCoupleId = async () => {
+      try {
+        const userInfo = await authService.getUserInfo();
+        if (!userInfo.coupleId) {
+          router.push('/couple/link');
+        }
+      } catch (error) {
+        console.error("사용자 정보 조회 실패:", error);
+      }
+    };
+
+    checkCoupleId();
+  }, [router]);
 
   // 커플 연결이 안 된 경우엔 아무것도 렌더링하지 않음 (리다이렉트)
   // if (!user || !user.coupleId) return null;
