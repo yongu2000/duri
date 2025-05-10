@@ -50,7 +50,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         }
 
         ErrorResponse errorResponse = ErrorResponse.of(errorCode);
-        log.error("{}", errorResponse.getMessage());
+        log.error("{} {}", authException, errorResponse.getMessage());
 
         sendErrorResponse(response, errorResponse);
     }

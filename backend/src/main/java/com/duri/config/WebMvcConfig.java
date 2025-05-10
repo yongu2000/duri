@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -31,4 +32,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new LoggingInterceptor());
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**") // 클라이언트가 접근할 경로
+            .addResourceLocations("file:uploads/"); // 실제 로컬 디렉토리
+    }
 }

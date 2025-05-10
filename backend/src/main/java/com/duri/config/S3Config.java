@@ -1,4 +1,4 @@
-package com.duri.domain.image.config;
+package com.duri.config;
 
 
 import org.springframework.context.annotation.Bean;

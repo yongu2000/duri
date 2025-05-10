@@ -35,7 +35,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private static final String[] PERMIT_URL_ARRAY = {
-        "/error", "/login", "/join", "/token/reissue", "/email/**", "/user/password/reset", "/ws/**"
+        "/error", "/login", "/join", "/token/reissue", "/email/**", "/user/password/reset",
+        "/ws/**", "/uploads/**"
     };
     private static final String[] PERMIT_GET_URL_ARRAY = {
         "/user/**"
