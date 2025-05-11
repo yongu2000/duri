@@ -4,6 +4,15 @@ import { useAuth } from '@/hooks/useAuth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
+export interface JoinRequest {
+  email: string;
+  username: string;
+  password: string;
+  name: string;
+  gender: 'MALE' | 'FEMALE';
+  birthday: string;
+}
+
 export const authService = {
   async login(data: LoginRequest): Promise<string> {
     const response = await axiosInstance.post('/login', {
@@ -67,7 +76,7 @@ export const authService = {
     }
   },
 
-  async join(data: { email: string; password: string }): Promise<void> {
+  async join(data: JoinRequest): Promise<void> {
     await axiosInstance.post('/join', data);
   },
 

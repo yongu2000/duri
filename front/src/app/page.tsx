@@ -19,8 +19,10 @@ export default function HomePage() {
     const initializeAuth = async () => {
       try {
         // 이미 인증 정보가 있다면 스킵
-        if (user) return;
-
+        if (user && user.coupleCode) return;
+        if (user && !user.coupleCode) {
+          router.push('/couple/link');
+        }
         // refreshToken 쿠키가 있는지 확인
         const refreshToken = getCookie('REFRESH_TOKEN');
         if (!refreshToken) return;
@@ -31,10 +33,11 @@ export default function HomePage() {
         // 전역 상태에 사용자 정보 저장
         setAuth(userInfo);
 
-        // 커플 ID 체크
-        if (!userInfo.coupleId) {
+        // 커플 코드 체크
+        if (!userInfo.coupleCode) {
           router.push('/couple/link');
         }
+
       } catch (error) {
         console.error('인증 초기화 실패:', error);
         // 에러 발생 시 조용히 실패 (이미 로그인 페이지로의 리다이렉트는 인터셉터에서 처리)
@@ -43,8 +46,6 @@ export default function HomePage() {
 
     initializeAuth();
   }, [user, setAuth, router]);
-
-
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

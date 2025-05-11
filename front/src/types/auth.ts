@@ -9,7 +9,7 @@ export interface PublicUserInfo {
 export interface UserInfo extends PublicUserInfo {
   id: number;
   email: string;
-  coupleId?: number;
+  coupleCode?: string;
 }
 
 export interface LoginRequest {

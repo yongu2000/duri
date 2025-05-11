@@ -27,7 +27,7 @@ export default function CoupleLinkPage() {
     const checkCoupleId = async () => {
       try {
         const userInfo = await authService.getUserInfo();
-        if (userInfo.coupleId) {
+        if (userInfo.coupleCode) {
           router.push('/');
         }
       } catch (error) {

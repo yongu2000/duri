@@ -14,9 +14,9 @@ export default function NavBar() {
     <nav className="w-full flex justify-center bg-white">
       <div className="w-full max-w-md flex items-center justify-between px-6 py-4">
         {/* 로고 */}
-        <span className="text-3xl font-extrabold tracking-tight text-gray-900" style={{ fontFamily: 'BMDOHYEON, sans-serif' }}>
-          두리
-        </span>
+        <Link href="/">
+          <Image src="/logo_duri.png" alt="두리 로고" width={80} height={32} priority />
+        </Link>
         {/* 오른쪽 아이콘: 프로필, 알림, 메뉴 순서 */}
         <div className="flex items-center gap-4">
           <Link href="/profile" className="block">
