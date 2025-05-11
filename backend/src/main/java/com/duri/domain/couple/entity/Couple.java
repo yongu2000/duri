@@ -1,5 +1,6 @@
 package com.duri.domain.couple.entity;
 
+import com.duri.domain.user.entity.Gender;
 import com.duri.domain.user.entity.User;
 import com.duri.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -8,9 +9,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,20 +30,42 @@ public class Couple extends BaseEntity {
     @Column(name = "couple_id", updatable = false)
     private Long id;
     private String name;
+    private String code;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_left")
+    private User userLeft;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_right")
+    private User userRight;
     private String bio;
-
-    @OneToMany(mappedBy = "couple", fetch = FetchType.LAZY)
-    private List<User> users = new ArrayList<>();
 
     public static Couple of(User a, User b) {
         Couple couple = new Couple();
-        couple.users.add(a);
-        couple.users.add(b);
+        couple.code = UUID.randomUUID().toString();
+
         // 성별에 따라 순서 결정하도록 여기서 결정
-        a.setCouple(couple);
-        b.setCouple(couple);
-        couple.name = a.getName() + "&" + b.getName();
+        determineCoupleUserSequence(couple, a, b);
+
+        a.setCoupleCode(couple.code);
+        b.setCoupleCode(couple.code);
+        couple.name = couple.getUserLeft().getName() + "&" + couple.getUserRight().getName();
+
         return couple;
+    }
+
+    private static void determineCoupleUserSequence(Couple couple, User a, User b) {
+        Gender genderA = a.getGender();
+        Gender genderB = b.getGender();
+
+        // 성별이 다르면: male이 left, female이 right
+        if (!genderA.equals(genderB)) {
+            couple.userLeft = genderA == Gender.MALE ? a : b;
+            couple.userRight = genderA == Gender.FEMALE ? a : b;
+        } else {
+            // 성별 같으면 순서대로 할당
+            couple.userLeft = a;
+            couple.userRight = b;
+        }
     }
 
 }

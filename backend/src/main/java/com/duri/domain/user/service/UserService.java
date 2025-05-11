@@ -4,7 +4,7 @@ import static com.duri.domain.email.constant.EmailRedisKey.PASSWORD_RESET_TOKEN_
 
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.auth.exception.UserDetailNotFoundException;
-import com.duri.domain.user.dto.EmailDuplicateCheckResponse;
+import com.duri.domain.user.dto.DuplicateCheckResponse;
 import com.duri.domain.user.dto.PasswordResetRequest;
 import com.duri.domain.user.dto.UserResponse;
 import com.duri.domain.user.entity.User;
@@ -28,11 +28,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public EmailDuplicateCheckResponse checkEmailDuplicate(String email) {
+    public DuplicateCheckResponse checkEmailDuplicate(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
-            return new EmailDuplicateCheckResponse(true);
+            return new DuplicateCheckResponse(true);
         }
-        return new EmailDuplicateCheckResponse(false);
+        return new DuplicateCheckResponse(false);
+    }
+
+    public DuplicateCheckResponse checkUsernameDuplicate(String username) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            return new DuplicateCheckResponse(true);
+        }
+        return new DuplicateCheckResponse(false);
     }
 
     public User findById(Long id) {

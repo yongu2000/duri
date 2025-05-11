@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class EmailDuplicateCheckResponse {
+public class DuplicateCheckResponse {
 
     private boolean isDuplicate;
 

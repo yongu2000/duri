@@ -1,4 +1,4 @@
-package com.duri.domain.couple.dto;
+package com.duri.domain.couple.dto.coupleconnection;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

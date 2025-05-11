@@ -1,6 +1,6 @@
 package com.duri.domain.user.controller;
 
-import com.duri.domain.user.dto.EmailDuplicateCheckResponse;
+import com.duri.domain.user.dto.DuplicateCheckResponse;
 import com.duri.domain.user.dto.PasswordResetRequest;
 import com.duri.domain.user.dto.UserResponse;
 import com.duri.domain.user.service.UserService;
@@ -27,9 +27,16 @@ public class UserController {
     }
 
     @GetMapping("/check/email/{email}")
-    public ResponseEntity<EmailDuplicateCheckResponse> checkEmailDuplicate(
+    public ResponseEntity<DuplicateCheckResponse> checkEmailDuplicate(
         @PathVariable String email) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.checkEmailDuplicate(email));
+    }
+
+    @GetMapping("/check/username/{username}")
+    public ResponseEntity<DuplicateCheckResponse> checkUsernameDuplicate(
+        @PathVariable String username) {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(userService.checkUsernameDuplicate(username));
     }
 
     @PostMapping("/password/reset")

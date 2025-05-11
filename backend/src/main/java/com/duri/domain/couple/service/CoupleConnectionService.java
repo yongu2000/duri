@@ -10,9 +10,9 @@ import static com.duri.domain.couple.constant.CoupleRedisKey.COUPLE_CONNECTION_U
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.couple.constant.CoupleConnectionStatus;
 import com.duri.domain.couple.controller.CoupleConnectionWebSocketController;
-import com.duri.domain.couple.dto.CoupleConnectionCodeResponse;
-import com.duri.domain.couple.dto.CoupleConnectionSendRequest;
-import com.duri.domain.couple.dto.CoupleConnectionStatusResponse;
+import com.duri.domain.couple.dto.coupleconnection.CoupleConnectionCodeResponse;
+import com.duri.domain.couple.dto.coupleconnection.CoupleConnectionSendRequest;
+import com.duri.domain.couple.dto.coupleconnection.CoupleConnectionStatusResponse;
 import com.duri.domain.couple.entity.Couple;
 import com.duri.domain.couple.entity.CoupleConnection;
 import com.duri.domain.couple.exception.ExistingCoupleConnectionException;

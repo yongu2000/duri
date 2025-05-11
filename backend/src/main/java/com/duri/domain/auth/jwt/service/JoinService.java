@@ -28,16 +28,20 @@ public class JoinService {
     public JoinResponse join(JoinRequest request) {
         validateEmailExistence(request.getEmail());
         validateEmailVerification(request.getEmail());
+        validateUsernameExistence(request.getUsername());
 
-        String username = generateUniqueUsername(request.getEmail());
-        String name = parseEmailToUsername(request.getEmail());
+//        String username = generateUniqueUsername(request.getEmail());
+//        String name = parseEmailToUsername(request.getEmail());
 
         User newUser = User.builder()
             .email(request.getEmail())
-            .username(username)
+            .username(request.getUsername())
             .password(bCryptPasswordEncoder.encode(request.getPassword()))
-            .name(name)
+            .name(request.getName())
             .role(Role.USER)
+            // DEFAULT
+            .birthday(request.getBirthday())
+            .gender(request.getGender())
             .build();
         userRepository.save(newUser);
         return JoinResponse.builder()
@@ -55,6 +59,13 @@ public class JoinService {
 
     private void validateEmailExistence(String email) {
         Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            throw new DuplicateUserException();
+        }
+    }
+
+    private void validateUsernameExistence(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             throw new DuplicateUserException();
         }

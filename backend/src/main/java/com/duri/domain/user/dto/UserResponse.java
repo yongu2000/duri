@@ -11,21 +11,19 @@ import lombok.Getter;
 @Builder
 public class UserResponse {
 
-    private Long id;
     private String email;
     private String username;
     private String name;
-    private Long coupleId;
+    private String coupleCode;
     private String profileImageUrl;
     private LocalDateTime createdAt;
 
     public static UserResponse of(User user) {
         return UserResponse.builder()
-            .id(user.getId())
             .email(user.getEmail())
             .username(user.getUsername())
             .name(user.getName())
-            .coupleId(user.getCouple().getId())
+            .coupleCode(user.getCoupleCode())
             .profileImageUrl(user.getProfileImageUrl())
             .createdAt(user.getCreatedAt())
             .build();

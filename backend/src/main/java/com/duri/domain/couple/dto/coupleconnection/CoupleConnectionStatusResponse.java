@@ -1,4 +1,4 @@
-package com.duri.domain.couple.dto;
+package com.duri.domain.couple.dto.coupleconnection;
 
 import com.duri.domain.couple.constant.CoupleConnectionStatus;
 import com.duri.domain.couple.entity.CoupleConnection;

@@ -1,4 +1,4 @@
-package com.duri.domain.couple.dto;
+package com.duri.domain.couple.dto.coupleconnection;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

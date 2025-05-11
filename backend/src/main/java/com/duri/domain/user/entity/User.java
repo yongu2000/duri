@@ -1,18 +1,16 @@
 package com.duri.domain.user.entity;
 
-import com.duri.domain.couple.entity.Couple;
 import com.duri.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +22,8 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at is null")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Entity
 public class User extends BaseEntity {
 
@@ -39,30 +39,19 @@ public class User extends BaseEntity {
     private String name;
     @Column(nullable = false)
     private String password;
-
     @Setter
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "couple_id")
-    private Couple couple;
+    @Column(name = "couple_code")
+    private String coupleCode;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+    private LocalDate birthday;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;
     private String provider;
-
-    @Builder
-    public User(String email, String username, String password, String name, Role role,
-        String profileImageUrl,
-        String provider) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.role = role;
-        this.profileImageUrl = profileImageUrl;
-        this.provider = provider;
-    }
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
