@@ -134,6 +134,10 @@ export const authService = {
 
     return;
   },
+
+  async editUserProfile(username: string, data: { profileImageUrl: string; name: string }): Promise<void> {
+    await axiosInstance.put(`/user/profile/${username}/edit`, data);
+  },
 };
 
 // API 요청 시 인터셉터를 통해 Access Token 자동 첨부 (Bearer 포함)

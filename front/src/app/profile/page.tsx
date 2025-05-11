@@ -6,9 +6,10 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { coupleService, CoupleProfileResponse } from '@/services/couple';
 import { FaUserCircle } from 'react-icons/fa';
+import { authService } from '@/services/auth';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, setAuth } = useAuth();
   const coupleCode = user?.coupleCode;
   const [profile, setProfile] = useState<CoupleProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,19 @@ export default function ProfilePage() {
     };
     fetchProfile();
   }, [coupleCode]);
+
+  useEffect(() => {
+    // 항상 최신 유저 정보로 갱신
+    const fetchUser = async () => {
+      try {
+        const userInfo = await authService.getUserInfo();
+        setAuth(userInfo);
+      } catch (e) {
+        // ignore
+      }
+    };
+    fetchUser();
+  }, [setAuth]);
 
   if (loading) {
     return (
@@ -57,7 +71,9 @@ export default function ProfilePage() {
           </svg>
         </Link>
         {/* 커플 이름 */}
-        <div className="text-2xl font-extrabold text-gray-900 mb-4 text-center">{profile.coupleName}</div>
+        <div className="text-2xl font-extrabold text-gray-900 mb-1 text-center">{profile.coupleName}</div>
+        {/* 커플 코드 */}
+        <div className="text-center text-gray-400 text-xs mb-3">커플 아이디: {profile.coupleCode}</div>
         {/* 두 사람 프로필 */}
         <div className="flex items-center gap-6 mb-2">
           <div className="flex flex-col items-center">
@@ -94,11 +110,15 @@ export default function ProfilePage() {
           </div>
         </div>
         {/* 커플 소개 */}
-        <div className="text-center text-gray-500 text-sm mb-8">{profile.bio}</div>
+        <div className="text-center text-gray-500 text-sm mb-8">{profile.bio ? profile.bio : '커플 소개가 없습니다'}</div>
         {/* 버튼 목록 */}
         <div className="w-full flex flex-col gap-3">
-          <button className="w-full py-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-base">커플 프로필 수정</button>
-          <button className="w-full py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-base">개인 프로필 수정</button>
+          <Link href="/profile/couple/edit">
+            <button className="w-full py-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-base">커플 프로필 수정</button>
+          </Link>
+          <Link href="/profile/my/edit">
+            <button className="w-full py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-base">개인 프로필 수정</button>
+          </Link>
           <button className="w-full py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-base">좋아요한 글</button>
           <button className="w-full py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-base">쓴 댓글 보기</button>
           <button className="w-full py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-base">개인 인증정보 수정</button>
