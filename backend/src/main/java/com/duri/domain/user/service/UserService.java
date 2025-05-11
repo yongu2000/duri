@@ -4,13 +4,14 @@ import static com.duri.domain.email.constant.EmailRedisKey.PASSWORD_RESET_TOKEN_
 
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.auth.exception.UserDetailNotFoundException;
-import com.duri.domain.user.dto.DuplicateCheckResponse;
 import com.duri.domain.user.dto.PasswordResetRequest;
+import com.duri.domain.user.dto.UserProfileEditRequest;
 import com.duri.domain.user.dto.UserResponse;
 import com.duri.domain.user.entity.User;
 import com.duri.domain.user.exception.PasswordResetTokenNotMatchException;
 import com.duri.domain.user.exception.UserNotFoundException;
 import com.duri.domain.user.repository.UserRepository;
+import com.duri.global.dto.DuplicateCheckResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -64,6 +65,14 @@ public class UserService {
         } else {
             throw new UserDetailNotFoundException();
         }
+    }
+
+    // 자기 자신 OR Admin만 수정할 수 있도록 권한 부여
+    public Void editUserProfile(String username, UserProfileEditRequest request) {
+        User user = findByUsername(username);
+        user.updateName(request.getName());
+        user.updateProfileImageUrl(request.getProfileImageUrl());
+        return null;
     }
 
     public void resetUserPassword(PasswordResetRequest request) {

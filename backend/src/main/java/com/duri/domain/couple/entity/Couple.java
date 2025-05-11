@@ -68,4 +68,16 @@ public class Couple extends BaseEntity {
         }
     }
 
+    public void changeName(String name) {
+        this.name = name;
+    }
+
+    public void changeCode(String code) {
+        this.code = code;
+    }
+
+    public void changeBio(String bio) {
+        this.bio = bio;
+    }
+
 }

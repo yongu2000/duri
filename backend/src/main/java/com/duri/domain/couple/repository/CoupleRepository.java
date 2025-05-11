@@ -11,8 +11,11 @@ public interface CoupleRepository extends JpaRepository<Couple, Long> {
         SELECT c FROM Couple c
         LEFT JOIN FETCH c.userLeft
         LEFT JOIN FETCH c.userRight
-        WHERE c.code = :coupleCode
+        WHERE c.code = :code
         """)
-    Optional<Couple> findByCoupleCode(String coupleCode);
+    Optional<Couple> findCoupleWithUsersByCode(String code);
+
+    Optional<Couple> findByCode(String code);
+
 
 }

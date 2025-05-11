@@ -11,6 +11,7 @@ import lombok.Getter;
 public class CoupleProfileResponse {
 
     private String coupleName;
+    private String coupleCode;
     private String userLeftName;
     private String userLeftProfileImageUrl;
     private String userRightName;
@@ -20,6 +21,7 @@ public class CoupleProfileResponse {
     public static CoupleProfileResponse of(Couple couple) {
         return CoupleProfileResponse.builder()
             .coupleName(couple.getName())
+            .coupleCode(couple.getCode())
             .userLeftName(couple.getUserLeft().getName())
             .userLeftProfileImageUrl(couple.getUserLeft().getProfileImageUrl())
             .userRightName(couple.getUserRight().getName())

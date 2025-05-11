@@ -1,4 +1,4 @@
-package com.duri.domain.user.dto;
+package com.duri.global.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
