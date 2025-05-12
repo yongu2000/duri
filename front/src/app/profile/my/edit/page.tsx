@@ -20,6 +20,8 @@ export default function MyProfileEditPage() {
     name: '',
     profileImage: null as File | null,
     profileImageUrl: '',
+    gender: 'MALE' as 'MALE' | 'FEMALE',
+    birthday: '',
   });
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
@@ -32,6 +34,8 @@ export default function MyProfileEditPage() {
           name: userInfo.name,
           profileImage: null,
           profileImageUrl: userInfo.profileImageUrl || '',
+          gender: userInfo.gender || 'MALE',
+          birthday: userInfo.birthday ? new Date(userInfo.birthday).toISOString().split('T')[0] : '',
         });
         setPreviewUrl(userInfo.profileImageUrl || '');
       } catch (e) {
@@ -67,6 +71,8 @@ export default function MyProfileEditPage() {
       await authService.editUserProfile(user!.username, {
         name: form.name,
         profileImageUrl: imageUrl,
+        gender: form.gender,
+        birthday: form.birthday ? new Date(form.birthday).toISOString() : null,
       });
       toast.success('프로필이 변경되었습니다!');
       router.push('/profile');
@@ -140,6 +146,30 @@ export default function MyProfileEditPage() {
               onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
               className="w-full px-0 py-3 border-0 border-b-2 border-gray-200 text-gray-900 focus:outline-none focus:border-black bg-transparent"
               maxLength={20}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 text-sm mb-1">성별</label>
+            <select
+              name="gender"
+              value={form.gender}
+              onChange={e => setForm(prev => ({ ...prev, gender: e.target.value as 'MALE' | 'FEMALE' }))}
+              className="w-full px-0 py-3 border-0 border-b-2 border-gray-200 text-gray-900 focus:outline-none focus:border-black bg-transparent"
+              required
+            >
+              <option value="MALE">남성</option>
+              <option value="FEMALE">여성</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-gray-700 text-sm mb-1">생일</label>
+            <input
+              type="date"
+              name="birthday"
+              value={form.birthday}
+              onChange={e => setForm(prev => ({ ...prev, birthday: e.target.value }))}
+              className="w-full px-0 py-3 border-0 border-b-2 border-gray-200 text-gray-900 focus:outline-none focus:border-black bg-transparent"
               required
             />
           </div>

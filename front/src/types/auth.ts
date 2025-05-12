@@ -10,6 +10,8 @@ export interface UserInfo extends PublicUserInfo {
   id: number;
   email: string;
   coupleCode?: string;
+  gender?: 'MALE' | 'FEMALE';
+  birthday?: string;
 }
 
 export interface LoginRequest {

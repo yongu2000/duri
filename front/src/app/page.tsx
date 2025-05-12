@@ -18,6 +18,10 @@ export default function HomePage() {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+                // 성별이나 생일이 없으면 프로필 수정 페이지로 리다이렉트
+        if (user && !user.gender || user && !user.birthday) {
+          router.push('/profile/my/edit');
+        }
         // 이미 인증 정보가 있다면 스킵
         if (user && user.coupleCode) return;
         if (user && !user.coupleCode) {

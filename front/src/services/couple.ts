@@ -4,8 +4,12 @@ export interface CoupleProfileResponse {
   coupleName: string;
   coupleCode: string;
   userLeftName: string;
+  userLeftGender: 'MALE' | 'FEMALE';
+  userLeftBirthday: string;
   userLeftProfileImageUrl: string;
   userRightName: string;
+  userRightGender: 'MALE' | 'FEMALE';
+  userRightBirthday: string;
   userRightProfileImageUrl: string;
   bio: string;
 }

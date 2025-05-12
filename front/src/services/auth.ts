@@ -135,7 +135,12 @@ export const authService = {
     return;
   },
 
-  async editUserProfile(username: string, data: { profileImageUrl: string; name: string }): Promise<void> {
+  async editUserProfile(username: string, data: { 
+    profileImageUrl: string; 
+    name: string;
+    gender: 'MALE' | 'FEMALE';
+    birthday: string | null;
+  }): Promise<void> {
     await axiosInstance.put(`/user/profile/${username}/edit`, data);
   },
 };

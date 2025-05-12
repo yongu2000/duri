@@ -7,12 +7,32 @@ import { useAuth } from '@/hooks/useAuth';
 import { coupleService, CoupleProfileResponse } from '@/services/couple';
 import { FaUserCircle } from 'react-icons/fa';
 import { authService } from '@/services/auth';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+
+const calculateAge = (birthday: string) => {
+  const birthDate = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+};
+
+const getGenderText = (gender: 'MALE' | 'FEMALE') => {
+  return gender === 'MALE' ? '남성' : '여성';
+};
 
 export default function ProfilePage() {
   const { user, setAuth } = useAuth();
   const coupleCode = user?.coupleCode;
   const [profile, setProfile] = useState<CoupleProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     if (!coupleCode) return;
@@ -36,12 +56,21 @@ export default function ProfilePage() {
       try {
         const userInfo = await authService.getUserInfo();
         setAuth(userInfo);
+        
+        // 성별이나 생일이 없으면 프로필 수정 페이지로 리다이렉트
+        if (!userInfo.gender || !userInfo.birthday) {
+          router.push('/profile/my/edit');
+        }
+
+        if (user && !user.coupleCode) {
+          router.push('/couple/link');
+        }
       } catch (e) {
         // ignore
       }
     };
     fetchUser();
-  }, [setAuth]);
+  }, [setAuth, router]);
 
   if (loading) {
     return (
@@ -91,6 +120,10 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="text-base font-semibold text-gray-800">{profile.userLeftName}</div>
+            <div className="text-sm text-gray-500">
+              {profile.userLeftGender && getGenderText(profile.userLeftGender)}
+              {profile.userLeftBirthday && ` · ${calculateAge(profile.userLeftBirthday)}세`}
+            </div>
           </div>
           <div className="flex flex-col items-center">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 relative mb-2 flex items-center justify-center">
@@ -107,6 +140,10 @@ export default function ProfilePage() {
               )}
             </div>
             <div className="text-base font-semibold text-gray-800">{profile.userRightName}</div>
+            <div className="text-sm text-gray-500">
+              {profile.userRightGender && getGenderText(profile.userRightGender)}
+              {profile.userRightBirthday && ` · ${calculateAge(profile.userRightBirthday)}세`}
+            </div>
           </div>
         </div>
         {/* 커플 소개 */}
