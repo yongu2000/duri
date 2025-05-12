@@ -71,6 +71,8 @@ public class UserService {
     public Void editUserProfile(String username, UserProfileEditRequest request) {
         User user = findByUsername(username);
         user.updateName(request.getName());
+        user.updateGender(request.getGender());
+        user.updateBirthday(request.getBirthday());
         user.updateProfileImageUrl(request.getProfileImageUrl());
         return null;
     }

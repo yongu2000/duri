@@ -1,7 +1,5 @@
 package com.duri.domain.auth.oauth2;
 
-import com.duri.domain.user.entity.Gender;
-import java.time.LocalDate;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,8 +14,6 @@ public class OAuth2UserInfo {
     private String password;
     private String name;
     private String profileImageUrl;
-    private LocalDate birthday;
-    private Gender gender;
     private String provider;
 
     public static OAuth2UserInfo of(String provider, Map<String, Object> attributes) {
@@ -35,10 +31,6 @@ public class OAuth2UserInfo {
             .email((String) attributes.get("email"))
             .password((String) attributes.get("sub"))
             .profileImageUrl((String) attributes.get("picture"))
-//            .birthday(LocalDate.parse((String) attributes.get("birthday")))
-//            .gender(Gender.of((String) attributes.get("gender")))
-            .birthday(LocalDate.parse("1999-05-29"))
-            .gender(Gender.of("female"))
             .name((String) attributes.get("name"))
             .build();
     }
