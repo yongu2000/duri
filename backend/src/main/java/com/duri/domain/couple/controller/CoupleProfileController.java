@@ -4,6 +4,7 @@ import com.duri.domain.couple.dto.coupleprofile.CoupleEditProfileResponse;
 import com.duri.domain.couple.dto.coupleprofile.CoupleProfileEditRequest;
 import com.duri.domain.couple.dto.coupleprofile.CoupleProfileResponse;
 import com.duri.domain.couple.service.CoupleProfileService;
+import com.duri.domain.couple.service.CoupleService;
 import com.duri.global.dto.DuplicateCheckResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CoupleProfileController {
 
     private final CoupleProfileService coupleProfileService;
+    private final CoupleService coupleService;
 
     @GetMapping("/profile/{coupleCode}")
     public ResponseEntity<CoupleProfileResponse> getCoupleProfile(
@@ -48,7 +50,7 @@ public class CoupleProfileController {
     public ResponseEntity<DuplicateCheckResponse> checkCoupleCodeDuplicate(
         @PathVariable String coupleCode) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(coupleProfileService.checkCoupleCodeDuplicate(coupleCode));
+            .body(coupleService.checkCoupleCodeDuplicate(coupleCode));
     }
 
 }
