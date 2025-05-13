@@ -8,5 +8,11 @@ import lombok.Getter;
 public class SearchApiResponse {
 
     private String placeName;
-    private String addressName;
+    private String placeUrl;
+    private String category;
+    private String address;
+    private String roadAddress;
+    private String phone;
+    private Double x;
+    private Double y;
 }

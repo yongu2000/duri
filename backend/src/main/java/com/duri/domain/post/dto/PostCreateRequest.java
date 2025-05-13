@@ -13,7 +13,6 @@ public class PostCreateRequest {
 
     private String placeName;
     private String placeUrl;
-    private String categoryGroup;
     private String category;
     private String phone;
     private String address;

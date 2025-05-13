@@ -18,8 +18,21 @@ public class KakaoSearchResponse {
         @JsonProperty("place_name")
         private String placeName;
 
+        @JsonProperty("place_url")
+        private String placeUrl;
+
+        @JsonProperty("category_name")
+        private String categoryName;
+
         @JsonProperty("address_name")
         private String addressName;
+
+        @JsonProperty("road_address_name")
+        private String roadAddressName;
+
+        private String phone;
+        private Double x;
+        private Double y;
 
     }
 }

@@ -50,7 +50,16 @@ public class KakaoSearchService implements SearchService {
 
         return Objects.requireNonNull(response.getBody()).getDocuments().stream()
             .filter(doc -> seenNames.add(doc.getPlaceName()))
-            .map(doc -> new SearchApiResponse(doc.getPlaceName(), doc.getAddressName()))
+            .map(doc -> new SearchApiResponse(
+                doc.getPlaceName(),
+                doc.getPlaceUrl(),
+                doc.getCategoryName(),
+                doc.getAddressName(),
+                doc.getRoadAddressName(),
+                doc.getPhone(),
+                doc.getX(),
+                doc.getY()
+            ))
             .collect(Collectors.toList());
     }
 }

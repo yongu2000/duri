@@ -9,9 +9,11 @@ import com.duri.domain.post.repository.PostRepository;
 import com.duri.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class PostService {
 
     private final CoupleService coupleService;
@@ -28,7 +30,6 @@ public class PostService {
 
                 .placeName(request.getPlaceName())
                 .placeUrl(request.getPlaceUrl())
-                .categoryGroup(request.getCategoryGroup())
                 .category(request.getCategory())
                 .phone(request.getPhone())
                 .address(request.getAddress())
@@ -49,7 +50,6 @@ public class PostService {
 
                 .placeName(request.getPlaceName())
                 .placeUrl(request.getPlaceUrl())
-                .categoryGroup(request.getCategoryGroup())
                 .category(request.getCategory())
                 .phone(request.getPhone())
                 .address(request.getAddress())
@@ -64,7 +64,7 @@ public class PostService {
                 .scope(request.getScope())
                 .build();
         }
-
+        postRepository.save(post);
         // 커플에게 별점/한마디 작성 요청 알림 전송
         //
 
