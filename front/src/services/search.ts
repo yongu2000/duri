@@ -2,7 +2,13 @@ import { axiosInstance } from './axios';
 
 export interface SearchResult {
   placeName: string;
-  addressName: string;
+  placeUrl: string;
+  category: string;
+  address: string;
+  roadAddress: string;
+  phone: string;
+  x: number;
+  y: number;
 }
 
 class SearchService {

@@ -1,38 +1,54 @@
-type Post = {
-  id: number;
-  title: string;
-  content: string;
-  date: string;
-  tags: string[];
-  author: string;
-};
+import type { PostCard } from '@/types/post';
+import PostCardComponent from './PostCard';
 
-const dummyPosts: Post[] = [
-  // 예시 데이터, 실제 데이터로 대체 가능
-  // { id: 1, title: '첫 번째 리뷰', content: '정말 좋았어요!', date: '2024-05-01', tags: ['맛집', '데이트'], author: '홍길동' },
+const dummyPosts: PostCard[] = [
+  {
+    id: 1,
+    placeName: '스타벅스 강남점',
+    title: '오늘의 데이트',
+    date: '2024-05-01',
+    images: [
+      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=500',
+      'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=500'
+    ],
+    userLeft: {
+      profile: {
+        profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
+        gender: 'FEMALE',
+        age: 25,
+        name: '지은'
+      },
+      rating: 4.5,
+      comment: '분위기가 좋았어요'
+    },
+    userRight: {
+      profile: {
+        profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
+        gender: 'MALE',
+        age: 27,
+        name: '민수'
+      },
+      rating: 5,
+      comment: '커피가 맛있었어요'
+    },
+    hashtags: ['카페', '데이트', '강남'],
+    scope: 'PUBLIC',
+    likeCount: 42,
+    commentCount: 8,
+    coupleName: '지은 ♥ 민수',
+    address: '서울특별시 강남구 테헤란로 123'
+  }
 ];
 
-export default function PostList({ posts = dummyPosts }: { posts?: Post[] }) {
+export default function PostList({ posts = dummyPosts }: { posts?: PostCard[] }) {
   const hasPosts = posts.length > 0;
 
   return (
     <div className="w-full flex flex-col items-center justify-center py-8">
       {hasPosts ? (
-        <div className="w-full max-w-md space-y-4">
+        <div className="w-full max-w-sm space-y-6">
           {posts.map(post => (
-            <div key={post.id} className="bg-white rounded-2xl shadow p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="text-base font-bold text-gray-900">{post.title}</div>
-                <div className="text-xs text-gray-400">{post.date}</div>
-              </div>
-              <div className="mb-2 text-sm text-gray-700 line-clamp-2">{post.content}</div>
-              <div className="flex gap-2 mb-1">
-                {post.tags.map(tag => (
-                  <span key={tag} className="bg-gray-100 text-gray-700 rounded px-2 py-0.5 text-xs">#{tag}</span>
-                ))}
-              </div>
-              <div className="text-xs text-gray-400 text-right">by {post.author}</div>
-            </div>
+            <PostCardComponent key={post.id} post={post} />
           ))}
         </div>
       ) : (

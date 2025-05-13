@@ -8,6 +8,7 @@ import NavBar from '@/components/NavBar';
 import { useRouter } from 'next/navigation';
 import { searchService, SearchResult } from '@/services/search';
 import { useDebounce } from '@/hooks/useDebounce';
+import { postService } from '@/services/post';
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -18,8 +19,16 @@ export default function CreatePostPage() {
     rating: 0,
     comment: '',
     scope: 'PUBLIC',
+    images: [],
+    placeUrl: '',
+    category: '',
+    address: '',
+    roadAddress: '',
+    phone: '',
+    x: 0,
+    y: 0
   });
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -66,29 +75,65 @@ export default function CreatePostPage() {
     setHasSelectedPlace(false);
   };
 
-  const handleSelectPlace = (placeName: string) => {
-    setFormData(prev => ({ ...prev, subject: placeName }));
+  const handleSelectPlace = (place: SearchResult) => {
+    setFormData(prev => ({
+      ...prev,
+      subject: place.placeName,
+      placeUrl: place.placeUrl,
+      category: place.category,
+      address: place.address,
+      roadAddress: place.roadAddress,
+      phone: place.phone,
+      x: place.x,
+      y: place.y
+    }));
     setSearchResults([]);
     setIsSearching(false);
     setHasSelectedPlace(true);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, image: file }));
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newFiles = files.slice(0, 5 - formData.images.length);
+      
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...newFiles]
+      }));
+
+      newFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: API 연동
-    console.log(formData);
+    if (!hasSelectedPlace) {
+      alert('장소를 검색하여 선택해주세요.');
+      return;
+    }
+
+    try {
+      await postService.createPost(formData);
+      router.push('/'); 
+    } catch (error) {
+      console.error('게시글 작성 실패:', error);
+      alert('게시글 작성에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const renderStar = (index: number) => {
@@ -99,34 +144,42 @@ export default function CreatePostPage() {
 
     return (
       <div className="relative w-8 h-8">
-        <button
-          type="button"
-          onClick={() => setFormData(prev => ({ ...prev, rating: starValue - 2 }))}
-          onMouseEnter={() => setHoverRating(starValue - 2)}
-          onMouseLeave={() => setHoverRating(0)}
-          className="absolute inset-0 w-1/3"
-        />
-        <button
-          type="button"
-          onClick={() => setFormData(prev => ({ ...prev, rating: starValue - 1 }))}
-          onMouseEnter={() => setHoverRating(starValue - 1)}
-          onMouseLeave={() => setHoverRating(0)}
-          className="absolute inset-0 w-1/3 left-1/3"
-        />
-        <button
-          type="button"
-          onClick={() => setFormData(prev => ({ ...prev, rating: starValue }))}
-          onMouseEnter={() => setHoverRating(starValue)}
-          onMouseLeave={() => setHoverRating(0)}
-          className="absolute inset-0 w-1/3 left-2/3"
-        />
-        {isHalfStar ? (
-          <FaStarHalfAlt className="text-2xl text-yellow-400" />
-        ) : isFullStar ? (
-          <FaStar className="text-2xl text-yellow-400" />
-        ) : (
+        <div className="relative w-8 h-8">
           <FaStar className="text-2xl text-gray-300" />
-        )}
+          {isHalfStar && (
+            <div className="absolute inset-0" style={{ width: '37%', overflow: 'hidden' }}>
+              <FaStar className="text-2xl text-yellow-400" style={{ position: 'absolute', left: 0 }} />
+            </div>
+          )}
+          {isFullStar && (
+            <div className="absolute inset-0">
+              <FaStar className="text-2xl text-yellow-400" />
+            </div>
+          )}
+        </div>
+        <div className="absolute inset-0 flex">
+          <button
+            type="button"
+            onClick={() => setFormData(prev => ({ ...prev, rating: starValue - 2 }))}
+            onMouseEnter={() => setHoverRating(starValue - 2)}
+            onMouseLeave={() => setHoverRating(0)}
+            className="w-1/3 h-full"
+          />
+          <button
+            type="button"
+            onClick={() => setFormData(prev => ({ ...prev, rating: starValue - 1 }))}
+            onMouseEnter={() => setHoverRating(starValue - 1)}
+            onMouseLeave={() => setHoverRating(0)}
+            className="w-1/3 h-full"
+          />
+          <button
+            type="button"
+            onClick={() => setFormData(prev => ({ ...prev, rating: starValue }))}
+            onMouseEnter={() => setHoverRating(starValue)}
+            onMouseLeave={() => setHoverRating(0)}
+            className="w-1/3 h-full"
+          />
+        </div>
       </div>
     );
   };
@@ -149,14 +202,18 @@ export default function CreatePostPage() {
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="relative" ref={searchContainerRef}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">주제</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  주제 <span className="text-red-500">*</span>
+                </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={formData.subject}
                     onChange={handleSubjectChange}
                     placeholder="장소를 검색해주세요"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      !hasSelectedPlace && formData.subject ? 'border-red-500' : ''
+                    }`}
                     required
                   />
                   {formData.subject && (
@@ -165,6 +222,7 @@ export default function CreatePostPage() {
                       onClick={() => {
                         setFormData(prev => ({ ...prev, subject: '' }));
                         setSearchResults([]);
+                        setHasSelectedPlace(false);
                       }}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
@@ -172,19 +230,24 @@ export default function CreatePostPage() {
                     </button>
                   )}
                 </div>
+                {!hasSelectedPlace && formData.subject && (
+                  <p className="mt-1 text-sm text-red-500">
+                    검색 결과에서 장소를 선택해주세요
+                  </p>
+                )}
                 {!hasSelectedPlace && searchResults.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg">
                     {searchResults.map((result, index) => (
                       <button
                         key={index}
                         type="button"
-                        onClick={() => handleSelectPlace(result.placeName)}
+                        onClick={() => handleSelectPlace(result)}
                         className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
                       >
                         <FiMapPin className="text-gray-400" />
                         <div>
                           <div className="font-medium">{result.placeName}</div>
-                          <div className="text-sm text-gray-500">{result.addressName}</div>
+                          <div className="text-sm text-gray-500">{result.address}</div>
                         </div>
                       </button>
                     ))}
@@ -209,7 +272,6 @@ export default function CreatePostPage() {
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
                 />
               </div>
 
@@ -224,31 +286,49 @@ export default function CreatePostPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">이미지</label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                  <div className="space-y-1 text-center">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="mx-auto h-32 w-auto" />
-                    ) : (
-                      <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
-                    )}
-                    <div className="flex text-sm text-gray-600">
-                      <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                        <span>이미지 업로드</span>
-                        <input
-                          type="file"
-                          className="sr-only"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                        />
-                      </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">이미지 (최대 5개)</label>
+                <div className="mt-1 flex flex-wrap gap-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="h-32 w-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <FiX className="w-4 h-4" />
+                      </button>
                     </div>
-                  </div>
+                  ))}
+                  {imagePreviews.length < 5 && (
+                    <div className="h-32 w-32 border-2 border-gray-300 border-dashed rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <FiUpload className="mx-auto h-8 w-8 text-gray-400" />
+                        <label className="mt-2 cursor-pointer text-sm text-blue-600 hover:text-blue-500">
+                          <span>이미지 추가</span>
+                          <input
+                            type="file"
+                            className="sr-only"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
                 </div>
+                <p className="mt-2 text-sm text-gray-500">
+                  {imagePreviews.length}/5 이미지 업로드됨
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">별점 (0-10)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">별점 (0-10) <span className="text-red-500">*</span></label>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((index) => (
                     <div key={index}>
@@ -262,7 +342,7 @@ export default function CreatePostPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">한마디</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">한마디 <span className="text-red-500">*</span></label>
                 <textarea
                   value={formData.comment}
                   onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
