@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { postService } from '@/services/post';
-import { Post, CommentResponse, CommentRepliesResponse } from '@/types/post';
+import { postService } from '@/services/posts';
+import { Post, CommentResponse, CommentRepliesResponse } from '@/types/posts';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import CommentComponent from '@/components/post/Comment';

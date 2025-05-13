@@ -1,5 +1,5 @@
 import { axiosInstance } from './axios';
-import { Post, PostPage, PostSummary, CursorResponse, CommentResponse, CommentRepliesResponse } from '@/types/post';
+import { Post, PostPage, PostSummary, CursorResponse, CommentResponse, CommentRepliesResponse } from '@/types/posts';
 
 export interface PostSearchParams {
   page?: number;

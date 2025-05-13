@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useState } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 
@@ -9,10 +10,12 @@ export default function SubBar() {
   return (
     <div className="w-full flex justify-center bg-white">
       <div className="w-full max-w-md flex items-center px-4 py-3 gap-2">
-        <button className="min-w-[96px] px-6 py-2 rounded-xl bg-black text-white font-extrabold text-lg shrink-0 shadow-md flex items-center gap-2">
-          글쓰기
-          <FiEdit2 className="text-xl" />
-        </button>
+        <Link href="/post/create">
+          <button className="min-w-[96px] px-6 py-2 rounded-xl bg-black text-white font-extrabold text-lg shrink-0 shadow-md flex items-center gap-2">
+            글쓰기
+            <FiEdit2 className="text-xl" />
+          </button>
+        </Link>
         <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide whitespace-nowrap">
           {FILTERS.map((filter) => (
             <button

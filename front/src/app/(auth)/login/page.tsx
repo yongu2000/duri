@@ -13,7 +13,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 const loginSchema = z.object({
   username: z.string().min(1, '아이디를 입력해주세요'),
-  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다'),
+  password: z.string().min(3, '비밀번호는 최소 3자 이상이어야 합니다'),
   rememberMe: z.boolean().optional(),
 });
 

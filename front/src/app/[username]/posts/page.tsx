@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { postService, PostSearchParams } from '@/services/post';
-import { PostSummary, PostPage } from '@/types/post';
+import { postService, PostSearchParams } from '@/services/posts';
+import { PostSummary, PostPage } from '@/types/posts';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { format, subDays, subMonths, subYears, startOfDay } from 'date-fns';

@@ -1,4 +1,4 @@
-import { Post } from '@/types/post';
+import { Post } from '@/types/posts';
 import Link from 'next/link';
 import LikeButton from './LikeButton';
 

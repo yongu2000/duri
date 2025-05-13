@@ -89,13 +89,3 @@ export interface CommentRepliesResponse {
   createdAt: string;
   modifiedAt: string;
 }
-
-export interface PostFormData {
-  subject: string;
-  title: string;
-  date: string;
-  rating: number;
-  comment: string;
-  scope: 'PUBLIC' | 'PRIVATE';
-  image?: File;
-}

@@ -18,38 +18,46 @@ export default function HomePage() {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-                // 성별이나 생일이 없으면 프로필 수정 페이지로 리다이렉트
-        if (user && !user.gender || user && !user.birthday) {
-          router.push('/profile/my/edit');
-        }
-        // 이미 인증 정보가 있다면 스킵
-        if (user && user.coupleCode) return;
-        if (user && !user.coupleCode) {
-          router.push('/couple/link');
-        }
-        // refreshToken 쿠키가 있는지 확인
+        // refreshToken 쿠키가 없으면 로그인 페이지로 리다이렉트
         const refreshToken = getCookie('REFRESH_TOKEN');
-        if (!refreshToken) return;
+        if (!refreshToken) {
+          router.push('/login');
+          return;
+        }
 
-        // 사용자 정보 요청 (토큰 재발급은 axiosInstance에서 자동으로 처리)
+        // 사용자 정보 요청
         const userInfo = await authService.getUserInfo();
         
-        // 전역 상태에 사용자 정보 저장
-        setAuth(userInfo);
-
-        // 커플 코드 체크
-        if (!userInfo.coupleCode) {
-          router.push('/couple/link');
+        // 프로필 정보가 없으면 프로필 수정 페이지로 리다이렉트
+        if (!userInfo.gender || !userInfo.birthday) {
+          router.push('/profile/my/edit');
+          return;
         }
 
+        // 커플 코드가 없으면 커플 연결 페이지로 리다이렉트
+        if (!userInfo.coupleCode) {
+          router.push('/couple/link');
+          return;
+        }
+
+        // 모든 검증이 통과되면 사용자 정보 업데이트
+        setAuth(userInfo);
+        
       } catch (error) {
         console.error('인증 초기화 실패:', error);
-        // 에러 발생 시 조용히 실패 (이미 로그인 페이지로의 리다이렉트는 인터셉터에서 처리)
+        router.push('/login');
       }
     };
 
     initializeAuth();
-  }, [user, setAuth, router]);
+  }, []); // 빈 의존성 배열로 변경
+
+  // user 상태 변경 감지를 위한 별도의 useEffect
+  useEffect(() => {
+    if (user && !user.coupleCode) {
+      router.push('/couple/link');
+    }
+  }, [user?.coupleCode, router]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

@@ -4,10 +4,11 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { coupleConnectService } from "@/services/coupleConnect";
 import { ConnectionStatusResponse } from "@/types/coupleConnect";
-import { websocketService } from "@/services/websocket";
 import CoupleConnectionModal from "@/components/CoupleConnectionModal";
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from "@/services/auth";
+import { sseService } from "@/services/sse";
+
 
 export default function CoupleLinkPage() {
   const router = useRouter();
@@ -116,15 +117,14 @@ export default function CoupleLinkPage() {
     }
   };
 
-  // 웹소켓 메시지 처리
+  // SSE 메시지 처리
   useEffect(() => {
     if (!user?.username) return;
 
     const handleStatusUpdate = async () => {
-      console.log('상태 업데이트 메시지 수신됨');
+      console.log('커플 상태 업데이트 메시지 수신됨');
       try {
         // 보낸 요청과 받은 요청 상태 모두 조회
-        console.log('상태 조회 시작');
         const [sent, received] = await Promise.all([
           coupleConnectService.getSentStatus(),
           coupleConnectService.getReceivedStatus()
@@ -147,11 +147,9 @@ export default function CoupleLinkPage() {
             setModalStatus(sent.status);
             setShowConnectionModal(true);
           }
-        } else {
-          console.log('보낸 요청 상태 없음');
         }
 
-        // 받은 요청 상태 처리 - sentStatus와 관계없이 항상 처리
+        // 받은 요청 상태 처리
         if (received) {
           console.log('받은 요청 상태 업데이트:', received);
           setReceivedStatus(received);
@@ -164,8 +162,6 @@ export default function CoupleLinkPage() {
             setModalStatus(received.status);
             setShowConnectionModal(true);
           }
-        } else {
-          console.log('받은 요청 상태 없음');
         }
       } catch (error) {
         console.error("상태 조회 실패:", error);
@@ -181,12 +177,13 @@ export default function CoupleLinkPage() {
 
     loadInitialStatus();
 
-    const removeHandler = websocketService.addStatusUpdateHandler(handleStatusUpdate);
-    websocketService.connect(user.username);
+    // SSE 연결 및 핸들러 등록
+    const removeHandler = sseService.addStatusUpdateHandler(handleStatusUpdate);
+    sseService.connect(user.username);
 
     return () => {
       removeHandler();
-      websocketService.disconnect();
+      sseService.disconnect();
     };
   }, [router, user]);
 

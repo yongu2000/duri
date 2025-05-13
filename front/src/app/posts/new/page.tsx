@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { postService } from '@/services/post';
+import { postService } from '@/services/posts';
 import { toast } from 'react-hot-toast';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {

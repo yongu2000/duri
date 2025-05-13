@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { postService } from '@/services/post';
-import { PostSummary, PostSearchParams } from '@/types/post';
+import { postService } from '@/services/posts';
+import { PostSummary, PostSearchParams } from '@/types/posts';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';

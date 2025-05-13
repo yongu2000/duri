@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { postService } from '@/services/post';
-import { PostSummary, PostSearchParams, PostSearchType, PostSortBy, PostSortDirection } from '@/types/post';
+import { postService } from '@/services/posts';
+import { PostSummary, PostSearchParams, PostSearchType, PostSortBy, PostSortDirection } from '@/types/posts';
 import { toast } from 'react-hot-toast';
 import { format, subDays, subMonths, subYears, startOfDay } from 'date-fns';
 import { ko } from 'date-fns/locale';

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { CommentResponse, CommentRepliesResponse } from '@/types/post';
+import { CommentResponse, CommentRepliesResponse } from '@/types/posts';
 import { useAuth } from '@/hooks/useAuth';
-import { postService } from '@/services/post';
+import { postService } from '@/services/posts';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 

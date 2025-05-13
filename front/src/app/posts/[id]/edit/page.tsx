@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { postService } from '@/services/post';
+import { postService } from '@/services/posts';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
   ClassicEditor,
