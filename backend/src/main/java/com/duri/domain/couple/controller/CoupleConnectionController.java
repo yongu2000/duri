@@ -33,21 +33,24 @@ public class CoupleConnectionController {
     public ResponseEntity<CoupleConnectionStatusResponse> getSentConnectionStatus(
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.ok(coupleConnectionService.getSentConnectionStatus(userDetails));
+        return ResponseEntity.ok(
+            coupleConnectionService.getSentConnectionStatus(userDetails));
     }
 
     @GetMapping("/status/receive")
     public ResponseEntity<CoupleConnectionStatusResponse> getReceivedConnectionStatus(
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.ok(coupleConnectionService.getReceivedConnectionStatus(userDetails));
+        return ResponseEntity.ok(
+            coupleConnectionService.getReceivedConnectionStatus(userDetails));
     }
 
     @PostMapping("/status/confirm")
     public ResponseEntity<Void> confirmConnectionStatus(
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.ok(coupleConnectionService.confirmConnectionStatus(userDetails));
+        return ResponseEntity.ok(
+            coupleConnectionService.confirmConnectionStatus(userDetails));
     }
 
     @PostMapping

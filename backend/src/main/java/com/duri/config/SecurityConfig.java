@@ -36,7 +36,7 @@ public class SecurityConfig {
 
     private static final String[] PERMIT_URL_ARRAY = {
         "/error", "/login", "/join", "/token/reissue", "/email/**", "/user/password/reset",
-        "/ws/**", "/uploads/**"
+        "/ws/**", "/uploads/**", "/sse/**"
     };
     private static final String[] PERMIT_GET_URL_ARRAY = {
         "/user/**"
