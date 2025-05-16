@@ -2,6 +2,7 @@ package com.duri.domain.post.dto;
 
 import com.duri.domain.post.constant.Scope;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -25,5 +26,7 @@ public class PostCreateRequest {
     private String comment;
 
     private Scope scope;
+
+    private List<String> imageUrls;
 
 }

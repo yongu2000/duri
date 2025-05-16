@@ -3,8 +3,11 @@ package com.duri.domain.post.service;
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.couple.entity.Couple;
 import com.duri.domain.couple.service.CoupleService;
+import com.duri.domain.image.entity.Image;
+import com.duri.domain.image.service.ImageService;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.entity.Post;
+import com.duri.domain.post.entity.Post.PostBuilder;
 import com.duri.domain.post.repository.PostRepository;
 import com.duri.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -18,53 +21,46 @@ public class PostService {
 
     private final CoupleService coupleService;
     private final PostRepository postRepository;
+    private final ImageService imageService;
 
     public Void create(CustomUserDetails userDetails, PostCreateRequest request) {
         User user = userDetails.getUser();
-        String coupleCode = user.getCoupleCode();
-        Couple couple = coupleService.findCoupleWithUsersByCode(coupleCode);
-        Post post;
+        Couple couple = coupleService.findCoupleWithUsersByCode(user.getCoupleCode());
+
+        PostBuilder postBuilder = Post.builder()
+            .title(request.getTitle())
+
+            .placeName(request.getPlaceName())
+            .placeUrl(request.getPlaceUrl())
+            .category(request.getCategory())
+            .phone(request.getPhone())
+            .address(request.getAddress())
+            .roadAddress(request.getRoadAddress())
+            .x(request.getX())
+            .y(request.getY())
+
+            .date(request.getDate())
+
+            .couple(couple)
+            .scope(request.getScope());
+
         if (couple.getUserLeft().getId().equals(user.getId())) {
-            post = Post.builder()
-                .title(request.getTitle())
-
-                .placeName(request.getPlaceName())
-                .placeUrl(request.getPlaceUrl())
-                .category(request.getCategory())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .roadAddress(request.getRoadAddress())
-                .x(request.getX())
-                .y(request.getY())
-
-                .date(request.getDate())
+            postBuilder
                 .userLeftRate(request.getRate())
-                .userLeftComment(request.getComment())
-                .couple(couple)
-                .scope(request.getScope())
-                .build();
-
+                .userLeftComment(request.getComment());
         } else {
-            post = Post.builder()
-                .title(request.getTitle())
-
-                .placeName(request.getPlaceName())
-                .placeUrl(request.getPlaceUrl())
-                .category(request.getCategory())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .roadAddress(request.getRoadAddress())
-                .x(request.getX())
-                .y(request.getY())
-
-                .date(request.getDate())
+            postBuilder
                 .userRightRate(request.getRate())
-                .userRightComment(request.getComment())
-                .couple(couple)
-                .scope(request.getScope())
-                .build();
+                .userRightComment(request.getComment());
         }
+        Post post = postBuilder.build();
         postRepository.save(post);
+
+        request.getImageUrls().forEach(imageUrl -> {
+            Image image = imageService.findByUrl(imageUrl);
+            image.setPost(post);
+        });
+
         // 커플에게 별점/한마디 작성 요청 알림 전송
         //
 

@@ -57,5 +57,5 @@ public class Post extends BaseEntity {
     private Couple couple;
 
     private Scope scope;
-
+    
 }
