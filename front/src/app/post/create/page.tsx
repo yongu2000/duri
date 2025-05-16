@@ -20,7 +20,6 @@ export default function CreatePostPage() {
     rating: 0,
     comment: '',
     scope: 'PUBLIC',
-    images: [],
     imageUrls: [],
     placeUrl: '',
     category: '',
@@ -97,13 +96,8 @@ export default function CreatePostPage() {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      const newFiles = files.slice(0, 5 - formData.images.length);
+      const newFiles = files.slice(0, 5 - formData.imageUrls.length);
       
-      setFormData(prev => ({
-        ...prev,
-        images: [...prev.images, ...newFiles]
-      }));
-
       // 각 이미지 즉시 업로드
       for (const file of newFiles) {
         try {
@@ -122,11 +116,6 @@ export default function CreatePostPage() {
         } catch (error) {
           console.error('이미지 업로드 실패:', error);
           alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
-          // 실패한 이미지 제거
-          setFormData(prev => ({
-            ...prev,
-            images: prev.images.filter(f => f !== file)
-          }));
         }
       }
     }
@@ -140,7 +129,6 @@ export default function CreatePostPage() {
       // 상태 업데이트
       setFormData(prev => ({
         ...prev,
-        images: prev.images.filter((_, i) => i !== index),
         imageUrls: prev.imageUrls.filter((_, i) => i !== index)
       }));
       setImagePreviews(prev => prev.filter((_, i) => i !== index));

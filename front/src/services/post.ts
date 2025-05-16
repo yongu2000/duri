@@ -1,5 +1,6 @@
 import { axiosInstance } from './axios';
-import { PostFormData } from '@/types/post';
+import { PostFormData, PostSearchOptions, CursorResponse, CompletePostResponse, PostImageUrlResponse } from '@/types/post';
+import { imageService } from './image';
 
 interface PostCreateRequest {
   title: string;
@@ -45,6 +46,51 @@ class PostService {
       });
     } catch (error) {
       console.error('게시글 작성 중 오류 발생:', error);
+      throw error;
+    }
+  }
+
+  async getCompletePosts(
+    coupleCode: string,
+    cursor?: { date: string; rate: number; idToken: string },
+    size: number = 10,
+    searchOptions?: PostSearchOptions
+  ): Promise<CursorResponse<CompletePostResponse>> {
+    try {
+      const params = new URLSearchParams();
+      if (cursor) {
+        params.append('date', cursor.date);
+        params.append('rate', cursor.rate.toString());
+        params.append('idToken', cursor.idToken);
+      }
+      params.append('size', size.toString());
+      
+      if (searchOptions) {
+        if (searchOptions.searchKeyword) params.append('searchKeyword', searchOptions.searchKeyword);
+        if (searchOptions.startDate) params.append('startDate', searchOptions.startDate);
+        if (searchOptions.endDate) params.append('endDate', searchOptions.endDate);
+        if (searchOptions.sortBy) params.append('sortBy', searchOptions.sortBy);
+        if (searchOptions.sortDirection) params.append('sortDirection', searchOptions.sortDirection);
+      }
+
+      const response = await axiosInstance.get<CursorResponse<CompletePostResponse>>(
+        `/post/complete/${coupleCode}?${params.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('게시글 목록 조회 중 오류 발생:', error);
+      throw error;
+    }
+  }
+
+  async getPostImages(postIdToken: string): Promise<string[]> {
+    try {
+      const response = await axiosInstance.get<PostImageUrlResponse[]>(`/post/image`, {
+        params: { postIdToken }
+      });
+      return response.data.map(img => img.imageUrl);
+    } catch (error) {
+      console.error('이미지 로드 실패:', error);
       throw error;
     }
   }

@@ -1,12 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FiChevronDown, FiChevronUp, FiSliders } from 'react-icons/fi';
+import { PostSearchOptions } from '@/types/post';
 
-export default function SearchBar() {
+interface SearchBarProps {
+  onSearchOptionsChange: (options: PostSearchOptions) => void;
+}
+
+export default function SearchBar({ onSearchOptionsChange }: SearchBarProps) {
   const [search, setSearch] = useState('');
-  const [detailSearch, setDetailSearch] = useState('');
   const [showDetail, setShowDetail] = useState(false);
   const [sort, setSort] = useState('최신순');
   const [dateRange, setDateRange] = useState('전체 기간');
+  const onSearchOptionsChangeRef = useRef(onSearchOptionsChange);
+
+  // onSearchOptionsChange가 변경될 때마다 ref 업데이트
+  useEffect(() => {
+    onSearchOptionsChangeRef.current = onSearchOptionsChange;
+  }, [onSearchOptionsChange]);
+
+  const updateSearchOptions = useCallback(() => {
+    const searchOptions: PostSearchOptions = {
+      searchKeyword: search || undefined,
+      sortBy: sort === '최신순' || sort === '오래된순' ? 'DATE' : 'RATE',
+      sortDirection: sort === '오래된순' || sort === '별점낮은순' ? 'ASC' : 'DESC'
+    };
+
+    // 날짜 범위 설정
+    const today = new Date();
+    if (dateRange !== '전체 기간') {
+      const startDate = new Date();
+      if (dateRange === '최근 1주') {
+        startDate.setDate(today.getDate() - 7);
+      } else if (dateRange === '최근 1달') {
+        startDate.setMonth(today.getMonth() - 1);
+      } else if (dateRange === '최근 1년') {
+        startDate.setFullYear(today.getFullYear() - 1);
+      }
+      searchOptions.startDate = startDate.toISOString().split('T')[0];
+      searchOptions.endDate = today.toISOString().split('T')[0];
+    }
+
+    onSearchOptionsChangeRef.current(searchOptions);
+  }, [search, sort, dateRange]);
+
+  useEffect(() => {
+    updateSearchOptions();
+  }, [updateSearchOptions]);
 
   return (
     <div className="w-full flex flex-col items-center bg-white">
@@ -28,6 +67,7 @@ export default function SearchBar() {
           {showDetail ? <FiChevronUp /> : <FiChevronDown />}
         </button>
       </div>
+      
       {showDetail && (
         <div className="w-full max-w-md px-4 pb-4 animate-fade-in">
           <div className="flex gap-2 mb-2">

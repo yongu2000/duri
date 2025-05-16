@@ -1,24 +1,42 @@
-import { useState } from 'react';
-import type { PostCard as PostCardType } from '@/types/post';
+import { useState, useEffect } from 'react';
+import type { CompletePostResponse } from '@/types/post';
 import { FiChevronLeft, FiChevronRight, FiHeart, FiMessageCircle } from 'react-icons/fi';
-import { FaStar, FaMars, FaVenus } from 'react-icons/fa';
+import { FaStar, FaMars, FaVenus, FaUserCircle } from 'react-icons/fa';
 import { useSwipeable } from 'react-swipeable';
+import { postService } from '@/services/post';
 
 interface PostCardProps {
-  post: PostCardType;
+  post: CompletePostResponse;
 }
 
 export default function PostCard({ post }: PostCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [swipeDelta, setSwipeDelta] = useState(0);
+  const [images, setImages] = useState<string[]>([]);
+  const [isLoadingImages, setIsLoadingImages] = useState(true);
+
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const imageUrls = await postService.getPostImages(post.idToken);
+        setImages(imageUrls);
+      } catch (error) {
+        console.error('이미지 로드 실패:', error);
+      } finally {
+        setIsLoadingImages(false);
+      }
+    };
+
+    loadImages();
+  }, [post.idToken]);
 
   const getPrevImageIndex = (currentIndex: number) => {
-    return currentIndex === 0 ? post.images.length - 1 : currentIndex - 1;
+    return currentIndex === 0 ? images.length - 1 : currentIndex - 1;
   };
 
   const getNextImageIndex = (currentIndex: number) => {
-    return currentIndex === post.images.length - 1 ? 0 : currentIndex + 1;
+    return currentIndex === images.length - 1 ? 0 : currentIndex + 1;
   };
 
   const handlePrevImage = () => {
@@ -51,6 +69,19 @@ export default function PostCard({ post }: PostCardProps) {
     trackMouse: true
   });
 
+  const calculateAge = (birthday: string) => {
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-sm mx-auto">
       {/* 장소, 제목, 날짜 */}
@@ -67,7 +98,11 @@ export default function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* 이미지 슬라이더 */}
-      {post.images.length > 0 && (
+      {isLoadingImages ? (
+        <div className="flex justify-center items-center h-64 bg-gray-100">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      ) : images.length > 0 ? (
         <div className="relative overflow-hidden" {...swipeHandlers}>
           <div
             className="flex transition-transform duration-300 ease-out"
@@ -76,7 +111,7 @@ export default function PostCard({ post }: PostCardProps) {
               transition: isSwiping ? 'none' : 'transform 300ms ease-out'
             }}
           >
-            {post.images.map((image, index) => (
+            {images.map((image, index) => (
               <div
                 key={index}
                 className="w-full flex-shrink-0"
@@ -90,7 +125,7 @@ export default function PostCard({ post }: PostCardProps) {
               </div>
             ))}
           </div>
-          {post.images.length > 1 && (
+          {images.length > 1 && (
             <>
               <button
                 onClick={handlePrevImage}
@@ -105,7 +140,7 @@ export default function PostCard({ post }: PostCardProps) {
                 <FiChevronRight className="w-4 h-4" />
               </button>
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                {post.images.map((_, index) => (
+                {images.map((_, index) => (
                   <div
                     key={index}
                     className={`w-1.5 h-1.5 rounded-full ${
@@ -117,6 +152,10 @@ export default function PostCard({ post }: PostCardProps) {
             </>
           )}
         </div>
+      ) : (
+        <div className="flex justify-center items-center h-64 bg-gray-100">
+          <p className="text-gray-500">이미지가 없습니다</p>
+        </div>
       )}
 
       {/* 평점과 코멘트 */}
@@ -124,53 +163,61 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex items-start gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1.5">
-              <img
-                src={post.userLeft.profile.profileImage}
-                alt="Left user profile"
-                className="w-6 h-6 rounded-full object-cover"
-              />
+              {post.userLeftProfileImageUrl ? (
+                <img
+                  src={post.userLeftProfileImageUrl}
+                  alt="Left user profile"
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+              ) : (
+                <FaUserCircle className="w-9 h-9 text-gray-300" />
+              )}
               <div className="flex items-center gap-1">
-                {post.userLeft.profile.gender === 'MALE' ? (
+                {post.userLeftGender === 'MALE' ? (
                   <FaMars className="text-blue-500 w-3 h-3" />
                 ) : (
                   <FaVenus className="text-pink-500 w-3 h-3" />
                 )}
-                <span className="text-xs text-gray-600">{post.userLeft.profile.name}, {post.userLeft.profile.age}세</span>
+                <span className="text-xs text-gray-600">{post.userLeftName}, {calculateAge(post.userLeftBirthday)}세</span>
               </div>
             </div>
             <div className="flex items-center gap-1">
               <FaStar className="text-yellow-400 w-3 h-3" />
-              <span className="text-sm font-medium">{post.userLeft.rating}</span>
+              <span className="text-sm font-medium">{post.userLeftRate}</span>
             </div>
-            <p className="text-xs text-gray-600 mt-1">{post.userLeft.comment}</p>
+            <p className="text-xs text-gray-600 mt-1">{post.userLeftComment}</p>
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1.5">
-              <img
-                src={post.userRight.profile.profileImage}
-                alt="Right user profile"
-                className="w-6 h-6 rounded-full object-cover"
-              />
+              {post.userRightProfileImageUrl ? (
+                <img
+                  src={post.userRightProfileImageUrl}
+                  alt="Right user profile"
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+              ) : (
+                <FaUserCircle className="w-9 h-9 text-gray-300" />
+              )}
               <div className="flex items-center gap-1">
-                {post.userRight.profile.gender === 'MALE' ? (
+                {post.userRightGender === 'MALE' ? (
                   <FaMars className="text-blue-500 w-3 h-3" />
                 ) : (
                   <FaVenus className="text-pink-500 w-3 h-3" />
                 )}
-                <span className="text-xs text-gray-600">{post.userRight.profile.name}, {post.userRight.profile.age}세</span>
+                <span className="text-xs text-gray-600">{post.userRightName}, {calculateAge(post.userRightBirthday)}세</span>
               </div>
             </div>
             <div className="flex items-center gap-1">
               <FaStar className="text-yellow-400 w-3 h-3" />
-              <span className="text-sm font-medium">{post.userRight.rating}</span>
+              <span className="text-sm font-medium">{post.userRightRate}</span>
             </div>
-            <p className="text-xs text-gray-600 mt-1">{post.userRight.comment}</p>
+            <p className="text-xs text-gray-600 mt-1">{post.userRightComment}</p>
           </div>
         </div>
 
         {/* 해시태그 */}
         <div className="flex flex-wrap gap-1">
-          {post.hashtags.map((tag, index) => (
+          {post.hashtags?.map((tag, index) => (
             <span
               key={index}
               className="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full"
@@ -184,11 +231,11 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex items-center gap-4 text-gray-500">
           <div className="flex items-center gap-1">
             <FiHeart className="w-4 h-4" />
-            <span className="text-xs">{post.likeCount}</span>
+            <span className="text-xs">{post.likeCount || 0}</span>
           </div>
           <div className="flex items-center gap-1">
             <FiMessageCircle className="w-4 h-4" />
-            <span className="text-xs">{post.commentCount}</span>
+            <span className="text-xs">{post.commentCount || 0}</span>
           </div>
         </div>
       </div>

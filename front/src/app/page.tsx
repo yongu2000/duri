@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/auth';
@@ -10,10 +10,13 @@ import NavBar from '@/components/NavBar';
 import SubBar from '@/components/SubBar';
 import SearchBar from '@/components/SearchBar';
 import PostList from '@/components/PostList';
+import type { PostSearchOptions } from '@/types/post';
 
 export default function HomePage() {
   const { user, setAuth } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchOptions, setSearchOptions] = useState<PostSearchOptions>({});
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -46,26 +49,39 @@ export default function HomePage() {
       } catch (error) {
         console.error('인증 초기화 실패:', error);
         router.push('/login');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     initializeAuth();
-  }, []); // 빈 의존성 배열로 변경
+  }, [router, setAuth]);
 
   // user 상태 변경 감지를 위한 별도의 useEffect
   useEffect(() => {
     if (user && !user.coupleCode) {
       router.push('/couple/link');
     }
-  }, [user?.coupleCode, router]);
+  }, [user, router]);
+
+  const handleSearchOptionsChange = (options: PostSearchOptions) => {
+    setSearchOptions(options);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <NavBar />
       <SubBar />
-      <SearchBar />
-      <PostList />
-
+      <SearchBar onSearchOptionsChange={handleSearchOptionsChange} />
+      <PostList searchOptions={searchOptions} />
     </div>
   );
 }

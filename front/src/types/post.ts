@@ -1,19 +1,18 @@
 export interface PostFormData {
-  subject: string;
   title: string;
+  subject: string;
+  placeUrl: string;
+  category: string;
+  phone: string;
+  address: string;
+  roadAddress: string;
+  x: number;
+  y: number;
   date: string;
   rating: number;
   comment: string;
   scope: 'PUBLIC' | 'PRIVATE';
-  images: File[];
   imageUrls: string[];
-  placeUrl: string;
-  category: string;
-  address: string;
-  roadAddress: string;
-  phone: string;
-  x: number;
-  y: number;
 }
 
 interface UserProfile {
@@ -45,4 +44,67 @@ export interface PostCard {
   commentCount: number;
   coupleName: string;
   address: string;
+}
+
+export interface PostSearchOptions {
+  searchKeyword?: string;
+  startDate?: string;
+  endDate?: string;
+  sortBy?: 'DATE' | 'RATE';
+  sortDirection?: 'ASC' | 'DESC';
+}
+
+export interface CursorResponse<T> {
+  items: T[];
+  nextCursor?: {
+    date: string;
+    rate: number;
+    idToken: string;
+  } | null;
+  hasNext: boolean;
+}
+
+export interface PostImageUrlResponse {
+  imageUrl: string;
+}
+
+export interface PostUser {
+  id: string;
+  nickname: string;
+  profileImageUrl: string | null;
+  gender?: 'MALE' | 'FEMALE';
+  birthday?: string;
+}
+
+export interface CompletePostResponse {
+  idToken: string;
+  title: string;
+  placeName: string;
+  address: string;
+  category: string;
+  date: string;
+  rate: number;
+  userLeftProfileImageUrl: string | null;
+  userLeftGender: 'MALE' | 'FEMALE';
+  userLeftBirthday: string;
+  userLeftName: string;
+  userLeftRate: number;
+  userLeftComment: string;
+  userRightProfileImageUrl: string | null;
+  userRightGender: 'MALE' | 'FEMALE';
+  userRightBirthday: string;
+  userRightName: string;
+  userRightRate: number;
+  userRightComment: string;
+  coupleCode: string;
+  coupleName: string;
+  scope: 'PUBLIC' | 'PRIVATE';
+  images: string[];
+  hashtags?: string[];
+  likeCount?: number;
+  commentCount?: number;
+}
+
+export interface PostImageRequest {
+  postIdToken: string;
 }
