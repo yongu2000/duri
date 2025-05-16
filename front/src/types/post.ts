@@ -6,6 +6,7 @@ export interface PostFormData {
   comment: string;
   scope: 'PUBLIC' | 'PRIVATE';
   images: File[];
+  imageUrls: string[];
   placeUrl: string;
   category: string;
   address: string;

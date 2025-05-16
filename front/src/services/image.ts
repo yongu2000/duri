@@ -16,6 +16,15 @@ export const imageService = {
     });
     
     return response.data.imageUrl;
+  },
+
+  async deleteImage(imageUrl: string): Promise<void> {
+    try {
+      await axiosInstance.delete(`/image/delete/${encodeURIComponent(imageUrl)}`);
+    } catch (error) {
+      console.error('이미지 삭제 중 오류 발생:', error);
+      throw error;
+    }
   }
 };
 

@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { searchService, SearchResult } from '@/services/search';
 import { useDebounce } from '@/hooks/useDebounce';
 import { postService } from '@/services/post';
+import { imageService } from '@/services/image';
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function CreatePostPage() {
     comment: '',
     scope: 'PUBLIC',
     images: [],
+    imageUrls: [],
     placeUrl: '',
     category: '',
     address: '',
@@ -92,7 +94,7 @@ export default function CreatePostPage() {
     setHasSelectedPlace(true);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       const newFiles = files.slice(0, 5 - formData.images.length);
@@ -102,22 +104,50 @@ export default function CreatePostPage() {
         images: [...prev.images, ...newFiles]
       }));
 
-      newFiles.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreviews(prev => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
+      // 각 이미지 즉시 업로드
+      for (const file of newFiles) {
+        try {
+          const imageUrl = await imageService.uploadImage(file);
+          setFormData(prev => ({
+            ...prev,
+            imageUrls: [...prev.imageUrls, imageUrl]
+          }));
+          
+          // 미리보기 생성
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreviews(prev => [...prev, reader.result as string]);
+          };
+          reader.readAsDataURL(file);
+        } catch (error) {
+          console.error('이미지 업로드 실패:', error);
+          alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+          // 실패한 이미지 제거
+          setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter(f => f !== file)
+          }));
+        }
+      }
     }
   };
 
-  const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  const removeImage = async (index: number) => {
+    try {
+      // 서버에서 이미지 삭제
+      await imageService.deleteImage(formData.imageUrls[index]);
+      
+      // 상태 업데이트
+      setFormData(prev => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== index),
+        imageUrls: prev.imageUrls.filter((_, i) => i !== index)
+      }));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error('이미지 삭제 실패:', error);
+      alert('이미지 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

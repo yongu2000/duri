@@ -15,6 +15,7 @@ interface PostCreateRequest {
   rate: number;
   comment: string;
   scope: 'PUBLIC' | 'PRIVATE';
+  imageUrls: string[];
 }
 
 class PostService {
@@ -32,7 +33,8 @@ class PostService {
       date: formData.date,
       rate: formData.rating,
       comment: formData.comment,
-      scope: formData.scope
+      scope: formData.scope,
+      imageUrls: formData.imageUrls || []
     };
 
     try {
