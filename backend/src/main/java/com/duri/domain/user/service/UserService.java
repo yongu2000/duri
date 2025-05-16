@@ -61,7 +61,7 @@ public class UserService {
         if (principal instanceof UserDetails) {
             CustomUserDetails userDetails = (CustomUserDetails) principal;
             User user = findByUsername(userDetails.getUsername()); // DB 조회
-            return UserResponse.of(user);
+            return UserResponse.from(user);
         } else {
             throw new UserDetailNotFoundException();
         }

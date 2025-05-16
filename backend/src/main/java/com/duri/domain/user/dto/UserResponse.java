@@ -22,7 +22,7 @@ public class UserResponse {
     private Gender gender;
     private LocalDateTime createdAt;
 
-    public static UserResponse of(User user) {
+    public static UserResponse from(User user) {
         return UserResponse.builder()
             .email(user.getEmail())
             .username(user.getUsername())

@@ -18,11 +18,11 @@ public class CoupleProfileService {
     private final CoupleService coupleService;
 
     public CoupleProfileResponse getProfile(String coupleCode) {
-        return CoupleProfileResponse.of(coupleService.findCoupleWithUsersByCode(coupleCode));
+        return CoupleProfileResponse.from(coupleService.findCoupleWithUsersByCode(coupleCode));
     }
 
     public CoupleEditProfileResponse getEditProfile(String coupleCode) {
-        return CoupleEditProfileResponse.of(coupleService.findByCode(coupleCode));
+        return CoupleEditProfileResponse.from(coupleService.findByCode(coupleCode));
     }
 
     // 자신이 Couple에 속할 때만 수정할 수 있도록 권한 설정

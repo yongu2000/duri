@@ -3,6 +3,7 @@ package com.duri.domain.image.service;
 import com.duri.domain.image.entity.Image;
 import com.duri.domain.image.exception.ImageNotFoundException;
 import com.duri.domain.image.repository.ImageRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,5 +41,9 @@ public class ImageService {
 
     public Image findByUrl(String url) {
         return imageRepository.findByUrl(url).orElseThrow(ImageNotFoundException::new);
+    }
+
+    public List<Image> findByPostId(Long postId) {
+        return imageRepository.findByPostId(postId);
     }
 }

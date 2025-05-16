@@ -1,10 +1,13 @@
 package com.duri.domain.post.entity;
 
 import com.duri.domain.couple.entity.Couple;
+import com.duri.domain.post.constant.PostStatus;
 import com.duri.domain.post.constant.Scope;
 import com.duri.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,6 +50,8 @@ public class Post extends BaseEntity {
 
     private LocalDate date;
 
+    private Integer rate;
+
     private Integer userLeftRate;
     private String userLeftComment;
     private Integer userRightRate;
@@ -56,6 +61,10 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "couple_id", nullable = false)
     private Couple couple;
 
+    @Enumerated(EnumType.STRING)
     private Scope scope;
-    
+
+    @Enumerated(EnumType.STRING)
+    private PostStatus status;
+
 }

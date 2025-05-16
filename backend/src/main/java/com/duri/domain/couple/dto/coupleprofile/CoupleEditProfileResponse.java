@@ -14,7 +14,7 @@ public class CoupleEditProfileResponse {
     private String coupleCode;
     private String bio;
 
-    public static CoupleEditProfileResponse of(Couple couple) {
+    public static CoupleEditProfileResponse from(Couple couple) {
         return CoupleEditProfileResponse.builder()
             .coupleName(couple.getName())
             .coupleCode(couple.getCode())

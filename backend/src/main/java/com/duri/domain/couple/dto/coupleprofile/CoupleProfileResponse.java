@@ -24,7 +24,7 @@ public class CoupleProfileResponse {
     private String userRightProfileImageUrl;
     private String bio;
 
-    public static CoupleProfileResponse of(Couple couple) {
+    public static CoupleProfileResponse from(Couple couple) {
         return CoupleProfileResponse.builder()
             .coupleName(couple.getName())
             .coupleCode(couple.getCode())

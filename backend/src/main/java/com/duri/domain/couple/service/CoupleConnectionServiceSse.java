@@ -113,7 +113,7 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
 
             coupleConnectionSseEmitterService.send(respondent.getUsername(), true);
 
-            return CoupleConnectionStatusResponse.of(connection);
+            return CoupleConnectionStatusResponse.from(connection);
         }
 
         // WebSocket 커플 연결 요청 보내기
@@ -123,7 +123,7 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
         //
         //-> FCM 이용해서 푸시 알람 생성
 
-        return CoupleConnectionStatusResponse.of(coupleConnection.get());
+        return CoupleConnectionStatusResponse.from(coupleConnection.get());
     }
 
     public Void confirmConnectionStatus(CustomUserDetails userDetails) {
@@ -146,12 +146,12 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
         CoupleConnectionStatus status = coupleConnection.getStatus();
 
         if (status.equals(PENDING) || status.equals(REJECT)) {
-            return CoupleConnectionStatusResponse.of(coupleConnection);
+            return CoupleConnectionStatusResponse.from(coupleConnection);
         }
 
         if (status.equals(ACCEPT)) {
             coupleConnectionRepository.delete(coupleConnection);
-            return CoupleConnectionStatusResponse.of(coupleConnection);
+            return CoupleConnectionStatusResponse.from(coupleConnection);
         }
         return null;
     }
@@ -168,7 +168,7 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
         CoupleConnectionStatus status = coupleConnection.getStatus();
 
         if (status.equals(PENDING) || status.equals(CANCEL)) {
-            return CoupleConnectionStatusResponse.of(coupleConnection);
+            return CoupleConnectionStatusResponse.from(coupleConnection);
         }
 
         return null;

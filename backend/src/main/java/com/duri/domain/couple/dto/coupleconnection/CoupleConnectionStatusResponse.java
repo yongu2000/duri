@@ -15,7 +15,7 @@ public class CoupleConnectionStatusResponse {
     private String respondentName;
     private CoupleConnectionStatus status;
 
-    public static CoupleConnectionStatusResponse of(CoupleConnection coupleConnection) {
+    public static CoupleConnectionStatusResponse from(CoupleConnection coupleConnection) {
         return CoupleConnectionStatusResponse.builder()
             .requesterName(coupleConnection.getRequester().getName())
             .respondentName(coupleConnection.getRespondent().getName())
