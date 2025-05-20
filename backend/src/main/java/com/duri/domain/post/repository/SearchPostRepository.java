@@ -12,10 +12,9 @@ public interface SearchPostRepository {
 
     List<Post> findCompletePostsBySearchOptions(PostCursor cursor, int size,
         PostSearchOptions postSearchOptions, String coupleCode);
-
-
+    
     List<Post> findPendingPostsBySearchOptions(PostCursor cursor, int size,
-        PostSearchOptions postSearchOptions);
+        PostSearchOptions postSearchOptions, String coupleCode);
 
 
 }

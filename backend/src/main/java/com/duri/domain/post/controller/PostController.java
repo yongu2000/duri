@@ -2,6 +2,7 @@ package com.duri.domain.post.controller;
 
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.post.dto.CompletePostResponse;
+import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.dto.PostCursor;
 import com.duri.domain.post.dto.PostImageRequest;
@@ -64,6 +65,26 @@ public class PostController {
     ) {
         return ResponseEntity.ok(
             postService.getAllPostsWithSearchOptionsToCursor(cursor, size, postSearchOptions,
+                coupleCode));
+    }
+
+    @GetMapping("/pending/{coupleCode}/count")
+    public ResponseEntity<PendingPostCountResponse> getPendingPostsCount(
+        @PathVariable String coupleCode
+    ) {
+        return ResponseEntity.ok(
+            postService.getPendingPostCount(coupleCode));
+    }
+
+    @GetMapping("/pending/{coupleCode}")
+    public ResponseEntity<CursorResponse<CompletePostResponse, PostCursor>> getPendingPostsByCouple(
+        @RequestParam(required = false) PostCursor cursor,
+        @RequestParam(defaultValue = "10") int size,
+        @ModelAttribute PostSearchOptions postSearchOptions,
+        @PathVariable String coupleCode
+    ) {
+        return ResponseEntity.ok(
+            postService.getPendingPostsWithSearchOptionsToCursor(cursor, size, postSearchOptions,
                 coupleCode));
     }
 

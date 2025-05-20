@@ -75,7 +75,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
 
     @Override
     public List<Post> findPendingPostsBySearchOptions(PostCursor cursor, int size,
-        PostSearchOptions searchOptions) {
+        PostSearchOptions searchOptions, String coupleCode) {
         QUser user2 = new QUser("user2");
 
         return queryFactory
@@ -88,7 +88,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
                     searchOptions.getSortBy()),
                 searchKeywordContains(searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
-                post.status.eq(PostStatus.PENDING)
+                post.status.eq(PostStatus.PENDING),
+                post.couple.code.eq(coupleCode)
             )
             .orderBy(getOrderSpecifier(searchOptions.getSortBy(), searchOptions.getSortDirection()))
             .limit(size)
