@@ -54,13 +54,15 @@ export interface PostSearchOptions {
   sortDirection?: 'ASC' | 'DESC';
 }
 
+export interface PostCursor {
+  date: string;
+  rate: number;
+  idToken: string;
+}
+
 export interface CursorResponse<T> {
   items: T[];
-  nextCursor?: {
-    date: string;
-    rate: number;
-    idToken: string;
-  } | null;
+  nextCursor: PostCursor | null;
   hasNext: boolean;
 }
 

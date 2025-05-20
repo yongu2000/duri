@@ -19,6 +19,10 @@ interface PostCreateRequest {
   imageUrls: string[];
 }
 
+interface PendingPostCountResponse {
+  count: number;
+}
+
 class PostService {
   async createPost(formData: PostFormData): Promise<void> {
     const requestData: PostCreateRequest = {
@@ -91,6 +95,49 @@ class PostService {
       return response.data.map(img => img.imageUrl);
     } catch (error) {
       console.error('이미지 로드 실패:', error);
+      throw error;
+    }
+  }
+
+  async getPendingPostsCount(coupleCode: string): Promise<PendingPostCountResponse> {
+    try {
+      const response = await axiosInstance.get<PendingPostCountResponse>(`/post/pending/${coupleCode}/count`);
+      return response.data;
+    } catch (error) {
+      console.error('미완성 게시물 수 조회 중 오류 발생:', error);
+      throw error;
+    }
+  }
+
+  async getPendingPosts(
+    coupleCode: string,
+    cursor?: { date: string; rate: number; idToken: string },
+    size: number = 10,
+    searchOptions?: PostSearchOptions
+  ): Promise<CursorResponse<CompletePostResponse>> {
+    try {
+      const params = new URLSearchParams();
+      if (cursor) {
+        params.append('date', cursor.date);
+        params.append('rate', cursor.rate.toString());
+        params.append('idToken', cursor.idToken);
+      }
+      params.append('size', size.toString());
+      
+      if (searchOptions) {
+        if (searchOptions.searchKeyword) params.append('searchKeyword', searchOptions.searchKeyword);
+        if (searchOptions.startDate) params.append('startDate', searchOptions.startDate);
+        if (searchOptions.endDate) params.append('endDate', searchOptions.endDate);
+        if (searchOptions.sortBy) params.append('sortBy', searchOptions.sortBy);
+        if (searchOptions.sortDirection) params.append('sortDirection', searchOptions.sortDirection);
+      }
+
+      const response = await axiosInstance.get<CursorResponse<CompletePostResponse>>(
+        `/post/pending/${coupleCode}?${params.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('미완성 게시글 목록 조회 중 오류 발생:', error);
       throw error;
     }
   }

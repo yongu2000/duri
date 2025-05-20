@@ -10,6 +10,7 @@ import NavBar from '@/components/NavBar';
 import SubBar from '@/components/SubBar';
 import SearchBar from '@/components/SearchBar';
 import PostList from '@/components/PostList';
+import PendingPostsAlert from '@/components/PendingPostsAlert';
 import type { PostSearchOptions } from '@/types/post';
 
 export default function HomePage() {
@@ -55,14 +56,14 @@ export default function HomePage() {
     };
 
     initializeAuth();
-  }, [router, setAuth]);
+  }, []); // 빈 의존성 배열로 변경
 
   // user 상태 변경 감지를 위한 별도의 useEffect
   useEffect(() => {
     if (user && !user.coupleCode) {
       router.push('/couple/link');
     }
-  }, [user, router]);
+  }, [user?.coupleCode, router]);
 
   const handleSearchOptionsChange = (options: PostSearchOptions) => {
     setSearchOptions(options);
@@ -81,6 +82,7 @@ export default function HomePage() {
       <NavBar />
       <SubBar />
       <SearchBar onSearchOptionsChange={handleSearchOptionsChange} />
+      <PendingPostsAlert />
       <PostList searchOptions={searchOptions} />
     </div>
   );

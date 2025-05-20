@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import NotificationBell from './NotificationBell';
 
 export default function NavBar() {
   const { user } = useAuth();
@@ -35,9 +36,7 @@ export default function NavBar() {
               <FaUserCircle className="w-9 h-9 text-gray-300" />
             )}
           </Link>
-          <button className="text-2xl text-gray-400 hover:text-indigo-500">
-            <FiBell />
-          </button>
+          <NotificationBell />
           <button className="text-2xl text-gray-400 hover:text-indigo-500">
             <FiMenu />
           </button>
