@@ -1,6 +1,7 @@
 package com.duri.domain.user.dto;
 
 import com.duri.domain.user.entity.Gender;
+import com.duri.domain.user.entity.Position;
 import com.duri.domain.user.entity.User;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class UserResponse {
     private String profileImageUrl;
     private LocalDate birthday;
     private Gender gender;
+    private Position position;
     private LocalDateTime createdAt;
 
     public static UserResponse from(User user) {
@@ -31,6 +33,7 @@ public class UserResponse {
             .profileImageUrl(user.getProfileImageUrl())
             .birthday(user.getBirthday())
             .gender(user.getGender())
+            .position(user.getPosition())
             .createdAt(user.getCreatedAt())
             .build();
     }

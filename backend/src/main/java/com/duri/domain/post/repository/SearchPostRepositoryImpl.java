@@ -98,39 +98,55 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
 
     private BooleanExpression cursorDirection(PostCursor cursor, PostSortDirection sortDirection,
         PostSortBy sortBy) {
-        if (cursor == null) {
+        if (cursor.getId() == null) {
             return null;
         }
         boolean isAsc = sortDirection == ASC;
         return switch (sortBy) {
             case RATE -> {
-                // rate 기준
-                BooleanExpression rateCmp = isAsc
-                    ? post.rate.gt(cursor.getRate())
-                    : post.rate.lt(cursor.getRate());
+                if (cursor.getDate() == null) {
+                    // rate가 같고 date가 null인 데이터는 ID 기준으로 정렬
+                    yield post.rate.lt(cursor.getRate())
+                        .or(
+                            post.rate.eq(cursor.getRate())
+                                .and(post.date.isNull())
+                                .and(post.id.lt(cursor.getId()))
+                        );
+                } else {
+                    // rate 기준 정렬
+                    BooleanExpression rateCmp = isAsc
+                        ? post.rate.gt(cursor.getRate())
+                        : post.rate.lt(cursor.getRate());
 
-                // rate 같고, date 기준 (날짜는 최신순 고정 = DESC)
-                BooleanExpression dateCmp = post.rate.eq(cursor.getRate())
-                    .and(post.date.lt(cursor.getDate()));
+                    // rate 같고, date 기준 (날짜는 최신순 고정 = DESC)
+                    BooleanExpression dateCmp = post.rate.eq(cursor.getRate())
+                        .and(post.date.isNotNull())
+                        .and(post.date.lt(cursor.getDate()));
 
-                // rate, date 같고, id 기준
-                BooleanExpression idCmp = post.rate.eq(cursor.getRate())
-                    .and(post.date.eq(cursor.getDate()))
-                    .and(isAsc ? post.id.gt(cursor.getId()) : post.id.lt(cursor.getId()));
+                    // rate, date 같고, id 기준
+                    BooleanExpression idCmp = post.rate.eq(cursor.getRate())
+                        .and(post.date.eq(cursor.getDate()))
+                        .and(post.id.lt(cursor.getId()));
 
-                yield rateCmp.or(dateCmp).or(idCmp);
+                    yield rateCmp.or(dateCmp).or(idCmp);
+                }
             }
             default -> {
-                // 최신순 또는 기본: date 기준 (ASC/Desc 그대로 따름)
-                BooleanExpression dateCmp = isAsc
-                    ? post.date.gt(cursor.getDate())
-                    : post.date.lt(cursor.getDate());
-
-                // date 같고 id 기준
-                BooleanExpression idCmp = post.date.eq(cursor.getDate())
-                    .and(isAsc ? post.id.gt(cursor.getId()) : post.id.lt(cursor.getId()));
-
-                yield dateCmp.or(idCmp);
+                if (cursor.getDate() == null) {
+                    // 날짜가 없는 데이터만 가져오기 (ID 기준)
+                    yield post.date.isNull().and(post.id.lt(cursor.getId()));
+                } else {
+                    // 날짜가 있는 데이터는 날짜 내림차순 + ID
+                    // 날짜가 없는 데이터는 ID 기준
+                    yield post.date.isNotNull()
+                        .and(
+                            post.date.lt(cursor.getDate())
+                                .or(post.date.eq(cursor.getDate()).and(post.id.lt(cursor.getId())))
+                        )
+                        .or(
+                            post.date.isNull().and(post.id.lt(cursor.getId()))
+                        );
+                }
             }
         };
     }

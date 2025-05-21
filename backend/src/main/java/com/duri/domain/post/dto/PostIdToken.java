@@ -4,7 +4,7 @@ import com.duri.global.util.AESUtil;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class PostImageRequest {
+public class PostIdToken {
 
     private String postIdToken;
 

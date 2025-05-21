@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class CompletePostResponse {
+public class PostResponse {
 
     private String idToken;
     private String title;
@@ -44,8 +44,8 @@ public class CompletePostResponse {
 
     private Scope scope;
 
-    public static CompletePostResponse from(Post post) {
-        return CompletePostResponse.builder()
+    public static PostResponse from(Post post) {
+        return PostResponse.builder()
             .idToken(AESUtil.encrypt(post.getId().toString()))
             .title(post.getTitle())
             .placeName(post.getPlaceName())

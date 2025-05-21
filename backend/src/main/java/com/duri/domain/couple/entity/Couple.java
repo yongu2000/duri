@@ -1,6 +1,7 @@
 package com.duri.domain.couple.entity;
 
 import com.duri.domain.user.entity.Gender;
+import com.duri.domain.user.entity.Position;
 import com.duri.domain.user.entity.User;
 import com.duri.global.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -39,32 +40,47 @@ public class Couple extends BaseEntity {
     private User userRight;
     private String bio;
 
-    public static Couple of(User a, User b) {
+    public static Couple of(User userA, User userB) {
         Couple couple = new Couple();
         couple.code = UUID.randomUUID().toString();
 
         // 성별에 따라 순서 결정하도록 여기서 결정
-        determineCoupleUserSequence(couple, a, b);
+        determineCoupleUserSequence(couple, userA, userB);
 
-        a.setCoupleCode(couple.code);
-        b.setCoupleCode(couple.code);
+        userA.setCoupleCode(couple.code);
+        userB.setCoupleCode(couple.code);
         couple.name = couple.getUserLeft().getName() + "&" + couple.getUserRight().getName();
 
         return couple;
     }
 
-    private static void determineCoupleUserSequence(Couple couple, User a, User b) {
-        Gender genderA = a.getGender();
-        Gender genderB = b.getGender();
+    private static void determineCoupleUserSequence(Couple couple, User userA, User userB) {
+        Gender genderA = userA.getGender();
+        Gender genderB = userB.getGender();
 
         // 성별이 다르면: male이 left, female이 right
         if (!genderA.equals(genderB)) {
-            couple.userLeft = genderA == Gender.MALE ? a : b;
-            couple.userRight = genderA == Gender.FEMALE ? a : b;
+            switch (genderA) {
+                case Gender.MALE:
+                    couple.userLeft = userA;
+                    userA.setPosition(Position.LEFT);
+                    couple.userRight = userB;
+                    userB.setPosition(Position.RIGHT);
+                    break;
+
+                case FEMALE:
+                    couple.userLeft = userB;
+                    userB.setPosition(Position.LEFT);
+                    couple.userRight = userA;
+                    userA.setPosition(Position.RIGHT);
+                    break;
+            }
         } else {
             // 성별 같으면 순서대로 할당
-            couple.userLeft = a;
-            couple.userRight = b;
+            couple.userLeft = userA;
+            userA.setPosition(Position.LEFT);
+            couple.userRight = userB;
+            userB.setPosition(Position.RIGHT);
         }
     }
 

@@ -9,26 +9,29 @@ import com.duri.domain.notification.constant.NotificationType;
 import com.duri.domain.notification.entity.Notification;
 import com.duri.domain.notification.service.NotificationService;
 import com.duri.domain.post.constant.PostStatus;
-import com.duri.domain.post.dto.CompletePostResponse;
 import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.dto.PostCursor;
-import com.duri.domain.post.dto.PostImageRequest;
+import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostImageUrlResponse;
+import com.duri.domain.post.dto.PostResponse;
 import com.duri.domain.post.dto.PostSearchOptions;
 import com.duri.domain.post.entity.Post;
 import com.duri.domain.post.entity.Post.PostBuilder;
+import com.duri.domain.post.exception.PostNotFoundException;
 import com.duri.domain.post.repository.PostRepository;
 import com.duri.domain.user.entity.User;
 import com.duri.global.dto.CursorResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class PostService {
 
     private final CoupleService coupleService;
@@ -93,7 +96,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<CompletePostResponse, PostCursor> getAllPostsWithSearchOptionsToCursor(
+    public CursorResponse<PostResponse, PostCursor> getAllPostsWithSearchOptionsToCursor(
         PostCursor cursor,
         int size,
         PostSearchOptions searchOptions) {
@@ -112,12 +115,12 @@ public class PostService {
             : null;
 
         // 다음 커서는 마지막 게시글의 ID
-        return new CursorResponse<>(posts.stream().map(CompletePostResponse::from).toList(),
+        return new CursorResponse<>(posts.stream().map(PostResponse::from).toList(),
             nextCursor, hasNext);
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<CompletePostResponse, PostCursor> getAllPostsWithSearchOptionsToCursor(
+    public CursorResponse<PostResponse, PostCursor> getAllPostsWithSearchOptionsToCursor(
         PostCursor cursor,
         int size,
         PostSearchOptions searchOptions,
@@ -137,12 +140,12 @@ public class PostService {
             : null;
 
         // 다음 커서는 마지막 게시글의 ID
-        return new CursorResponse<>(posts.stream().map(CompletePostResponse::from).toList(),
+        return new CursorResponse<>(posts.stream().map(PostResponse::from).toList(),
             nextCursor, hasNext);
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<CompletePostResponse, PostCursor> getPendingPostsWithSearchOptionsToCursor(
+    public CursorResponse<PostResponse, PostCursor> getPendingPostsWithSearchOptionsToCursor(
         PostCursor cursor,
         int size,
         PostSearchOptions searchOptions,
@@ -162,19 +165,26 @@ public class PostService {
             : null;
 
         // 다음 커서는 마지막 게시글의 ID
-        return new CursorResponse<>(posts.stream().map(CompletePostResponse::from).toList(),
+        return new CursorResponse<>(posts.stream().map(PostResponse::from).toList(),
             nextCursor, hasNext);
     }
 
 
     @Transactional(readOnly = true)
-    public List<PostImageUrlResponse> getPostImages(PostImageRequest request) {
-        return imageService.findByPostId(request.getPostId()).stream()
+    public List<PostImageUrlResponse> getPostImages(PostIdToken token) {
+        return imageService.findByPostId(token.getPostId()).stream()
             .map(PostImageUrlResponse::from).toList();
     }
 
+    @Transactional(readOnly = true)
     public PendingPostCountResponse getPendingPostCount(String coupleCode) {
         return PendingPostCountResponse.from(
             postRepository.countByCodeAndStatus(coupleCode, PostStatus.PENDING));
+    }
+
+    @Transactional(readOnly = true)
+    public PostResponse getPost(PostIdToken token) {
+        return PostResponse.from(postRepository.findById(token.getPostId())
+            .orElseThrow(PostNotFoundException::new));
     }
 }

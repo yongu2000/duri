@@ -53,6 +53,10 @@ public class User extends BaseEntity {
     private Gender gender;
     private String provider;
 
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private Position position;
+
     public void updatePassword(String newPassword) {
         this.password = newPassword;
     }

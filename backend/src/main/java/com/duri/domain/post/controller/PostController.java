@@ -1,17 +1,18 @@
 package com.duri.domain.post.controller;
 
 import com.duri.domain.auth.CustomUserDetails;
-import com.duri.domain.post.dto.CompletePostResponse;
 import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.dto.PostCursor;
-import com.duri.domain.post.dto.PostImageRequest;
+import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostImageUrlResponse;
+import com.duri.domain.post.dto.PostResponse;
 import com.duri.domain.post.dto.PostSearchOptions;
 import com.duri.domain.post.service.PostService;
 import com.duri.global.dto.CursorResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/post")
 @RequiredArgsConstructor
+@Slf4j
 public class PostController {
 
     private final PostService postService;
@@ -39,8 +41,8 @@ public class PostController {
     }
 
     @GetMapping("/complete")
-    public ResponseEntity<CursorResponse<CompletePostResponse, PostCursor>> getCompletePosts(
-        @RequestParam(required = false) PostCursor cursor,
+    public ResponseEntity<CursorResponse<PostResponse, PostCursor>> getCompletePosts(
+        @ModelAttribute PostCursor cursor,
         @RequestParam(defaultValue = "10") int size,
         @ModelAttribute PostSearchOptions postSearchOptions
 
@@ -51,14 +53,14 @@ public class PostController {
 
     @GetMapping("/image")
     public ResponseEntity<List<PostImageUrlResponse>> getPostImages(
-        PostImageRequest request
+        PostIdToken postIdToken
     ) {
-        return ResponseEntity.ok(postService.getPostImages(request));
+        return ResponseEntity.ok(postService.getPostImages(postIdToken));
     }
 
     @GetMapping("/complete/{coupleCode}")
-    public ResponseEntity<CursorResponse<CompletePostResponse, PostCursor>> getCompletePostsByCouple(
-        @RequestParam(required = false) PostCursor cursor,
+    public ResponseEntity<CursorResponse<PostResponse, PostCursor>> getCompletePostsByCouple(
+        @ModelAttribute PostCursor cursor,
         @RequestParam(defaultValue = "10") int size,
         @ModelAttribute PostSearchOptions postSearchOptions,
         @PathVariable String coupleCode
@@ -77,15 +79,23 @@ public class PostController {
     }
 
     @GetMapping("/pending/{coupleCode}")
-    public ResponseEntity<CursorResponse<CompletePostResponse, PostCursor>> getPendingPostsByCouple(
-        @RequestParam(required = false) PostCursor cursor,
+    public ResponseEntity<CursorResponse<PostResponse, PostCursor>> getPendingPostsByCouple(
+        @ModelAttribute PostCursor cursor,
         @RequestParam(defaultValue = "10") int size,
         @ModelAttribute PostSearchOptions postSearchOptions,
         @PathVariable String coupleCode
     ) {
+            cursor.getDate(), cursor.getRate(), cursor.getIdToken());
         return ResponseEntity.ok(
             postService.getPendingPostsWithSearchOptionsToCursor(cursor, size, postSearchOptions,
                 coupleCode));
+    }
+
+    @GetMapping("/edit")
+    public ResponseEntity<PostResponse> getPost(
+        PostIdToken postIdToken
+    ) {
+        return ResponseEntity.ok(postService.getPost(postIdToken));
     }
 
 }
