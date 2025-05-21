@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { CompletePostResponse, PostSearchOptions } from '@/types/post';
+import type { PostResponse, PostSearchOptions } from '@/types/post';
 import PostCardComponent from './PostCard';
 import { postService } from '@/services/post';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,12 +10,12 @@ interface PostListProps {
 
 export default function PostList({ searchOptions }: PostListProps) {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<CompletePostResponse[]>([]);
+  const [posts, setPosts] = useState<PostResponse[]>([]);
   const [hasNext, setHasNext] = useState(false);
-  const [nextCursor, setNextCursor] = useState<{ date: string; rate: number; idToken: string } | null>(null);
+  const [nextCursor, setNextCursor] = useState<{ date: string; rate: number | null; idToken: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadPosts = async (cursor?: { date: string; rate: number; idToken: string }) => {
+  const loadPosts = async (cursor?: { date: string; rate: number | null; idToken: string }) => {
     try {
       setIsLoading(true);
       if (!user?.coupleCode) {

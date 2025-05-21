@@ -11,6 +11,7 @@ export interface UserInfo extends PublicUserInfo {
   email: string;
   coupleCode?: string;
   gender?: 'MALE' | 'FEMALE';
+  position?: 'LEFT' | 'RIGHT';
   birthday?: string;
 }
 

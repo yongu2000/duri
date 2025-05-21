@@ -56,7 +56,7 @@ export interface PostSearchOptions {
 
 export interface PostCursor {
   date: string;
-  rate: number;
+  rate: number | null;
   idToken: string;
 }
 
@@ -78,7 +78,7 @@ export interface PostUser {
   birthday?: string;
 }
 
-export interface CompletePostResponse {
+export interface PostResponse {
   idToken: string;
   title: string;
   placeName: string;

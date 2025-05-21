@@ -1,20 +1,26 @@
 import { useState, useEffect } from 'react';
-import type { CompletePostResponse } from '@/types/post';
-import { FiChevronLeft, FiChevronRight, FiHeart, FiMessageCircle } from 'react-icons/fi';
+import type { PostResponse } from '@/types/post';
+import { FiChevronLeft, FiChevronRight, FiHeart, FiMessageCircle, FiEdit2 } from 'react-icons/fi';
 import { FaStar, FaMars, FaVenus, FaUserCircle } from 'react-icons/fa';
 import { useSwipeable } from 'react-swipeable';
 import { postService } from '@/services/post';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 interface PostCardProps {
-  post: CompletePostResponse;
+  post: PostResponse;
 }
 
 export default function PostCard({ post }: PostCardProps) {
+  const router = useRouter();
+  const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [swipeDelta, setSwipeDelta] = useState(0);
   const [images, setImages] = useState<string[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(true);
+
+  const canEdit = user?.coupleCode === post.coupleCode;
 
   useEffect(() => {
     const loadImages = async () => {
@@ -91,7 +97,18 @@ export default function PostCard({ post }: PostCardProps) {
             <h3 className="text-base font-semibold text-gray-800">{post.placeName}</h3>
             <p className="text-xs text-gray-500 mt-0.5">{post.address}</p>
           </div>
-          <span className="text-sm text-gray-500">{post.coupleName}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">{post.coupleName}</span>
+            {canEdit && (
+              <button
+                onClick={() => router.push(`/post/edit?id=${encodeURIComponent(post.idToken)}`)}
+                className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                title="게시글 수정"
+              >
+                <FiEdit2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
         <h2 className="text-lg font-bold text-gray-900 mt-1">{post.title}</h2>
         <p className="text-xs text-gray-500 mt-1">{post.date}</p>

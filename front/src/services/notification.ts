@@ -42,7 +42,7 @@ class NotificationService {
           'Connection': 'keep-alive'
         },
         withCredentials: true,
-        heartbeatTimeout: 30000 // 30초로 타임아웃 설정
+        heartbeatTimeout: 35000 // 30초로 타임아웃 설정
       });
 
       if (this.sseConnection) {

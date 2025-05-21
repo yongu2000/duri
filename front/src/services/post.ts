@@ -1,5 +1,5 @@
 import { axiosInstance } from './axios';
-import { PostFormData, PostSearchOptions, CursorResponse, CompletePostResponse, PostImageUrlResponse } from '@/types/post';
+import { PostFormData, PostSearchOptions, CursorResponse, PostResponse, PostImageUrlResponse } from '@/types/post';
 import { imageService } from './image';
 
 interface PostCreateRequest {
@@ -56,15 +56,15 @@ class PostService {
 
   async getCompletePosts(
     coupleCode: string,
-    cursor?: { date: string; rate: number; idToken: string },
+    cursor?: { date: string; rate: number | null; idToken: string },
     size: number = 10,
     searchOptions?: PostSearchOptions
-  ): Promise<CursorResponse<CompletePostResponse>> {
+  ): Promise<CursorResponse<PostResponse>> {
     try {
       const params = new URLSearchParams();
       if (cursor) {
         params.append('date', cursor.date);
-        params.append('rate', cursor.rate.toString());
+        params.append('rate', cursor.rate?.toString() ?? '');
         params.append('idToken', cursor.idToken);
       }
       params.append('size', size.toString());
@@ -77,7 +77,7 @@ class PostService {
         if (searchOptions.sortDirection) params.append('sortDirection', searchOptions.sortDirection);
       }
 
-      const response = await axiosInstance.get<CursorResponse<CompletePostResponse>>(
+      const response = await axiosInstance.get<CursorResponse<PostResponse>>(
         `/post/complete/${coupleCode}?${params.toString()}`
       );
       return response.data;
@@ -111,15 +111,15 @@ class PostService {
 
   async getPendingPosts(
     coupleCode: string,
-    cursor?: { date: string; rate: number; idToken: string },
+    cursor?: { date: string; rate: number | null; idToken: string },
     size: number = 10,
     searchOptions?: PostSearchOptions
-  ): Promise<CursorResponse<CompletePostResponse>> {
+  ): Promise<CursorResponse<PostResponse>> {
     try {
       const params = new URLSearchParams();
       if (cursor) {
-        params.append('date', cursor.date);
-        params.append('rate', cursor.rate.toString());
+        if (cursor.date) params.append('date', cursor.date);
+        params.append('rate', (cursor.rate ?? 0).toString());
         params.append('idToken', cursor.idToken);
       }
       params.append('size', size.toString());
@@ -132,12 +132,57 @@ class PostService {
         if (searchOptions.sortDirection) params.append('sortDirection', searchOptions.sortDirection);
       }
 
-      const response = await axiosInstance.get<CursorResponse<CompletePostResponse>>(
+      console.log('Request URL:', `/post/pending/${coupleCode}?${params.toString()}`);
+      const response = await axiosInstance.get<CursorResponse<PostResponse>>(
         `/post/pending/${coupleCode}?${params.toString()}`
       );
       return response.data;
     } catch (error) {
       console.error('미완성 게시글 목록 조회 중 오류 발생:', error);
+      throw error;
+    }
+  }
+
+  async getPost(postIdToken: string): Promise<PostResponse> {
+    try {
+      const response = await axiosInstance.get<PostResponse>(`/post/edit`, {
+        params: { postIdToken }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('게시글 조회 중 오류 발생:', error);
+      throw error;
+    }
+  }
+
+  async updatePost(postId: string, formData: PostFormData): Promise<void> {
+    const requestData: Record<string, any> = {
+      idToken: postId
+    };
+
+    if (formData.subject?.trim()) requestData.placeName = formData.subject;
+    if (formData.title?.trim()) requestData.title = formData.title;
+    if (formData.placeUrl?.trim()) requestData.placeUrl = formData.placeUrl;
+    if (formData.category?.trim()) requestData.category = formData.category;
+    if (formData.phone?.trim()) requestData.phone = formData.phone;
+    if (formData.address?.trim()) requestData.address = formData.address;
+    if (formData.roadAddress?.trim()) requestData.roadAddress = formData.roadAddress;
+    if (formData.x !== 0) requestData.x = formData.x;
+    if (formData.y !== 0) requestData.y = formData.y;
+    if (formData.date?.trim()) requestData.date = formData.date;
+    if (formData.rating !== 0) requestData.rate = formData.rating;
+    if (formData.comment?.trim()) requestData.comment = formData.comment;
+    if (formData.scope) requestData.scope = formData.scope;
+    if (formData.imageUrls.length > 0) requestData.imageUrls = formData.imageUrls;
+
+    try {
+      await axiosInstance.put('/post/edit', requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.error('게시글 수정 중 오류 발생:', error);
       throw error;
     }
   }
