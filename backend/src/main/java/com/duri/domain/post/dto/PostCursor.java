@@ -15,7 +15,7 @@ public class PostCursor {
 
     private LocalDate date;
 
-    private Integer rate;
+    private Double rate;
 
     private String idToken;
 

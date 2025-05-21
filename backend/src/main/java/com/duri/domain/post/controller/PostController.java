@@ -4,6 +4,7 @@ import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.dto.PostCursor;
+import com.duri.domain.post.dto.PostEditRequest;
 import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostImageUrlResponse;
 import com.duri.domain.post.dto.PostResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,7 +39,8 @@ public class PostController {
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @RequestBody PostCreateRequest request
     ) {
-        return ResponseEntity.ok(postService.create(userDetails, request));
+        postService.create(userDetails, request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/complete")
@@ -85,7 +88,6 @@ public class PostController {
         @ModelAttribute PostSearchOptions postSearchOptions,
         @PathVariable String coupleCode
     ) {
-            cursor.getDate(), cursor.getRate(), cursor.getIdToken());
         return ResponseEntity.ok(
             postService.getPendingPostsWithSearchOptionsToCursor(cursor, size, postSearchOptions,
                 coupleCode));
@@ -96,6 +98,15 @@ public class PostController {
         PostIdToken postIdToken
     ) {
         return ResponseEntity.ok(postService.getPost(postIdToken));
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<Void> editPost(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @RequestBody PostEditRequest request
+    ) {
+        postService.edit(userDetails, request);
+        return ResponseEntity.ok().build();
     }
 
 }

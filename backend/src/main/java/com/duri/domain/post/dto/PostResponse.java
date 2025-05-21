@@ -23,7 +23,7 @@ public class PostResponse {
 
     private LocalDate date;
 
-    private Integer rate;
+    private Double rate;
 
     private String userLeftProfileImageUrl;
     private Gender userLeftGender;

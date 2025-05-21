@@ -50,7 +50,7 @@ public class Post extends BaseEntity {
 
     private LocalDate date;
 
-    private Integer rate;
+    private Double rate;
 
     private Integer userLeftRate;
     private String userLeftComment;
@@ -66,5 +66,70 @@ public class Post extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private PostStatus status;
+
+    public void changeTitle(String title) {
+        this.title = title;
+    }
+
+    public void changePlaceName(String placeName) {
+        this.placeName = placeName;
+    }
+
+    public void changePlaceUrl(String placeUrl) {
+        this.placeUrl = placeUrl;
+    }
+
+    public void changeCategory(String category) {
+        this.category = category;
+    }
+
+    public void changePhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void changeAddress(String address) {
+        this.address = address;
+    }
+
+    public void changeRoadAddress(String roadAddress) {
+        this.roadAddress = roadAddress;
+    }
+
+    public void changeCoordinate(Double x, Double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void changeDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void changeScope(Scope scope) {
+        this.scope = scope;
+    }
+
+    public void changeStatus(PostStatus status) {
+        this.status = status;
+    }
+
+    public void changeRate(Double rate) {
+        this.rate = rate;
+    }
+
+    public void changeUserLeftRate(Integer userLeftRate) {
+        this.userLeftRate = userLeftRate;
+    }
+
+    public void changeUserLeftComment(String userLeftComment) {
+        this.userLeftComment = userLeftComment;
+    }
+
+    public void changeUserRightRate(Integer userRightRate) {
+        this.userRightRate = userRightRate;
+    }
+
+    public void changeUserRightComment(String userRightComment) {
+        this.userRightComment = userRightComment;
+    }
 
 }

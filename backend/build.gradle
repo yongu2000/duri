@@ -90,3 +90,6 @@ sourceSets {
 clean {
     delete file('build/generated/sources/annotationProcessor/java/main')
 }
+
+// Q클래스 생성
+// ./gradlew clean build 

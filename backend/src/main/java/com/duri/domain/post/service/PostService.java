@@ -12,6 +12,7 @@ import com.duri.domain.post.constant.PostStatus;
 import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.dto.PostCursor;
+import com.duri.domain.post.dto.PostEditRequest;
 import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostImageUrlResponse;
 import com.duri.domain.post.dto.PostResponse;
@@ -20,6 +21,7 @@ import com.duri.domain.post.entity.Post;
 import com.duri.domain.post.entity.Post.PostBuilder;
 import com.duri.domain.post.exception.PostNotFoundException;
 import com.duri.domain.post.repository.PostRepository;
+import com.duri.domain.user.entity.Position;
 import com.duri.domain.user.entity.User;
 import com.duri.global.dto.CursorResponse;
 import java.util.List;
@@ -39,10 +41,10 @@ public class PostService {
     private final ImageService imageService;
     private final NotificationService notificationService;
 
-    public Void create(CustomUserDetails userDetails, PostCreateRequest request) {
+    public void create(CustomUserDetails userDetails, PostCreateRequest request) {
         User user = userDetails.getUser();
         Couple couple = coupleService.findCoupleWithUsersByCode(user.getCoupleCode());
-        boolean isLeftUser;
+        boolean isLeftUser = user.getPosition() == Position.LEFT;
         PostBuilder postBuilder = Post.builder()
             .title(request.getTitle())
 
@@ -61,24 +63,19 @@ public class PostService {
             .scope(request.getScope())
             .status(PostStatus.PENDING);
 
-        if (couple.getUserLeft().getId().equals(user.getId())) {
+        if (isLeftUser) {
             postBuilder
                 .userLeftRate(request.getRate())
                 .userLeftComment(request.getComment());
-            isLeftUser = true;
         } else {
             postBuilder
                 .userRightRate(request.getRate())
                 .userRightComment(request.getComment());
-            isLeftUser = false;
         }
         Post post = postBuilder.build();
         postRepository.save(post);
 
-        request.getImageUrls().forEach(imageUrl -> {
-            Image image = imageService.findByUrl(imageUrl);
-            image.setPost(post);
-        });
+        setPostImages(request.getImageUrls(), post);
 
         // 커플에게 별점/한마디 작성 요청 알림 전송
         Notification notification = Notification.builder()
@@ -92,7 +89,29 @@ public class PostService {
         notificationService.send(notification);
         //
 
-        return null;
+    }
+
+
+    public void edit(CustomUserDetails userDetails, PostEditRequest request) {
+        Post post = postRepository.findById(request.getPostId())
+            .orElseThrow(PostNotFoundException::new);
+
+        updateBasicFields(post, request);
+        updateUserSideFields(post, request, userDetails.getUser().getPosition());
+
+        if (post.getUserLeftRate() != null &&
+            post.getUserLeftComment() != null &&
+            post.getUserRightRate() != null &&
+            post.getUserRightComment() != null) {
+
+            double avgRate = (post.getUserLeftRate() + post.getUserRightRate()) / 2.0;
+            double roundedRate = Math.round(avgRate * 10) / 10.0;
+            post.changeRate(roundedRate);
+            post.changeStatus(PostStatus.COMPLETE);
+        }
+
+        setPostImages(request.getImageUrls(), post);
+
     }
 
     @Transactional(readOnly = true)
@@ -187,4 +206,64 @@ public class PostService {
         return PostResponse.from(postRepository.findById(token.getPostId())
             .orElseThrow(PostNotFoundException::new));
     }
+
+    private void setPostImages(List<String> imageUrls, Post post) {
+        imageUrls.forEach(imageUrl -> {
+            Image image = imageService.findByUrl(imageUrl);
+            image.setPost(post);
+        });
+    }
+
+    private void updateBasicFields(Post post, PostEditRequest request) {
+        if (request.getTitle() != null) {
+            post.changeTitle(request.getTitle());
+        }
+        if (request.getPlaceName() != null) {
+            post.changePlaceName(request.getPlaceName());
+        }
+        if (request.getPlaceUrl() != null) {
+            post.changePlaceUrl(request.getPlaceUrl());
+        }
+        if (request.getCategory() != null) {
+            post.changeCategory(request.getCategory());
+        }
+        if (request.getPhone() != null) {
+            post.changePhone(request.getPhone());
+        }
+        if (request.getAddress() != null) {
+            post.changeAddress(request.getAddress());
+        }
+        if (request.getRoadAddress() != null) {
+            post.changeRoadAddress(request.getRoadAddress());
+        }
+        if (request.getX() != null && request.getY() != null) {
+            post.changeCoordinate(request.getX(), request.getY());
+        }
+        if (request.getDate() != null) {
+            post.changeDate(request.getDate());
+        }
+        if (request.getScope() != null) {
+            post.changeScope(request.getScope());
+        }
+    }
+
+    private void updateUserSideFields(Post post, PostEditRequest request, Position position) {
+        boolean isLeftUser = position == Position.LEFT;
+        if (request.getRate() != null) {
+            if (isLeftUser) {
+                post.changeUserLeftRate(request.getRate());
+            } else {
+                post.changeUserRightRate(request.getRate());
+            }
+        }
+
+        if (request.getComment() != null) {
+            if (isLeftUser) {
+                post.changeUserLeftComment(request.getComment());
+            } else {
+                post.changeUserRightComment(request.getComment());
+            }
+        }
+    }
+
 }
