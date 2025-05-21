@@ -208,6 +208,9 @@ public class PostService {
     }
 
     private void setPostImages(List<String> imageUrls, Post post) {
+        if (imageUrls == null || imageUrls.isEmpty()) {
+            return;
+        }
         imageUrls.forEach(imageUrl -> {
             Image image = imageService.findByUrl(imageUrl);
             image.setPost(post);
