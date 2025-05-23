@@ -19,6 +19,7 @@ import com.duri.domain.couple.exception.InvalidCoupleConnectionCodeException;
 import com.duri.domain.couple.exception.InvalidCoupleConnectionException;
 import com.duri.domain.couple.repository.CoupleConnectionRepository;
 import com.duri.domain.couple.repository.CoupleRepository;
+import com.duri.domain.sse.RedisMessagePublisher;
 import com.duri.domain.user.entity.User;
 import com.duri.domain.user.service.UserService;
 import java.math.BigInteger;
@@ -41,7 +42,8 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
     private final UserService userService;
     private final CoupleConnectionRepository coupleConnectionRepository;
     private final CoupleRepository coupleRepository;
-    private final CoupleConnectionSseEmitterService coupleConnectionSseEmitterService;
+    private final RedisMessagePublisher publisher;
+//    private final CoupleConnectionSseEmitterService coupleConnectionSseEmitterService;
 
     public CoupleConnectionCodeResponse getCode(CustomUserDetails userDetails) {
         // 유저 ID 에 대한 코드가 존재하면 불러오기
@@ -111,13 +113,15 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
                 .build();
             coupleConnectionRepository.save(connection);
 
-            coupleConnectionSseEmitterService.send(respondent.getUsername(), true);
+            publisher.publishCoupleConnection(respondent.getUsername(), "couple-status", "true");
+//            coupleConnectionSseEmitterService.send(respondent.getUsername(), true);
 
             return CoupleConnectionStatusResponse.from(connection);
         }
 
         // WebSocket 커플 연결 요청 보내기
-        coupleConnectionSseEmitterService.send(respondent.getUsername(), true);
+        publisher.publishCoupleConnection(respondent.getUsername(), "couple-status", "true");
+//        coupleConnectionSseEmitterService.send(respondent.getUsername(), true);
 
         //응답자(오른쪽)
         //
@@ -181,8 +185,10 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
                 InvalidCoupleConnectionException::new);
         connection.changeStatus(REJECT);
 
-        // WebSocket 연결 거부 메세지 보내기
-        coupleConnectionSseEmitterService.send(connection.getRequester().getUsername(), true);
+        // SSE 연결 거부 메세지 보내기
+        publisher.publishCoupleConnection(connection.getRequester().getUsername(), "couple-status",
+            "true");
+//        coupleConnectionSseEmitterService.send(connection.getRequester().getUsername(), true);
 
         // FCM 상대방이 요청 거절했다는 푸시 보내기
 
@@ -199,8 +205,10 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
 
         coupleRepository.save(couple);
 
-        // WebSocket 메인페이지로 이동시키는 메세지 보내기
-        coupleConnectionSseEmitterService.send(connection.getRequester().getUsername(), true);
+        // SSE 메인페이지로 이동시키는 메세지 보내기
+        publisher.publishCoupleConnection(connection.getRequester().getUsername(), "couple-status",
+            "true");
+//        coupleConnectionSseEmitterService.send(connection.getRequester().getUsername(), true);
 
         // FCM 상대방이 요청 수락했다는 푸시 보내기
 
@@ -215,7 +223,9 @@ public class CoupleConnectionServiceSse implements CoupleConnectionService {
         connection.changeStatus(CANCEL);
 
         // SSE 상대방이 요청 취소했다는 메세지 보내기
-        coupleConnectionSseEmitterService.send(connection.getRespondent().getUsername(), true);
+        publisher.publishCoupleConnection(connection.getRespondent().getUsername(), "couple-status",
+            "true");
+//        coupleConnectionSseEmitterService.send(connection.getRespondent().getUsername(), true);
 
         // FCM 상대방이 요청 취소했다는 푸시 보내기
 
