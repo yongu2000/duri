@@ -7,8 +7,6 @@ import { ConnectionStatusResponse } from "@/types/coupleConnect";
 import CoupleConnectionModal from "@/components/CoupleConnectionModal";
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from "@/services/auth";
-import { sseService } from "@/services/sse";
-
 
 export default function CoupleLinkPage() {
   const router = useRouter();
@@ -178,12 +176,12 @@ export default function CoupleLinkPage() {
     loadInitialStatus();
 
     // SSE 연결 및 핸들러 등록
-    const removeHandler = sseService.addStatusUpdateHandler(handleStatusUpdate);
-    sseService.connect(user.username);
+    const removeHandler = coupleConnectService.addStatusUpdateHandler(handleStatusUpdate);
+    coupleConnectService.connectSSE();
 
     return () => {
       removeHandler();
-      sseService.disconnect();
+      coupleConnectService.disconnectSSE();
     };
   }, [router, user]);
 
