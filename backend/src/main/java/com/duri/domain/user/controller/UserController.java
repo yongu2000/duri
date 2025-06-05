@@ -44,8 +44,8 @@ public class UserController {
     @PutMapping("/profile/{username}/edit")
     public ResponseEntity<Void> editUserProfile(@PathVariable String username,
         @RequestBody UserProfileEditRequest request) {
-        return ResponseEntity.status(HttpStatus.OK)
-            .body(userService.editUserProfile(username, request));
+        userService.editUserProfile(username, request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/password/reset")

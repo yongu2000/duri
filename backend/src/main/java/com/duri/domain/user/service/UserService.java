@@ -68,13 +68,12 @@ public class UserService {
     }
 
     // 자기 자신 OR Admin만 수정할 수 있도록 권한 부여
-    public Void editUserProfile(String username, UserProfileEditRequest request) {
+    public void editUserProfile(String username, UserProfileEditRequest request) {
         User user = findByUsername(username);
         user.updateName(request.getName());
         user.updateGender(request.getGender());
         user.updateBirthday(request.getBirthday());
         user.updateProfileImageUrl(request.getProfileImageUrl());
-        return null;
     }
 
     public void resetUserPassword(PasswordResetRequest request) {
