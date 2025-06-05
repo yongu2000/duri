@@ -30,9 +30,6 @@ public class JoinService {
         validateEmailVerification(request.getEmail());
         validateUsernameExistence(request.getUsername());
 
-//        String username = generateUniqueUsername(request.getEmail());
-//        String name = parseEmailToUsername(request.getEmail());
-
         User newUser = User.builder()
             .email(request.getEmail())
             .username(request.getUsername())
@@ -70,22 +67,4 @@ public class JoinService {
             throw new DuplicateUserException();
         }
     }
-
-    private String generateUniqueUsername(String email) {
-        String baseUsername = parseEmailToUsername(email);
-        String username = baseUsername;
-        int randomNumber;
-
-        while (userRepository.findByUsername(username).isPresent()) {
-            randomNumber = (int) (Math.random() * 10000);
-            username = baseUsername + randomNumber;
-        }
-
-        return username;
-    }
-
-    private String parseEmailToUsername(String email) {
-        return email.split("@")[0];
-    }
-
 }
