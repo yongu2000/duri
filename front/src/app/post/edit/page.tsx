@@ -209,7 +209,7 @@ export default function EditPostPage() {
         userRightComment: !isLeftUser ? formData.comment : undefined,
       };
       await postService.updatePost(postId!, updateData);
-      router.push('/'); 
+      router.back(); 
     } catch (error) {
       console.error('게시글 수정 실패:', error);
       alert('게시글 수정에 실패했습니다. 다시 시도해주세요.');

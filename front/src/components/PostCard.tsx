@@ -99,7 +99,7 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">{post.coupleName}</span>
-            {canEdit && (
+            {canEdit && post.coupleCode === user?.coupleCode && (
               <button
                 onClick={() => router.push(`/post/edit?id=${encodeURIComponent(post.idToken)}`)}
                 className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"

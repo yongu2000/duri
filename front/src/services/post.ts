@@ -87,6 +87,38 @@ class PostService {
     }
   }
 
+  async getCompleteCommunityPosts(
+    cursor?: { date: string; rate: number | null; idToken: string },
+    size: number = 10,
+    searchOptions?: PostSearchOptions
+  ): Promise<CursorResponse<PostResponse>> {
+    try {
+      const params = new URLSearchParams();
+      if (cursor) {
+        params.append('date', cursor.date);
+        params.append('rate', cursor.rate?.toString() ?? '');
+        params.append('idToken', cursor.idToken);
+      }
+      params.append('size', size.toString());
+      
+      if (searchOptions) {
+        if (searchOptions.searchKeyword) params.append('searchKeyword', searchOptions.searchKeyword);
+        if (searchOptions.startDate) params.append('startDate', searchOptions.startDate);
+        if (searchOptions.endDate) params.append('endDate', searchOptions.endDate);
+        if (searchOptions.sortBy) params.append('sortBy', searchOptions.sortBy);
+        if (searchOptions.sortDirection) params.append('sortDirection', searchOptions.sortDirection);
+      }
+
+      const response = await axiosInstance.get<CursorResponse<PostResponse>>(
+        `/post/complete?${params.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('커뮤니티 게시글 목록 조회 중 오류 발생:', error);
+      throw error;
+    }
+  }
+
   async getPostImages(postIdToken: string): Promise<string[]> {
     try {
       const response = await axiosInstance.get<PostImageUrlResponse[]>(`/post/image`, {
@@ -185,6 +217,15 @@ class PostService {
       console.error('게시글 수정 중 오류 발생:', error);
       throw error;
     }
+  }
+
+  async getLikedPosts(
+    cursor?: { date: string; rate: number | null; idToken: string },
+    size: number = 10,
+    searchOptions?: PostSearchOptions
+  ): Promise<CursorResponse<PostResponse>> {
+    // TODO: 백엔드 API 구현 후 구현 예정
+    throw new Error('아직 구현되지 않은 기능입니다.');
   }
 }
 

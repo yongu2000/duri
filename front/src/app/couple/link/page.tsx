@@ -290,6 +290,20 @@ export default function CoupleLinkPage() {
         </div>
       </div>
 
+      {/* 로그아웃 버튼 */}
+      <button
+        onClick={async () => {
+          try {
+            await authService.logout();
+          } catch (error) {
+            console.error('로그아웃 실패:', error);
+          }
+        }}
+        className="fixed bottom-6 right-6 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium"
+      >
+        로그아웃
+      </button>
+
       {/* 공유 모달(바텀시트) */}
       {showShareModal && (
         <div

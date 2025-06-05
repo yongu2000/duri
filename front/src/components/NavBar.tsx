@@ -37,9 +37,9 @@ export default function NavBar() {
             )}
           </Link>
           <NotificationBell />
-          <button className="text-2xl text-gray-400 hover:text-indigo-500">
+          <Link href="/menu" className="text-2xl text-gray-400 hover:text-indigo-500">
             <FiMenu />
-          </button>
+          </Link>
         </div>
       </div>
     </nav>
