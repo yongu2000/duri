@@ -8,6 +8,7 @@ import static com.duri.domain.user.entity.QUser.user;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.duri.domain.post.constant.PostStatus;
+import com.duri.domain.post.constant.Scope;
 import com.duri.domain.post.constant.search.PostSortBy;
 import com.duri.domain.post.constant.search.PostSortDirection;
 import com.duri.domain.post.dto.PostCursor;
@@ -43,7 +44,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
                     searchOptions.getSortBy()),
                 searchKeywordContains(searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
-                post.status.eq(PostStatus.COMPLETE)
+                post.status.eq(PostStatus.COMPLETE),
+                post.scope.eq(Scope.PUBLIC)
             )
             .orderBy(getOrderSpecifier(searchOptions.getSortBy(), searchOptions.getSortDirection()))
             .limit(size)
