@@ -1,5 +1,7 @@
 package com.duri.domain.auth.jwt.service;
 
+import static com.duri.domain.email.constant.EmailRedisKey.EMAIL_VERIFIED_KEY;
+
 import com.duri.domain.auth.exception.DuplicateUserException;
 import com.duri.domain.auth.exception.EmailNotVerifiedException;
 import com.duri.domain.auth.jwt.dto.JoinRequest;
@@ -18,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class JoinService {
-
-    private static final String EMAIL_VERIFIED_KEY = "EMAIL:VERIFIED:";
-
+    
     private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
