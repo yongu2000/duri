@@ -1,0 +1,71 @@
+= API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+
+== User API
+
+=== 유저 정보 조회
+
+==== 요청
+
+include::{snippets}/user-get-profile/http-request.adoc[]
+
+==== 응답
+
+include::{snippets}/user-get-profile/http-response.adoc[]
+
+==== 응답 필드
+
+include::{snippets}/user-get-profile/response-fields.adoc[]
+
+=== 유저 이메일 중복 확인
+
+==== 요청
+
+include::{snippets}/user-check-email/http-request.adoc[]
+
+==== 응답
+
+include::{snippets}/user-check-email/http-response.adoc[]
+
+==== 응답 필드
+
+include::{snippets}/user-check-email/response-fields.adoc[]
+
+=== 유저 Username 중복 확인
+
+==== 요청
+
+include::{snippets}/user-check-username/http-request.adoc[]
+
+==== 응답
+
+include::{snippets}/user-check-username/http-response.adoc[]
+
+==== 응답 필드
+
+include::{snippets}/user-check-username/response-fields.adoc[]
+
+=== 유저 프로필 수정
+
+==== 요청
+
+include::{snippets}/user-edit-profile/http-request.adoc[]
+
+==== 응답
+
+include::{snippets}/user-edit-profile/http-response.adoc[]
+
+=== 유저 비밀번호 초기화
+
+==== 요청
+
+include::{snippets}/user-password-reset/http-request.adoc[]
+
+==== 응답
+
+include::{snippets}/user-password-reset/http-response.adoc[]
+

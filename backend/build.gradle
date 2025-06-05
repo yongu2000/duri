@@ -98,29 +98,34 @@ clean {
 
 
 // SPRING REST DOC
-
 ext {
     snippetsDir = file('build/generated-snippets')
 }
 
-test {
+tasks.named('test') {
     outputs.dir snippetsDir
     useJUnitPlatform()
+    finalizedBy asciidoctor
 }
 
-asciidoctor {
-    inputs.dir snippetsDir
-    configurations 'asciidoctorExt'
+tasks.named('asciidoctor') {
     dependsOn test
+    inputs.dir snippetsDir
+    finalizedBy copyDocument
+    doFirst {
+        delete file('src/main/resources/static/docs')
+    }
 }
 
 tasks.register('copyDocument', Copy) {
-    dependsOn asciidoctor
-
-    from file("build/docs/asciidoc/")
-    into file("src/main/resources/static/docs")
+    dependsOn tasks.named('asciidoctor')
+    from file('build/docs/asciidoc')
+    into file('src/main/resources/static/docs')
 }
 
-build {
-    dependsOn copyDocument
+bootJar {
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}") {
+        into 'static/docs'
+    }
 }
