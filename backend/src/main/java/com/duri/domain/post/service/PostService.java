@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final CoupleService coupleService;
+    private final PostStatService postStatService;
     private final PostRepository postRepository;
     private final ImageService imageService;
     private final NotificationService notificationService;
@@ -73,7 +74,9 @@ public class PostService {
                 .userRightComment(request.getComment());
         }
         Post post = postBuilder.build();
+        
         postRepository.save(post);
+        postStatService.create(post);
 
         setPostImages(request.getImageUrls(), post);
 

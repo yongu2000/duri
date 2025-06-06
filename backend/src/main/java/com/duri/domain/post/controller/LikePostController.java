@@ -1,6 +1,7 @@
 package com.duri.domain.post.controller;
 
 import com.duri.domain.auth.CustomUserDetails;
+import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostLikeStatusResponseDto;
 import com.duri.domain.post.service.LikePostService;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,27 +22,32 @@ public class LikePostController {
 
     private final LikePostService likePostService;
 
-    @PostMapping("/{postId}/like")
+    @PostMapping("/like")
     public ResponseEntity<Void> likePost(
         @AuthenticationPrincipal CustomUserDetails userDetails,
-        @PathVariable Long postId) {
-        likePostService.like(userDetails.getUser().getCoupleCode(), postId);
+        @RequestBody PostIdToken postIdToken) {
+        log.info(postIdToken.toString());
+        log.info(String.valueOf(postIdToken.getPostId()));
+        likePostService.like(userDetails.getUser().getCoupleCode(),
+            postIdToken.getPostId());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{postId}/dislike")
+    @PostMapping("/dislike")
     public ResponseEntity<Void> dislikePost(
         @AuthenticationPrincipal CustomUserDetails userDetails,
-        @PathVariable Long postId) {
-        likePostService.dislike(userDetails.getUser().getCoupleCode(), postId);
+        @RequestBody PostIdToken postIdToken) {
+        likePostService.dislike(userDetails.getUser().getCoupleCode(),
+            postIdToken.getPostId());
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{postId}/like/status")
+    @GetMapping("/like/status")
     public ResponseEntity<PostLikeStatusResponseDto> getLikeStatus(
         @AuthenticationPrincipal CustomUserDetails userDetails,
-        @PathVariable Long postId) {
+        PostIdToken postIdToken) {
         return ResponseEntity.ok(
-            likePostService.getLikeStatus(userDetails.getUser().getCoupleCode(), postId));
+            likePostService.getLikeStatus(userDetails.getUser().getCoupleCode(),
+                postIdToken.getPostId()));
     }
 }

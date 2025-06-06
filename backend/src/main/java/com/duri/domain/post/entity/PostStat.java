@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -35,6 +36,8 @@ public class PostStat extends BaseEntity {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    @Column(nullable = false, name = "`like`")
+    @ColumnDefault(value = "0")
     @Builder.Default
     private Long like = 0L;
 
