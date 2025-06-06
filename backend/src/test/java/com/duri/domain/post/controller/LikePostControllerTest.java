@@ -8,15 +8,20 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.duri.domain.auth.CustomUserDetails;
+import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostLikeStatusResponseDto;
 import com.duri.domain.post.service.LikePostService;
 import com.duri.domain.user.entity.User;
+import com.duri.global.util.AESUtil;
 import com.duri.global.util.AESUtilTestHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +44,9 @@ class LikePostControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockitoBean
     private LikePostService likePostService;
 
@@ -56,12 +64,15 @@ class LikePostControllerTest {
     @DisplayName("POST /post/like")
     void likePost() throws Exception {
         // given
-        Long postId = 1L;
+        PostIdToken postIdToken = new PostIdToken(AESUtil.encrypt("1"));
 
         // when & then
-        mockMvc.perform(post("/post/like", postId)
+        mockMvc.perform(post("/post/like")
                 .with(authentication(getTestAuthentication()))
-                .with(csrf()))
+                .with(csrf())
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(postIdToken))
+            )
             .andExpect(status().isOk())
             .andDo(document("post-like",
                 requestFields(
@@ -74,12 +85,15 @@ class LikePostControllerTest {
     @DisplayName("POST /post/dislike")
     void dislikePost() throws Exception {
         // given
-        Long postId = 1L;
+        PostIdToken postIdToken = new PostIdToken(AESUtil.encrypt("1"));
 
         // when & then
-        mockMvc.perform(post("/post/dislike", postId)
+        mockMvc.perform(post("/post/dislike", postIdToken)
                 .with(authentication(getTestAuthentication()))
-                .with(csrf()))
+                .with(csrf())
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(postIdToken))
+            )
             .andExpect(status().isOk())
             .andDo(document("post-dislike",
                 requestFields(
@@ -92,7 +106,7 @@ class LikePostControllerTest {
     @DisplayName("GET /post/like/status")
     void getLikeStatus() throws Exception {
         // given
-        String postIdToken = "/oThmJebEw7iBcnL43Hl2A==";
+        String postIdToken = AESUtil.encrypt("1");
         BDDMockito.given(likePostService.getLikeStatus(anyString(), anyLong()))
             .willReturn(new PostLikeStatusResponseDto(true));
 
@@ -103,8 +117,8 @@ class LikePostControllerTest {
             )
             .andExpect(status().isOk())
             .andDo(document("post-like-status",
-                requestFields(
-                    fieldWithPath("postIdToken").description("게시글 ID 토큰")
+                queryParameters(
+                    parameterWithName("postIdToken").description("암호화된 게시글 ID 토큰")
                 ),
                 responseFields(
                     fieldWithPath("liked").description("해당 게시글을 좋아요 눌렀는지 여부")
