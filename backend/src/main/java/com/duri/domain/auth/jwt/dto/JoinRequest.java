@@ -5,11 +5,13 @@ import com.duri.domain.user.entity.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class JoinRequest {
 
     @NotBlank(message = "이메일을 입력해주세요")
