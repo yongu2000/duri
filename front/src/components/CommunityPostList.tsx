@@ -73,7 +73,7 @@ export default function CommunityPostList({ searchOptions }: CommunityPostListPr
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <PostCard key={post.idToken} post={post} />
+        <PostCard key={post.idToken} post={post} showInteractionInfo={true} />
       ))}
       {hasMore && (
         <div ref={ref} className="h-10 flex justify-center items-center">

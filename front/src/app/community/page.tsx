@@ -10,24 +10,32 @@ import type { PostSearchOptions } from '@/types/post';
 import CommunityPostList from '@/components/CommunityPostList';
 
 export default function CommunityPage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [searchOptions, setSearchOptions] = useState<PostSearchOptions>({});
 
   useEffect(() => {
-    if (!user?.coupleCode) {
+    if (isAuthLoading) return;
+
+    if (!isAuthenticated) {
       router.push('/login');
       return;
     }
+
+    if (!user?.coupleCode) {
+      router.push('/couple/link');
+      return;
+    }
+
     setIsLoading(false);
-  }, [user?.coupleCode, router]);
+  }, [isAuthenticated, user?.coupleCode, router, isAuthLoading]);
 
   const handleSearchOptionsChange = (options: PostSearchOptions) => {
     setSearchOptions(options);
   };
 
-  if (isLoading) {
+  if (isLoading || isAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>

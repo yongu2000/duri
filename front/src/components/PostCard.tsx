@@ -9,9 +9,10 @@ import { useRouter } from 'next/navigation';
 
 interface PostCardProps {
   post: PostResponse;
+  showInteractionInfo?: boolean;
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, showInteractionInfo = false }: PostCardProps) {
   const router = useRouter();
   const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -275,21 +276,23 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
 
         {/* 좋아요, 댓글 수 */}
-        <div className="flex items-center gap-4 text-gray-500">
-          <button
-            onClick={handleLikeClick}
-            className={`flex items-center gap-1 transition-colors ${
-              isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-            }`}
-          >
-            <FiHeart className={`w-4 h-4 ${isLiked ? 'fill-current stroke-current' : ''}`} />
-            <span className="text-xs">{likeCount}</span>
-          </button>
-          <div className="flex items-center gap-1">
-            <FiMessageCircle className="w-4 h-4" />
-            <span className="text-xs">{post.commentCount || 0}</span>
+        {showInteractionInfo && (
+          <div className="flex items-center gap-4 text-gray-500">
+            <button
+              onClick={handleLikeClick}
+              className={`flex items-center gap-1 transition-colors ${
+                isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
+              }`}
+            >
+              <FiHeart className={`w-4 h-4 ${isLiked ? 'fill-current stroke-current' : ''}`} />
+              <span className="text-xs">{likeCount}</span>
+            </button>
+            <div className="flex items-center gap-1">
+              <FiMessageCircle className="w-4 h-4" />
+              <span className="text-xs">{post.commentCount || 0}</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
