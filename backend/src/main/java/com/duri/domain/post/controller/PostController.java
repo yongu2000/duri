@@ -11,6 +11,7 @@ import com.duri.domain.post.dto.PostResponse;
 import com.duri.domain.post.dto.PostSearchOptions;
 import com.duri.domain.post.service.PostService;
 import com.duri.global.dto.CursorResponse;
+import com.duri.global.util.AESUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,9 +57,10 @@ public class PostController {
 
     @GetMapping("/image")
     public ResponseEntity<List<PostImageUrlResponse>> getPostImages(
-        PostIdToken postIdToken
+        @RequestParam PostIdToken postIdToken
     ) {
-        return ResponseEntity.ok(postService.getPostImages(postIdToken));
+        Long postId = Long.parseLong(AESUtil.decrypt(postIdToken.getPostIdToken()));
+        return ResponseEntity.ok(postService.getPostImages(postId));
     }
 
     @GetMapping("/complete/{coupleCode}")
@@ -95,9 +97,10 @@ public class PostController {
 
     @GetMapping("/edit")
     public ResponseEntity<PostResponse> getPost(
-        PostIdToken postIdToken
+        @RequestParam PostIdToken postIdToken
     ) {
-        return ResponseEntity.ok(postService.getPost(postIdToken));
+        Long postId = Long.parseLong(AESUtil.decrypt(postIdToken.getPostIdToken()));
+        return ResponseEntity.ok(postService.getPost(postId));
     }
 
     @PutMapping("/edit")

@@ -13,7 +13,6 @@ import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.dto.PostCursor;
 import com.duri.domain.post.dto.PostEditRequest;
-import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostImageUrlResponse;
 import com.duri.domain.post.dto.PostResponse;
 import com.duri.domain.post.dto.PostSearchOptions;
@@ -74,7 +73,7 @@ public class PostService {
                 .userRightComment(request.getComment());
         }
         Post post = postBuilder.build();
-        
+
         postRepository.save(post);
         postStatService.create(post);
 
@@ -193,8 +192,8 @@ public class PostService {
 
 
     @Transactional(readOnly = true)
-    public List<PostImageUrlResponse> getPostImages(PostIdToken token) {
-        return imageService.findByPostId(token.getPostId()).stream()
+    public List<PostImageUrlResponse> getPostImages(Long postId) {
+        return imageService.findByPostId(postId).stream()
             .map(PostImageUrlResponse::from).toList();
     }
 
@@ -205,8 +204,8 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponse getPost(PostIdToken token) {
-        return PostResponse.from(postRepository.findById(token.getPostId())
+    public PostResponse getPost(Long postId) {
+        return PostResponse.from(postRepository.findById(postId)
             .orElseThrow(PostNotFoundException::new));
     }
 
