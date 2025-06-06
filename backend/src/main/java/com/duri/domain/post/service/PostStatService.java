@@ -13,23 +13,25 @@ public class PostStatService {
 
     private final PostStatRepository postStatRepository;
 
+    public PostStat findByPostId(Long postId) {
+        return postStatRepository.findByPostId(postId).orElseThrow(PostStatNotFoundException::new);
+    }
+
     public void create(Post post) {
         postStatRepository.save(PostStat.builder()
             .post(post)
             .build());
     }
 
-    public void increaseLike(Long postId) {
-        PostStat postStat = postStatRepository.findByPostId(postId)
-            .orElseThrow(PostStatNotFoundException::new);
+    public void increaseLikeCount(Long postId) {
+        PostStat postStat = findByPostId(postId);
 
-        postStat.increaseLike();
+        postStat.increaseLikeCount();
     }
 
-    public void decreaseLike(Long postId) {
-        PostStat postStat = postStatRepository.findByPostId(postId)
-            .orElseThrow(PostStatNotFoundException::new);
+    public void decreaseLikeCount(Long postId) {
+        PostStat postStat = findByPostId(postId);
 
-        postStat.decreaseLike();
+        postStat.decreaseLikeCount();
     }
 }

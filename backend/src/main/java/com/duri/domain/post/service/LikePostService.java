@@ -37,7 +37,7 @@ public class LikePostService {
             .build());
 
         // 이벤트 or ASYNC 처리?
-        postStatService.increaseLike(post.getId());
+        postStatService.increaseLikeCount(post.getId());
         // 좋아요 눌렀다는 알림 보내기
     }
 
@@ -52,7 +52,7 @@ public class LikePostService {
         likePostRepository.delete(likePost);
 
         // 이벤트 or ASYNC 처리?
-        postStatService.decreaseLike(post.getId());
+        postStatService.decreaseLikeCount(post.getId());
     }
 
     @Transactional(readOnly = true)

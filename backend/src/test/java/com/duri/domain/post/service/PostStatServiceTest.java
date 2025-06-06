@@ -28,15 +28,15 @@ class PostStatServiceTest {
     void 좋아요_증가_정상() {
         // given
         Long postId = 1L;
-        PostStat postStat = PostStat.builder().like(0L).build();
+        PostStat postStat = PostStat.builder().likeCount(0L).build();
         given(postStatRepository.findByPostId(postId)).willReturn(Optional.of(postStat));
 
         // when
-        postStatService.increaseLike(postId);
+        postStatService.increaseLikeCount(postId);
 
         // then
         then(postStatRepository).should().findByPostId(postId);
-        assertThat(postStat.getLike()).isEqualTo(1L);
+        assertThat(postStat.getLikeCount()).isEqualTo(1L);
     }
 
     @Test
@@ -46,7 +46,7 @@ class PostStatServiceTest {
         given(postStatRepository.findByPostId(postId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> postStatService.increaseLike(postId))
+        assertThatThrownBy(() -> postStatService.increaseLikeCount(postId))
             .isInstanceOf(PostStatNotFoundException.class);
     }
 
@@ -54,15 +54,15 @@ class PostStatServiceTest {
     void 좋아요_감소_정상() {
         // given
         Long postId = 2L;
-        PostStat postStat = PostStat.builder().like(3L).build();
+        PostStat postStat = PostStat.builder().likeCount(3L).build();
         given(postStatRepository.findByPostId(postId)).willReturn(Optional.of(postStat));
 
         // when
-        postStatService.decreaseLike(postId);
+        postStatService.decreaseLikeCount(postId);
 
         // then
         then(postStatRepository).should().findByPostId(postId);
-        assertThat(postStat.getLike()).isEqualTo(2L);
+        assertThat(postStat.getLikeCount()).isEqualTo(2L);
     }
 
     @Test
@@ -72,7 +72,7 @@ class PostStatServiceTest {
         given(postStatRepository.findByPostId(postId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> postStatService.decreaseLike(postId))
+        assertThatThrownBy(() -> postStatService.decreaseLikeCount(postId))
             .isInstanceOf(PostStatNotFoundException.class);
     }
 }

@@ -54,7 +54,7 @@ class LikePostServiceTest {
 
         // then
         then(likePostRepository).should().save(any(LikePost.class));
-        then(postStatService).should().increaseLike(postId);
+        then(postStatService).should().increaseLikeCount(postId);
     }
 
     @Test
@@ -84,7 +84,7 @@ class LikePostServiceTest {
 
         // then
         then(likePostRepository).should().delete(likePost);
-        then(postStatService).should().decreaseLike(postId);
+        then(postStatService).should().decreaseLikeCount(postId);
     }
 
     @Test

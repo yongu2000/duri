@@ -36,16 +36,15 @@ public class PostStat extends BaseEntity {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @Column(nullable = false, name = "`like`")
     @ColumnDefault(value = "0")
     @Builder.Default
-    private Long like = 0L;
+    private Long likeCount = 0L;
 
-    public void increaseLike() {
-        this.like++;
+    public void increaseLikeCount() {
+        this.likeCount++;
     }
 
-    public void decreaseLike() {
-        this.like--;
+    public void decreaseLikeCount() {
+        this.likeCount--;
     }
 }
