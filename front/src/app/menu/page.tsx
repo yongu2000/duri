@@ -3,18 +3,9 @@
 import { FiHome, FiUsers, FiHeart } from 'react-icons/fi';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { authService } from '@/services/auth';
 
 export default function MenuPage() {
   const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -60,14 +51,6 @@ export default function MenuPage() {
             <span className="text-sm">좋아요한 글</span>
           </Link>
         </div>
-
-        {/* 로그아웃 버튼 */}
-        <button
-          onClick={handleLogout}
-          className="absolute bottom-6 right-6 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium"
-        >
-          로그아웃
-        </button>
       </div>
     </div>
   );

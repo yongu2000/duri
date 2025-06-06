@@ -227,6 +227,21 @@ class PostService {
     // TODO: 백엔드 API 구현 후 구현 예정
     throw new Error('아직 구현되지 않은 기능입니다.');
   }
+
+  async likePost(postIdToken: string): Promise<void> {
+    await axiosInstance.post('/post/like', { postIdToken });
+  }
+
+  async dislikePost(postIdToken: string): Promise<void> {
+    await axiosInstance.post('/post/dislike', { postIdToken });
+  }
+
+  async getLikeStatus(postIdToken: string): Promise<{ liked: boolean }> {
+    const response = await axiosInstance.get('/post/like/status', {
+      params: { postIdToken }
+    });
+    return response.data;
+  }
 }
 
 export const postService = new PostService(); 

@@ -19,6 +19,8 @@ export default function PostCard({ post }: PostCardProps) {
   const [swipeDelta, setSwipeDelta] = useState(0);
   const [images, setImages] = useState<string[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.likeCount || 0);
 
   const canEdit = user?.coupleCode === post.coupleCode;
 
@@ -35,6 +37,19 @@ export default function PostCard({ post }: PostCardProps) {
     };
 
     loadImages();
+  }, [post.idToken]);
+
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      try {
+        const { liked } = await postService.getLikeStatus(post.idToken);
+        setIsLiked(liked);
+      } catch (error) {
+        console.error('좋아요 상태 확인 실패:', error);
+      }
+    };
+
+    checkLikeStatus();
   }, [post.idToken]);
 
   const getPrevImageIndex = (currentIndex: number) => {
@@ -86,6 +101,21 @@ export default function PostCard({ post }: PostCardProps) {
     }
     
     return age;
+  };
+
+  const handleLikeClick = async () => {
+    try {
+      if (isLiked) {
+        await postService.dislikePost(post.idToken);
+        setLikeCount(prev => prev - 1);
+      } else {
+        await postService.likePost(post.idToken);
+        setLikeCount(prev => prev + 1);
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error('좋아요 처리 실패:', error);
+    }
   };
 
   return (
@@ -246,10 +276,15 @@ export default function PostCard({ post }: PostCardProps) {
 
         {/* 좋아요, 댓글 수 */}
         <div className="flex items-center gap-4 text-gray-500">
-          <div className="flex items-center gap-1">
-            <FiHeart className="w-4 h-4" />
-            <span className="text-xs">{post.likeCount || 0}</span>
-          </div>
+          <button
+            onClick={handleLikeClick}
+            className={`flex items-center gap-1 transition-colors ${
+              isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
+            }`}
+          >
+            <FiHeart className={`w-4 h-4 ${isLiked ? 'fill-current stroke-current' : ''}`} />
+            <span className="text-xs">{likeCount}</span>
+          </button>
           <div className="flex items-center gap-1">
             <FiMessageCircle className="w-4 h-4" />
             <span className="text-xs">{post.commentCount || 0}</span>
