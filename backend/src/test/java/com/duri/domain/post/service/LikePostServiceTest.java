@@ -70,6 +70,17 @@ class LikePostServiceTest {
     }
 
     @Test
+    void 좋아요_게시글_없음_PostNotFoundException() {
+        // given
+        given(coupleService.findByCode(coupleCode)).willReturn(couple);
+        given(postRepository.findById(postId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> likePostService.like(coupleCode, postId))
+            .isInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
     void 좋아요_취소_정상() {
         // given
         LikePost likePost = LikePost.builder().id(100L).couple(couple).post(post).build();
