@@ -5,14 +5,24 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 @Slf4j
+@Component
 public class LoggingInterceptor implements HandlerInterceptor {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
         "yyyy-MM-dd HH:mm:ss.SSS");
+
+    private static final int QUERY_COUNT_WARNING_STANDARD = 10;
+    private static final String QUERY_COUNT_WARNING_LOG_FORMAT = "쿼리가 {}번 이상 실행되었습니다.";
+    private final ApiQueryCounter apiQueryCounter;
+
+    public LoggingInterceptor(final ApiQueryCounter apiQueryCounter) {
+        this.apiQueryCounter = apiQueryCounter;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
@@ -46,14 +56,21 @@ public class LoggingInterceptor implements HandlerInterceptor {
         long endTime = System.currentTimeMillis();
         long executionTime = endTime - startTime;
 
+        int queryCount = apiQueryCounter.getCount();
+
         // 응답 정보 로깅
-        log.info("[{}] {} {} completed - status: {}, time: {}ms",
+        log.info("[{}] {} {} completed - status: {}, time: {}ms | query_count: {}",
             LocalDateTime.now().format(formatter),
             request.getMethod(),
             request.getRequestURI(),
             response.getStatus(),
-            executionTime
+            executionTime,
+            queryCount
         );
+
+        if (queryCount >= QUERY_COUNT_WARNING_STANDARD) {
+            log.warn(QUERY_COUNT_WARNING_LOG_FORMAT, QUERY_COUNT_WARNING_STANDARD);
+        }
 
         if (ex != null) {
             log.error("Error occurred while processing request", ex);

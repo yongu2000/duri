@@ -2,6 +2,7 @@ package com.duri.config;
 
 import com.duri.global.converter.DecryptIdConverter;
 import com.duri.global.log.LoggingInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -11,7 +12,10 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    private final LoggingInterceptor loggingInterceptor;
 
     @Value("${app.frontend.url}")
     private String FRONTEND_URL;
@@ -31,7 +35,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoggingInterceptor());
+        registry.addInterceptor(loggingInterceptor);
     }
 
     @Override
