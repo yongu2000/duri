@@ -17,6 +17,9 @@ import com.duri.domain.post.exception.PostNotFoundException;
 import com.duri.domain.post.repository.LikePostRepository;
 import com.duri.domain.post.repository.PostRepository;
 import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +27,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("글 좋아요 서비스 단위 테스트")
+@DisplayNameGeneration(ReplaceUnderscores.class)
 class LikePostServiceTest {
 
     private final String coupleCode = "testCoupleCode";
