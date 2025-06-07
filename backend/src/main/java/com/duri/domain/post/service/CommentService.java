@@ -55,7 +55,7 @@ public class CommentService {
         Comment comment = findById(commentId);
 
         PostStat postStat = postStatService.findByPostId(comment.getPost().getId());
-        postStat.increaseCommentCount();
+        postStat.decreaseCommentCount();
 
         commentRepository.delete(comment);
     }
