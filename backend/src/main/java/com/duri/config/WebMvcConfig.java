@@ -1,8 +1,10 @@
 package com.duri.config;
 
+import com.duri.global.converter.DecryptIdConverter;
 import com.duri.global.log.LoggingInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -36,5 +38,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**") // 클라이언트가 접근할 경로
             .addResourceLocations("file:uploads/"); // 실제 로컬 디렉토리
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new DecryptIdConverter());
     }
 }

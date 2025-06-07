@@ -5,13 +5,12 @@ import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
 import com.duri.domain.post.dto.PostCursor;
 import com.duri.domain.post.dto.PostEditRequest;
-import com.duri.domain.post.dto.PostIdToken;
 import com.duri.domain.post.dto.PostImageUrlResponse;
 import com.duri.domain.post.dto.PostResponse;
 import com.duri.domain.post.dto.PostSearchOptions;
 import com.duri.domain.post.service.PostService;
+import com.duri.global.annotation.DecryptId;
 import com.duri.global.dto.CursorResponse;
-import com.duri.global.util.AESUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,11 +54,10 @@ public class PostController {
             postService.getAllPostsWithSearchOptionsToCursor(cursor, size, postSearchOptions));
     }
 
-    @GetMapping("/image")
+    @GetMapping("/{postId}/image")
     public ResponseEntity<List<PostImageUrlResponse>> getPostImages(
-        @RequestParam PostIdToken postIdToken
+        @PathVariable @DecryptId Long postId
     ) {
-        Long postId = Long.parseLong(AESUtil.decrypt(postIdToken.getPostIdToken()));
         return ResponseEntity.ok(postService.getPostImages(postId));
     }
 
@@ -95,11 +93,10 @@ public class PostController {
                 coupleCode));
     }
 
-    @GetMapping("/edit")
+    @GetMapping("/{postId}/edit")
     public ResponseEntity<PostResponse> getPost(
-        @RequestParam PostIdToken postIdToken
+        @PathVariable @DecryptId Long postId
     ) {
-        Long postId = Long.parseLong(AESUtil.decrypt(postIdToken.getPostIdToken()));
         return ResponseEntity.ok(postService.getPost(postId));
     }
 

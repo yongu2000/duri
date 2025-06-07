@@ -46,6 +46,7 @@ public class PostResponse {
     private Scope scope;
 
     private Long likeCount;
+    private Long commentCount;
 
     public static PostResponse from(Post post) {
         return PostResponse.builder()
@@ -108,6 +109,7 @@ public class PostResponse {
 
             .scope(post.getScope())
             .likeCount(postStat.getLikeCount())
+            .commentCount(postStat.getCommentCount())
             .build();
     }
 

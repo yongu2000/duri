@@ -36,7 +36,7 @@ public class AESUtil {
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException(e);
         }
-        return Base64.getEncoder().encodeToString(encryptedBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
     }
 
     public static String decrypt(String encryptedInput) {
@@ -52,7 +52,7 @@ public class AESUtil {
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         }
-        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedInput);
+        byte[] encryptedBytes = Base64.getUrlDecoder().decode(encryptedInput);
         byte[] decryptedBytes = null;
         try {
             decryptedBytes = cipher.doFinal(encryptedBytes);
