@@ -15,6 +15,7 @@ import com.duri.domain.post.dto.comment.CommentUpdateResponseDto;
 import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
 import com.duri.domain.post.entity.Comment;
 import com.duri.domain.post.entity.Post;
+import com.duri.domain.post.entity.PostStat;
 import com.duri.domain.post.exception.CommentNotFoundException;
 import com.duri.domain.post.repository.CommentRepository;
 import com.duri.global.util.AESUtilTestHelper;
@@ -47,29 +48,33 @@ class CommentServiceTest {
     @Mock
     private PostService postService;
 
-    // create 테스트
+    @Mock
+    private PostStatService postStatService;
+
     @Test
     void 댓글_생성_성공() {
         // given
-        String coupleCode = "ABCD12";
+        String coupleCode = "ABC123";
         Long postId = 1L;
         String content = "댓글 내용";
 
-        Couple couple = mock(Couple.class);
-        Post post = mock(Post.class);
+        Couple couple = Couple.builder().id(1L).name("테스트커플").build();
+        Post post = Post.builder().id(postId).title("테스트 게시글").build();
+        PostStat postStat = mock(PostStat.class);
         CommentCreateRequestDto request = new CommentCreateRequestDto(content);
 
         given(coupleService.findByCode(coupleCode)).willReturn(couple);
         given(postService.findById(postId)).willReturn(post);
+        given(postStatService.findByPostId(postId)).willReturn(postStat);
 
         // when
         commentService.create(coupleCode, postId, request);
 
         // then
+        then(postStat).should().increaseCommentCount();
         then(commentRepository).should().save(any(Comment.class));
     }
 
-    // findById 성공
     @Test
     void 댓글_ID_조회_성공() {
         // given
@@ -120,13 +125,18 @@ class CommentServiceTest {
     void 댓글_삭제_성공() {
         // given
         Long commentId = 1L;
-        Comment comment = mock(Comment.class);
+        Post post = Post.builder().id(10L).build();
+        Comment comment = Comment.builder().id(commentId).post(post).build();
+        PostStat postStat = mock(PostStat.class);
+
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+        given(postStatService.findByPostId(post.getId())).willReturn(postStat);
 
         // when
         commentService.delete(commentId);
 
         // then
+        then(postStat).should().increaseCommentCount();
         then(commentRepository).should().delete(comment);
     }
 
