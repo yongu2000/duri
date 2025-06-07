@@ -34,4 +34,16 @@ public class PostStatService {
 
         postStat.decreaseLikeCount();
     }
+
+    public void increaseCommentCount(Long postId) {
+        PostStat postStat = findByPostId(postId);
+
+        postStat.increaseCommentCount();
+    }
+
+    public void decreaseCommentCount(Long postId) {
+        PostStat postStat = findByPostId(postId);
+
+        postStat.decreaseCommentCount();
+    }
 }

@@ -1,7 +1,6 @@
 package com.duri.domain.post.dto.comment;
 
 import com.duri.domain.post.entity.Comment;
-import com.duri.domain.post.entity.CommentStat;
 import com.duri.global.util.AESUtil;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -11,20 +10,23 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class ParentCommentResponseDto {
+public class CommentRepliesResponseDto {
 
     private String commentIdToken;
+    private String parentCommentIdToken;
     private String content;
     private String author;
-    private Long commentCount;
+    private String replyTo;
     private LocalDateTime createdAt;
 
-    public static ParentCommentResponseDto from(Comment comment, CommentStat commentStat) {
-        return ParentCommentResponseDto.builder()
+    public static CommentRepliesResponseDto from(Comment comment) {
+        return CommentRepliesResponseDto.builder()
             .commentIdToken(AESUtil.encrypt(String.valueOf(comment.getId())))
+            .parentCommentIdToken(
+                AESUtil.encrypt(String.valueOf(comment.getParentComment().getId())))
             .content(comment.getContent())
             .author(comment.getCouple().getName())
-            .commentCount(commentStat.getCommentCount())
+            .replyTo(comment.getReplyToComment().getCouple().getName())
             .createdAt(comment.getCreatedAt())
             .build();
     }

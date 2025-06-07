@@ -48,6 +48,11 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reply_to_comment_id")
+    private Comment replyToComment;
+
+    @Builder.Default
     @OneToMany(
         mappedBy = "parentComment",
         fetch = FetchType.LAZY,

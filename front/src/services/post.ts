@@ -121,9 +121,7 @@ class PostService {
 
   async getPostImages(postIdToken: string): Promise<string[]> {
     try {
-      const response = await axiosInstance.get<PostImageUrlResponse[]>(`/post/image`, {
-        params: { postIdToken }
-      });
+      const response = await axiosInstance.get<PostImageUrlResponse[]>(`/post/${postIdToken}/image`);
       return response.data.map(img => img.imageUrl);
     } catch (error) {
       console.error('이미지 로드 실패:', error);
@@ -177,9 +175,7 @@ class PostService {
 
   async getPost(postIdToken: string): Promise<PostResponse> {
     try {
-      const response = await axiosInstance.get<PostResponse>(`/post/edit`, {
-        params: { postIdToken }
-      });
+      const response = await axiosInstance.get<PostResponse>(`/post/${postIdToken}/edit`);
       return response.data;
     } catch (error) {
       console.error('게시글 조회 중 오류 발생:', error);
@@ -229,17 +225,15 @@ class PostService {
   }
 
   async likePost(postIdToken: string): Promise<void> {
-    await axiosInstance.post('/post/like', { postIdToken });
+    await axiosInstance.post(`/post/${postIdToken}/like`);
   }
 
   async dislikePost(postIdToken: string): Promise<void> {
-    await axiosInstance.post('/post/dislike', { postIdToken });
+    await axiosInstance.post(`/post/${postIdToken}/dislike`);
   }
 
   async getLikeStatus(postIdToken: string): Promise<{ liked: boolean }> {
-    const response = await axiosInstance.get('/post/like/status', {
-      params: { postIdToken }
-    });
+    const response = await axiosInstance.get(`/post/${postIdToken}/like/status`);
     return response.data;
   }
 }

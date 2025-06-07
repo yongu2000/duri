@@ -2,6 +2,8 @@ package com.duri.domain.post.controller;
 
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.post.dto.comment.CommentCreateRequestDto;
+import com.duri.domain.post.dto.comment.CommentRepliesResponseDto;
+import com.duri.domain.post.dto.comment.CommentReplyCreateRequestDto;
 import com.duri.domain.post.dto.comment.CommentUpdateRequestDto;
 import com.duri.domain.post.dto.comment.CommentUpdateResponseDto;
 import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
@@ -38,6 +40,15 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/reply/{commentId}")
+    public ResponseEntity<Void> createReply(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @RequestBody CommentReplyCreateRequestDto request,
+        @PathVariable @DecryptId Long commentId) {
+        commentService.createReply(userDetails.getUser().getCoupleCode(), commentId, request);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentUpdateResponseDto> update(
         @RequestBody CommentUpdateRequestDto request,
@@ -56,6 +67,12 @@ public class CommentController {
     public ResponseEntity<List<ParentCommentResponseDto>> getPostParentComments(
         @PathVariable @DecryptId Long postId) {
         return ResponseEntity.ok(commentService.getPostParentComments(postId));
+    }
+
+    @GetMapping("/reply/{commentId}")
+    public ResponseEntity<List<CommentRepliesResponseDto>> getCommentReplies(
+        @PathVariable @DecryptId Long commentId) {
+        return ResponseEntity.ok(commentService.getCommentReplies(commentId));
     }
 
 }
