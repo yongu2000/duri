@@ -9,6 +9,7 @@ import com.duri.domain.post.dto.comment.CommentUpdateResponseDto;
 import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
 import com.duri.domain.post.entity.Comment;
 import com.duri.domain.post.entity.Post;
+import com.duri.domain.post.entity.PostStat;
 import com.duri.domain.post.exception.CommentNotFoundException;
 import com.duri.domain.post.repository.CommentRepository;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final PostStatService postStatService;
     private final CoupleService coupleService;
     private final PostService postService;
 
@@ -29,6 +31,9 @@ public class CommentService {
         Couple couple = coupleService.findByCode(coupleCode);
         Post post = postService.findById(postId);
         String content = request.getContent();
+
+        PostStat postStat = postStatService.findByPostId(postId);
+        postStat.increaseCommentCount();
 
         commentRepository.save(Comment.builder()
             .content(content)
@@ -48,6 +53,10 @@ public class CommentService {
     @CheckCommentPermission
     public void delete(Long commentId) {
         Comment comment = findById(commentId);
+
+        PostStat postStat = postStatService.findByPostId(comment.getPost().getId());
+        postStat.increaseCommentCount();
+
         commentRepository.delete(comment);
     }
 
