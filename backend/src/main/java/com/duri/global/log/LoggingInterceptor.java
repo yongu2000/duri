@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -56,7 +57,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
         long endTime = System.currentTimeMillis();
         long executionTime = endTime - startTime;
 
-        int queryCount = apiQueryCounter.getCount();
+        int queryCount = apiQueryCounter.getTotalCount();
 
         // 응답 정보 로깅
         log.info("[{}] {} {} completed - status: {}, time: {}ms | query_count: {}",
@@ -67,6 +68,23 @@ public class LoggingInterceptor implements HandlerInterceptor {
             executionTime,
             queryCount
         );
+
+        Map<String, Integer> serviceQueryMap = apiQueryCounter.getServiceQueryCount();
+        if (!serviceQueryMap.isEmpty()) {
+            StringBuilder sb = new StringBuilder("\n[Service별 쿼리 카운트]");
+            int i = 0;
+            int size = serviceQueryMap.size();
+            for (Map.Entry<String, Integer> entry : serviceQueryMap.entrySet()) {
+                String prefix = (i == size - 1) ? "└─ " : "├─ ";
+                sb.append(prefix)
+                    .append(entry.getKey())
+                    .append(" = ")
+                    .append(entry.getValue())
+                    .append("\n");
+                i++;
+            }
+            log.info("\n{}", sb.toString());
+        }
 
         if (queryCount >= QUERY_COUNT_WARNING_STANDARD) {
             log.warn(QUERY_COUNT_WARNING_LOG_FORMAT, QUERY_COUNT_WARNING_STANDARD);
