@@ -3,12 +3,15 @@ package com.duri.global.log;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
 @Component
 @RequestScope
 @Getter
+@Profile("!test")
+
 public class ApiQueryCounter {
 
     private static final ThreadLocal<String> currentService = new ThreadLocal<>();
@@ -32,5 +35,5 @@ public class ApiQueryCounter {
         }
         serviceQueryCount.put(serviceName, serviceQueryCount.getOrDefault(serviceName, 0) + 1);
     }
-    
+
 }

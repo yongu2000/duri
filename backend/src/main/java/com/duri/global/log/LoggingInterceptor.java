@@ -6,12 +6,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 @Slf4j
 @Component
+@Profile("!test")
+
 public class LoggingInterceptor implements HandlerInterceptor {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
