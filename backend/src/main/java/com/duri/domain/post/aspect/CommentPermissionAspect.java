@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -26,10 +27,29 @@ public class CommentPermissionAspect {
     private final CoupleService coupleService;
     private final UserRepository userRepository;
 
+    private static Long getCommentId(ProceedingJoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String[] parameterNames = signature.getParameterNames();
+
+        Long commentId = null;
+
+        for (int i = 0; i < parameterNames.length; i++) {
+            // 파라미터명이 "commentId"이고 타입이 Long인지 검사
+            if ("commentId".equals(parameterNames[i]) && args[i] instanceof Long) {
+                commentId = (Long) args[i];
+                break;
+            }
+        }
+        if (commentId == null) {
+            throw new IllegalArgumentException("commentId(Long) 파라미터가 필요합니다.");
+        }
+        return commentId;
+    }
+
     @Around("@annotation(CheckCommentPermission)")
     public Object checkPermission(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object[] args = joinPoint.getArgs();
-        Long commentId = (Long) args[0];
+        Long commentId = getCommentId(joinPoint);
         Long userId = extractUserId();
         String coupleCode = extractCoupleCode(); // SecurityContext에서 꺼내기
 
