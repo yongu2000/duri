@@ -1,5 +1,6 @@
 package com.duri.domain.notification.entity;
 
+import com.duri.domain.couple.entity.Couple;
 import com.duri.domain.notification.constant.NotificationType;
 import com.duri.domain.user.entity.User;
 import com.duri.global.entity.BaseEntity;
@@ -42,8 +43,12 @@ public class Notification extends BaseEntity {
     private User to;
 
     @ManyToOne
-    @JoinColumn(name = "user_from_id", nullable = false)
+    @JoinColumn(name = "user_from_id")
     private User from;
+
+    @ManyToOne
+    @JoinColumn(name = "couple_from_id")
+    private Couple fromCouple;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

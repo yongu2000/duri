@@ -22,7 +22,8 @@ public class NotificationResponse {
         return new NotificationResponse(
             AESUtil.encrypt(String.valueOf(notification.getId())),
             notification.getContent(),
-            notification.getFrom().getName(),
+            notification.getFrom() != null ? notification.getFrom().getName()
+                : notification.getFromCouple().getName(),
             notification.getType(),
             notification.isConfirmed(),
             notification.getCreatedAt());
