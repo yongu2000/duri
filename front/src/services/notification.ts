@@ -1,4 +1,9 @@
-import { MainNotificationResponse } from '@/types/notification';
+import { 
+  NotificationCursor, 
+  NotificationResponse, 
+  CursorResponse,
+  UnconfirmedNotificationsCountResponse 
+} from '@/types/notification';
 import { axiosInstance } from './axios';
 import { EventSourcePolyfill, NativeEventSource } from 'event-source-polyfill';
 
@@ -8,12 +13,51 @@ class NotificationService {
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000; // 1초
   private isConnecting = false;
-  private lastHeartbeat = Date.now();
-  private heartbeatCheckInterval: NodeJS.Timeout | null = null;
 
-  async getNotifications(): Promise<MainNotificationResponse> {
-    const response = await axiosInstance.get<MainNotificationResponse>('/notification/main');
+  async getUnconfirmedNotifications(cursor?: NotificationCursor, size: number = 10): Promise<CursorResponse<NotificationResponse, NotificationCursor>> {
+    const params = new URLSearchParams();
+    if (cursor) {
+      params.append('createdAt', cursor.createdAt);
+      params.append('id', cursor.id);
+    }
+    params.append('size', size.toString());
+    
+    const response = await axiosInstance.get<CursorResponse<NotificationResponse, NotificationCursor>>(
+      `/notification/unconfirmed?${params.toString()}`
+    );
     return response.data;
+  }
+
+  async getConfirmedNotifications(cursor?: NotificationCursor, size: number = 10): Promise<CursorResponse<NotificationResponse, NotificationCursor>> {
+    const params = new URLSearchParams();
+    if (cursor) {
+      params.append('createdAt', cursor.createdAt);
+      params.append('id', cursor.id);
+    }
+    params.append('size', size.toString());
+    
+    const response = await axiosInstance.get<CursorResponse<NotificationResponse, NotificationCursor>>(
+      `/notification/confirmed?${params.toString()}`
+    );
+    return response.data;
+  }
+
+  async getUnconfirmedNotificationsCount(): Promise<number> {
+    const response = await axiosInstance.get<UnconfirmedNotificationsCountResponse>('/notification/unconfirmed/count');
+    return response.data.count;
+  }
+
+  async getPendingPostsCount(coupleCode: string): Promise<number> {
+    const response = await axiosInstance.get<{ count: number }>(`/post/pending/${coupleCode}/count`);
+    return response.data.count;
+  }
+
+  async deleteNotification(notificationId: string): Promise<void> {
+    await axiosInstance.delete(`/notification/delete/${notificationId}`);
+  }
+
+  async deleteAllNotifications(): Promise<void> {
+    await axiosInstance.delete('/notification/delete/all');
   }
 
   connectSSE(onMessage: (event: MessageEvent) => void) {
@@ -41,42 +85,45 @@ class NotificationService {
           'Cache-Control': 'no-cache',
           'Connection': 'keep-alive'
         },
-        withCredentials: true,
-        heartbeatTimeout: 35000 // 30초로 타임아웃 설정
+        withCredentials: true
       });
 
       if (this.sseConnection) {
-        // 하트비트 메시지 처리
-        this.sseConnection.addEventListener('heartbeat', (event) => {
-          console.log('알림 SSE 하트비트 수신');
-          this.lastHeartbeat = Date.now();
-        });
-
         // 연결 성공 메시지 처리
         this.sseConnection.addEventListener('connect', (event) => {
           console.log('알림 SSE 연결 성공');
-          this.lastHeartbeat = Date.now();
+          this.reconnectAttempts = 0;
+          this.isConnecting = false;
         });
 
-        // 알림 이벤트 처리
-        this.sseConnection.addEventListener('POST', (event) => {
+        // 모든 이벤트를 수신
+        this.sseConnection.onmessage = async (event) => {
           console.log('새로운 알림 수신:', event.data);
-          onMessage(event);
-        });
+          
+          try {
+            // 알림 카운트 업데이트
+            const unconfirmedCount = await this.getUnconfirmedNotificationsCount();
+            window.dispatchEvent(new CustomEvent('notificationUpdate', {
+              detail: { count: unconfirmedCount }
+            }));
 
-        // 하트비트 체크 시작
-        this.startHeartbeatCheck();
+            // 미완성 게시물 카운트 업데이트
+            const coupleCode = localStorage.getItem('coupleCode');
+            if (coupleCode) {
+              const pendingCount = await this.getPendingPostsCount(coupleCode);
+              window.dispatchEvent(new CustomEvent('pendingPostsUpdate', {
+                detail: { count: pendingCount }
+              }));
+            }
+          } catch (error) {
+            console.error('카운트 업데이트 실패:', error);
+          }
+
+          onMessage(event);
+        };
 
         this.sseConnection.onerror = (error) => {
-          console.error('알림 SSE 연결 에러:', {
-            error,
-            readyState: this.sseConnection?.readyState,
-            url: sseUrl,
-            headers: {
-              'Authorization': 'Bearer ' + accessToken.substring(0, 10) + '...',
-              'withCredentials': true
-            }
-          });
+          console.error('알림 SSE 연결 에러:', error);
           
           if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
@@ -91,13 +138,6 @@ class NotificationService {
             this.disconnectSSE();
           }
         };
-
-        this.sseConnection.onopen = () => {
-          console.log('알림 SSE 연결 성공');
-          this.reconnectAttempts = 0;
-          this.isConnecting = false;
-          this.lastHeartbeat = Date.now();
-        };
       }
     } catch (error) {
       console.error('SSE 연결 생성 중 에러:', error);
@@ -105,27 +145,7 @@ class NotificationService {
     }
   }
 
-  private startHeartbeatCheck() {
-    if (this.heartbeatCheckInterval) {
-      clearInterval(this.heartbeatCheckInterval);
-    }
-
-    this.heartbeatCheckInterval = setInterval(() => {
-      const now = Date.now();
-      if (now - this.lastHeartbeat > 35000) { // 35초 이상 하트비트가 없으면
-        console.log('하트비트 타임아웃, 재연결 시도');
-        this.disconnectSSE();
-        this.connectSSE(() => {});
-      }
-    }, 5000); // 5초마다 체크
-  }
-
   disconnectSSE() {
-    if (this.heartbeatCheckInterval) {
-      clearInterval(this.heartbeatCheckInterval);
-      this.heartbeatCheckInterval = null;
-    }
-
     if (this.sseConnection) {
       this.sseConnection.close();
       this.sseConnection = null;

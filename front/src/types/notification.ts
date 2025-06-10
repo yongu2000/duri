@@ -2,7 +2,9 @@ export enum NotificationType {
   POST = 'POST',
   COMMENT = 'COMMENT',
   LIKE = 'LIKE',
-  COUPLE = 'COUPLE'
+  FOLLOW = 'FOLLOW',
+  MENTION = 'MENTION',
+  SYSTEM = 'SYSTEM'
 }
 
 export interface Notification {
@@ -13,7 +15,26 @@ export interface Notification {
   createdAt: string;
 }
 
-export interface MainNotificationResponse {
+export interface NotificationCursor {
+  id: string;
+  createdAt: string;
+}
+
+export interface NotificationResponse {
+  id: string;
+  content: string;
+  fromUser: string;
+  type: NotificationType;
+  confirmed: boolean;
+  createdAt: string;
+}
+
+export interface CursorResponse<T, C> {
+  items: T[];
+  nextCursor: C | null;
+  hasNext: boolean;
+}
+
+export interface UnconfirmedNotificationsCountResponse {
   count: number;
-  notifications: Notification[];
-} 
+}

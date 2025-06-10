@@ -8,8 +8,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: '두리',
-  description: '우리만의 특별한 공간',
-}
+  description: '두리 - 커플을 위한 소셜 네트워크',
+};
 
 export default function RootLayout({
   children,
@@ -19,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style>
           {`
             @font-face {

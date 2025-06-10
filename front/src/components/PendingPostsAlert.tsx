@@ -21,6 +21,17 @@ export default function PendingPostsAlert() {
     };
 
     fetchPendingCount();
+
+    // SSE 이벤트 수신
+    const handlePendingUpdate = (event: CustomEvent) => {
+      setPendingCount(event.detail.count);
+    };
+
+    window.addEventListener('pendingPostsUpdate', handlePendingUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('pendingPostsUpdate', handlePendingUpdate as EventListener);
+    };
   }, [user?.coupleCode]);
 
   if (pendingCount === 0) return null;
