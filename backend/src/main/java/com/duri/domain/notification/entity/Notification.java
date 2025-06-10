@@ -51,7 +51,7 @@ public class Notification extends BaseEntity {
     private Couple fromCouple;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(255)")
     private NotificationType type;
 
     @Builder.Default
