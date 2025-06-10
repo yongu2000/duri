@@ -54,5 +54,6 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private NotificationType type;
 
-    private boolean confirmed;
+    @Builder.Default
+    private boolean confirmed = false;
 }

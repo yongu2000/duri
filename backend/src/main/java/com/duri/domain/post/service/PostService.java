@@ -5,9 +5,6 @@ import com.duri.domain.couple.entity.Couple;
 import com.duri.domain.couple.service.CoupleService;
 import com.duri.domain.image.entity.Image;
 import com.duri.domain.image.service.ImageService;
-import com.duri.domain.notification.constant.NotificationType;
-import com.duri.domain.notification.entity.Notification;
-import com.duri.domain.notification.service.NotificationService;
 import com.duri.domain.post.constant.PostStatus;
 import com.duri.domain.post.dto.PendingPostCountResponse;
 import com.duri.domain.post.dto.PostCreateRequest;
@@ -18,6 +15,7 @@ import com.duri.domain.post.dto.PostResponse;
 import com.duri.domain.post.dto.PostSearchOptions;
 import com.duri.domain.post.entity.Post;
 import com.duri.domain.post.entity.Post.PostBuilder;
+import com.duri.domain.post.event.PostCreatedEvent;
 import com.duri.domain.post.exception.PostNotFoundException;
 import com.duri.domain.post.repository.PostRepository;
 import com.duri.domain.user.entity.Position;
@@ -26,6 +24,7 @@ import com.duri.global.dto.CursorResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,11 +34,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class PostService {
 
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final CoupleService coupleService;
     private final PostStatService postStatService;
     private final PostRepository postRepository;
     private final ImageService imageService;
-    private final NotificationService notificationService;
 
     public void create(CustomUserDetails userDetails, PostCreateRequest request) {
         User user = userDetails.getUser();
@@ -79,18 +78,8 @@ public class PostService {
 
         setPostImages(request.getImageUrls(), post);
 
-        // 커플에게 별점/한마디 작성 요청 알림 전송
-        Notification notification = Notification.builder()
-            .type(NotificationType.POST)
-            .confirmed(false)
-            .to(isLeftUser ? couple.getUserRight() : couple.getUserLeft())
-            .from(isLeftUser ? couple.getUserLeft() : couple.getUserRight())
-            .content(post.getTitle() + "게시글 작성을 완료해주세요")
-            .build();
-
-        notificationService.send(notification);
-        //
-
+        // 게시글 생성 후처리 이벤트 (알림 전송)
+        applicationEventPublisher.publishEvent(new PostCreatedEvent(post));
     }
 
 

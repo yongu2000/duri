@@ -12,10 +12,13 @@ import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
 import com.duri.domain.post.entity.Comment;
 import com.duri.domain.post.entity.CommentStat;
 import com.duri.domain.post.entity.Post;
+import com.duri.domain.post.event.CommentCreatedEvent;
+import com.duri.domain.post.event.CommentReplyCreatedEvent;
 import com.duri.domain.post.exception.CommentNotFoundException;
 import com.duri.domain.post.repository.CommentRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class CommentService {
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     private final CommentRepository commentRepository;
     private final CommentStatService commentStatService;
@@ -33,17 +38,15 @@ public class CommentService {
     public void create(String coupleCode, Long postId, CommentCreateRequestDto request) {
         Couple couple = coupleService.findByCode(coupleCode);
         Post post = postService.findById(postId);
-        String content = request.getContent();
-
-        postStatService.increaseCommentCount(post.getId());
 
         Comment comment = commentRepository.save(Comment.builder()
-            .content(content)
+            .content(request.getContent())
             .couple(couple)
             .post(post)
             .build());
-
         commentStatService.create(comment);
+
+        applicationEventPublisher.publishEvent(new CommentCreatedEvent(comment, post));
     }
 
     public void createReply(String coupleCode, Long commentId,
@@ -58,17 +61,20 @@ public class CommentService {
         } else {
             parentComment = replyTo.getParentComment();
         }
-        
+
         commentStatService.increaseCommentCount(parentComment.getId());
         postStatService.increaseCommentCount(post.getId());
 
-        commentRepository.save(Comment.builder()
+        Comment comment = commentRepository.save(Comment.builder()
             .content(request.getContent())
             .couple(couple)
             .post(post)
             .parentComment(parentComment)
             .replyToComment(replyTo)
             .build());
+
+        applicationEventPublisher.publishEvent(
+            new CommentReplyCreatedEvent(comment, replyTo, post));
     }
 
     @CheckCommentPermission

@@ -5,11 +5,13 @@ import com.duri.domain.couple.service.CoupleService;
 import com.duri.domain.post.dto.PostLikeStatusResponseDto;
 import com.duri.domain.post.entity.LikePost;
 import com.duri.domain.post.entity.Post;
+import com.duri.domain.post.event.PostLikedEvent;
 import com.duri.domain.post.exception.DuplicateLikePostException;
 import com.duri.domain.post.exception.PostNotFoundException;
 import com.duri.domain.post.repository.LikePostRepository;
 import com.duri.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LikePostService {
 
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final LikePostRepository likePostRepository;
     private final PostStatService postStatService;
     private final PostRepository postRepository;
@@ -36,9 +39,9 @@ public class LikePostService {
             .post(post)
             .build());
 
-        // 이벤트 or ASYNC 처리?
-        postStatService.increaseLikeCount(post.getId());
-        // 좋아요 눌렀다는 알림 보내기
+        // 게시글 생성 후처리 이벤트 (좋아요 수 증가, 알림 전송)
+        applicationEventPublisher.publishEvent(new PostLikedEvent(post, couple));
+
     }
 
     @Transactional
