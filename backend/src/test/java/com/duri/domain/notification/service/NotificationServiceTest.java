@@ -9,7 +9,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 import com.duri.domain.notification.constant.NotificationType;
-import com.duri.domain.notification.dto.AllNotificationResponse;
 import com.duri.domain.notification.dto.NotificationCursor;
 import com.duri.domain.notification.dto.NotificationResponse;
 import com.duri.domain.notification.entity.Notification;
@@ -81,20 +80,6 @@ class NotificationServiceTest {
         then(publisher).should().publishNotification(
             eq("toUser"), eq("POST"), eq("알림테스트")
         );
-    }
-
-    @Test
-    @DisplayName("전체 알림 조회 정상 동작")
-    void getAllNotifications_정상동작() {
-        // given
-        given(notificationRepository.findByUserId(1L)).willReturn(List.of(notification));
-
-        // when
-        AllNotificationResponse resp = notificationService.getAllNotifications(1L);
-
-        // then
-        assertThat(resp).isNotNull();
-        then(notificationRepository).should().findByUserId(1L);
     }
 
     @Test

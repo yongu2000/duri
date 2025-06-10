@@ -1,11 +1,11 @@
-package com.duri.domain.post.exception;
+package com.duri.domain.notification.exception;
 
 
 import com.duri.global.exception.BusinessException;
 
-public class CommentNotFoundException extends BusinessException {
+public class NotificationNotFoundException extends BusinessException {
 
-    public CommentNotFoundException() {
-        super(CommentError.COMMENT_NOT_FOUND);
+    public NotificationNotFoundException() {
+        super(NotificationError.NOTIFICATION_NOT_FOUND);
     }
 }

@@ -7,13 +7,12 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class MainNotificationResponse {
+public class AllNotificationResponse {
 
-    private Long count;
     private List<NotificationResponse> notifications;
 
-    public static MainNotificationResponse from(List<Notification> notifications) {
-        return new MainNotificationResponse((long) notifications.size(),
+    public static AllNotificationResponse from(List<Notification> notifications) {
+        return new AllNotificationResponse(
             notifications.stream().map(NotificationResponse::from).toList());
     }
 }

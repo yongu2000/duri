@@ -1,11 +1,9 @@
-package com.duri.domain.post.aspect;
+package com.duri.domain.notification.aspect;
 
 import com.duri.domain.auth.CustomUserDetails;
-import com.duri.domain.couple.entity.Couple;
-import com.duri.domain.couple.service.CoupleService;
-import com.duri.domain.post.entity.Comment;
-import com.duri.domain.post.exception.UnauthorizedCommentAccessException;
-import com.duri.domain.post.service.CommentService;
+import com.duri.domain.notification.entity.Notification;
+import com.duri.domain.notification.exception.UnauthorizedNotificationAccessException;
+import com.duri.domain.notification.service.NotificationService;
 import com.duri.domain.user.entity.Role;
 import com.duri.domain.user.entity.User;
 import com.duri.domain.user.repository.UserRepository;
@@ -13,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,24 +19,40 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class CommentPermissionAspect {
+public class NotificationPermissionAspect {
 
-    private final CommentService commentService;
-    private final CoupleService coupleService;
+    private final NotificationService notificationService;
     private final UserRepository userRepository;
 
-    @Around("@annotation(CheckCommentPermission)")
-    public Object checkPermission(ProceedingJoinPoint joinPoint) throws Throwable {
+    private static Long getNotificationId(ProceedingJoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        Long commentId = (Long) args[0];
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String[] parameterNames = signature.getParameterNames();
+
+        Long commentId = null;
+
+        for (int i = 0; i < parameterNames.length; i++) {
+            // 파라미터명이 "commentId"이고 타입이 Long인지 검사
+            if ("notificationId".equals(parameterNames[i]) && args[i] instanceof Long) {
+                commentId = (Long) args[i];
+                break;
+            }
+        }
+        if (commentId == null) {
+            throw new IllegalArgumentException("notificationId(Long) 파라미터가 필요합니다.");
+        }
+        return commentId;
+    }
+
+    @Around("@annotation(CheckNotificationPermission)")
+    public Object checkPermission(ProceedingJoinPoint joinPoint) throws Throwable {
+        Long notificationId = getNotificationId(joinPoint);
         Long userId = extractUserId();
-        String coupleCode = extractCoupleCode(); // SecurityContext에서 꺼내기
 
-        Comment comment = commentService.findById(commentId);
-        Couple couple = coupleService.findByCode(coupleCode);
+        Notification notification = notificationService.findById(notificationId);
 
-        if (!comment.getCouple().getId().equals(couple.getId()) && !hasAdminRole(userId)) {
-            throw new UnauthorizedCommentAccessException();
+        if (!notification.getTo().getId().equals(userId) && !hasAdminRole(userId)) {
+            throw new UnauthorizedNotificationAccessException();
         }
 
         return joinPoint.proceed();
@@ -47,12 +62,6 @@ public class CommentPermissionAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return userDetails.getId();
-    }
-
-    private String extractCoupleCode() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        return userDetails.getUser().getCoupleCode();
     }
 
     private boolean hasAdminRole(Long userId) {
