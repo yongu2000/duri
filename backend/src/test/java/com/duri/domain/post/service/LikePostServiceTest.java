@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("글 좋아요 서비스 단위 테스트")
@@ -37,6 +38,8 @@ class LikePostServiceTest {
     private final Post post = Post.builder().id(postId).build();
     @InjectMocks
     private LikePostService likePostService;
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
     @Mock
     private LikePostRepository likePostRepository;
     @Mock
@@ -59,7 +62,6 @@ class LikePostServiceTest {
 
         // then
         then(likePostRepository).should().save(any(LikePost.class));
-        then(postStatService).should().increaseLikeCount(postId);
     }
 
     @Test

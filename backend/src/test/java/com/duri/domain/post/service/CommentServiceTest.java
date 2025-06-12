@@ -33,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 서비스 단위 테스트")
@@ -41,6 +42,9 @@ class CommentServiceTest {
 
     @InjectMocks
     private CommentService commentService;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Mock
     private CommentRepository commentRepository;
@@ -78,7 +82,6 @@ class CommentServiceTest {
         commentService.create(coupleCode, postId, request);
 
         // then
-        then(postStatService).should().increaseCommentCount(postId);
         then(commentRepository).should().save(any(Comment.class));
         then(commentStatService).should().create(any(Comment.class));
 

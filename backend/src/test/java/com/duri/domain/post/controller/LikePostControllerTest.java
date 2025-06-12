@@ -17,7 +17,6 @@ import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.post.dto.PostLikeStatusResponseDto;
 import com.duri.domain.post.service.LikePostService;
 import com.duri.domain.user.entity.User;
-import com.duri.global.util.AESUtil;
 import com.duri.global.util.AESUtilTestHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,10 +61,10 @@ class LikePostControllerTest {
     @DisplayName("POST /post/{postId}/like")
     void likePost() throws Exception {
         // given
-        String postIdToken = AESUtil.encrypt("1");
+        Long postId = 1L;
 
         // when & then
-        mockMvc.perform(post("/post/{postId}/like", postIdToken)
+        mockMvc.perform(post("/post/{postId}/like", postId)
                 .with(authentication(getTestAuthentication()))
                 .with(csrf())
             )
@@ -81,10 +80,10 @@ class LikePostControllerTest {
     @DisplayName("POST /post/{postId}/dislike")
     void dislikePost() throws Exception {
         // given
-        String postIdToken = AESUtil.encrypt("1");
+        Long postId = 1L;
 
         // when & then
-        mockMvc.perform(post("/post/{postId}/dislike", postIdToken)
+        mockMvc.perform(post("/post/{postId}/dislike", postId)
                 .with(authentication(getTestAuthentication()))
                 .with(csrf())
             )
@@ -100,12 +99,12 @@ class LikePostControllerTest {
     @DisplayName("GET /post/{postId}/like/status")
     void getLikeStatus() throws Exception {
         // given
-        String postIdToken = AESUtil.encrypt("1");
+        Long postId = 1L;
         BDDMockito.given(likePostService.getLikeStatus(anyString(), anyLong()))
             .willReturn(new PostLikeStatusResponseDto(true));
 
         // when & then
-        mockMvc.perform(get("/post/{postId}/like/status", postIdToken)
+        mockMvc.perform(get("/post/{postId}/like/status", postId)
                 .with(authentication(getTestAuthentication()))
             )
             .andExpect(status().isOk())
