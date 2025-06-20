@@ -190,8 +190,9 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PendingPostCountResponse getPendingPostCount(String coupleCode) {
-        return PendingPostCountResponse.from(
-            postRepository.countByCodeAndStatus(coupleCode, PostStatus.PENDING));
+        List<Post> count = postRepository.findTop11ByCouple_CodeAndStatus(
+            coupleCode, PostStatus.PENDING);
+        return PendingPostCountResponse.from((long) count.size());
     }
 
     @Transactional(readOnly = true)
