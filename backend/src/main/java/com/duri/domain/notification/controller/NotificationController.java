@@ -57,8 +57,8 @@ public class NotificationController {
     @GetMapping("/unconfirmed/count")
     public ResponseEntity<UnconfirmedNotificationsCountResponseDto> getUnconfirmedNotificationsCount(
         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(UnconfirmedNotificationsCountResponseDto.of(
-            notificationService.getUnconfirmedNotificationsCount(userDetails.getId())));
+        return ResponseEntity.ok(
+            notificationService.getUnconfirmedNotificationsCount(userDetails.getId()));
     }
 
     @DeleteMapping("/delete/{notificationId}")
