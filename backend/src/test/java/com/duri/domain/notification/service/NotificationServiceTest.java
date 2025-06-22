@@ -86,14 +86,15 @@ class NotificationServiceTest {
     @DisplayName("미확인 알림 개수 조회 정상 동작")
     void getUnconfirmedNotificationsCount_정상동작() {
         // given
-        given(notificationRepository.getUnconfirmedNotificationsCount(1L)).willReturn(2L);
+        given(notificationRepository.findTop100ByTo_IdAndConfirmedFalse(1L)).willReturn(
+            List.of(notification));
 
         // when
-        Long count = notificationService.getUnconfirmedNotificationsCount(1L);
+        Long count = notificationService.getUnconfirmedNotificationsCount(1L).getCount();
 
         // then
-        assertThat(count).isEqualTo(2L);
-        then(notificationRepository).should().getUnconfirmedNotificationsCount(1L);
+        assertThat(count).isEqualTo(1L);
+        then(notificationRepository).should().findTop100ByTo_IdAndConfirmedFalse(1L);
     }
 
     @Test
