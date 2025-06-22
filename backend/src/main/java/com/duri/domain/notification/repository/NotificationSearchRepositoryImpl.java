@@ -26,8 +26,8 @@ public class NotificationSearchRepositoryImpl implements NotificationSearchRepos
 
         return queryFactory
             .selectFrom(notification)
-            .leftJoin(notification.to, user)
-            .leftJoin(notification.from, user2)
+            .leftJoin(notification.to, user).fetchJoin()
+            .leftJoin(notification.from, user2).fetchJoin()
             .where(
                 cursorDirection(cursor),
                 notification.confirmed.eq(false),
@@ -45,8 +45,8 @@ public class NotificationSearchRepositoryImpl implements NotificationSearchRepos
 
         return queryFactory
             .selectFrom(notification)
-            .leftJoin(notification.to, user)
-            .leftJoin(notification.from, user2)
+            .leftJoin(notification.to, user).fetchJoin()
+            .leftJoin(notification.from, user2).fetchJoin()
             .where(
                 cursorDirection(cursor),
                 notification.confirmed.eq(true),
