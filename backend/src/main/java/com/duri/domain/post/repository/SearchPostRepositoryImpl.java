@@ -4,6 +4,7 @@ package com.duri.domain.post.repository;
 import static com.duri.domain.couple.entity.QCouple.couple;
 import static com.duri.domain.post.constant.search.PostSortDirection.ASC;
 import static com.duri.domain.post.entity.QPost.post;
+import static com.duri.domain.post.entity.QPostStat.postStat;
 import static com.duri.domain.user.entity.QUser.user;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -39,6 +40,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             .leftJoin(post.couple, couple).fetchJoin()
             .leftJoin(couple.userLeft, user).fetchJoin()
             .leftJoin(couple.userRight, user2).fetchJoin()
+            .leftJoin(postStat).on(postStat.post.eq(post)).fetchJoin()
             .where(
                 cursorDirection(cursor, searchOptions.getSortDirection(),
                     searchOptions.getSortBy()),

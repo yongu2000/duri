@@ -126,7 +126,7 @@ public class PostService {
 
         // 다음 커서는 마지막 게시글의 ID
         return new CursorResponse<>(posts.stream()
-            .map((post) -> PostResponse.from(post, postStatService.findByPostId(post.getId())))
+            .map(PostResponse::from)
             .toList(),
             nextCursor, hasNext);
     }
