@@ -3,6 +3,7 @@ package com.duri.domain.notification.service;
 import com.duri.domain.notification.annotation.CheckNotificationPermission;
 import com.duri.domain.notification.dto.NotificationCursor;
 import com.duri.domain.notification.dto.NotificationResponse;
+import com.duri.domain.notification.dto.UnconfirmedNotificationsCountResponseDto;
 import com.duri.domain.notification.entity.Notification;
 import com.duri.domain.notification.exception.NotificationNotFoundException;
 import com.duri.domain.notification.repository.NotificationRepository;
@@ -30,8 +31,12 @@ public class NotificationService {
             notification.getContent());
     }
 
-    public Long getUnconfirmedNotificationsCount(Long userId) {
-        return notificationRepository.getUnconfirmedNotificationsCount(userId);
+    @Transactional(readOnly = true)
+    public UnconfirmedNotificationsCountResponseDto getUnconfirmedNotificationsCount(Long userId) {
+        List<Notification> notifications = notificationRepository.findTop100ByTo_IdAndConfirmedFalse(
+            (userId));
+
+        return UnconfirmedNotificationsCountResponseDto.of(notifications.size());
     }
 
     @Transactional
@@ -41,18 +46,13 @@ public class NotificationService {
         List<Notification> notifications = notificationRepository.findUnconfirmedNotifications(
             cursor, size + 1, userId);
 
+        // 읽음으로 변경
+//        confirmNotification(notifications);
+
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
         boolean hasNext = notifications.size() > size;
         if (hasNext) {
             notifications = notifications.subList(0, size);
-        }
-
-        // 읽음으로 변경
-        List<Long> ids = notifications.stream()
-            .map(Notification::getId)
-            .toList();
-        if (!ids.isEmpty()) {
-            notificationRepository.updateConfirmedByIds(ids);
         }
 
         NotificationCursor nextCursor = hasNext && !notifications.isEmpty()
@@ -63,6 +63,15 @@ public class NotificationService {
         return new CursorResponse<>(notifications.stream().map(NotificationResponse::from).toList(),
             nextCursor, hasNext);
 
+    }
+
+    private void confirmNotification(List<Notification> notifications) {
+        List<Long> ids = notifications.stream()
+            .map(Notification::getId)
+            .toList();
+        if (!ids.isEmpty()) {
+            notificationRepository.updateConfirmedByIds(ids);
+        }
     }
 
     @Transactional(readOnly = true)
