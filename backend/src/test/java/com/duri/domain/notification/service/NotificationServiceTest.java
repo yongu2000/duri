@@ -9,7 +9,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 import com.duri.domain.notification.constant.NotificationType;
-import com.duri.domain.notification.dto.NotificationCursor;
+import com.duri.domain.notification.dto.NotificationCursorRequest;
+import com.duri.domain.notification.dto.NotificationCursorResponse;
 import com.duri.domain.notification.dto.NotificationResponse;
 import com.duri.domain.notification.entity.Notification;
 import com.duri.domain.notification.exception.NotificationNotFoundException;
@@ -101,13 +102,13 @@ class NotificationServiceTest {
     @DisplayName("커서 페이지네이션 미확인 알림 조회 + 읽음처리")
     void getUnconfirmedNotifications_정상동작() {
         // given
-        NotificationCursor cursor = new NotificationCursor(null, null);
+        NotificationCursorRequest cursor = new NotificationCursorRequest(null, null);
         List<Notification> notifications = List.of(notification);
         given(notificationRepository.findUnconfirmedNotifications(cursor, 2, 1L))
             .willReturn(notifications);
 
         // when
-        CursorResponse<NotificationResponse, NotificationCursor> resp =
+        CursorResponse<NotificationResponse, NotificationCursorResponse> resp =
             notificationService.getUnconfirmedNotifications(cursor, 1, 1L);
 
         // then
@@ -120,13 +121,13 @@ class NotificationServiceTest {
     @DisplayName("커서 페이지네이션 확인된 알림 조회")
     void getConfirmedNotifications_정상동작() {
         // given
-        NotificationCursor cursor = new NotificationCursor(null, null);
+        NotificationCursorRequest cursor = new NotificationCursorRequest(null, null);
         List<Notification> notifications = List.of(notification);
         given(notificationRepository.findConfirmedNotifications(cursor, 2, 1L))
             .willReturn(notifications);
 
         // when
-        CursorResponse<NotificationResponse, NotificationCursor> resp =
+        CursorResponse<NotificationResponse, NotificationCursorResponse> resp =
             notificationService.getConfirmedNotifications(cursor, 1, 1L);
 
         // then

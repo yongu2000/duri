@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.duri.domain.notification.TestNotificationEntityFactory;
 import com.duri.domain.notification.constant.NotificationType;
-import com.duri.domain.notification.dto.NotificationCursor;
+import com.duri.domain.notification.dto.NotificationCursorRequest;
 import com.duri.domain.notification.entity.Notification;
 import com.duri.domain.user.entity.Gender;
 import com.duri.domain.user.entity.Role;
@@ -81,7 +81,7 @@ class NotificationSearchRepositoryImplTest {
     @Test
     @DisplayName("커서 없이 size=2이면 최신순 2개 반환, hasNext=true")
     void 첫페이지_커서없음_size2() {
-        NotificationCursor cursor = new NotificationCursor(null, null);
+        NotificationCursorRequest cursor = new NotificationCursorRequest(null, null);
         int size = 2;
         List<Notification> result = notificationSearchRepository.findUnconfirmedNotifications(
             cursor, size + 1, toUser.getId());
@@ -100,7 +100,8 @@ class NotificationSearchRepositoryImplTest {
     @DisplayName("커서 값 지정: n1(10시, id=...) 다음부터 size=1 → n2만 반환, hasNext=false")
     void 커서_중간지점부터_이어받기() {
         // n1은 10시, n3은 8시, 둘 다 미확인
-        NotificationCursor cursor = new NotificationCursor(n1.getCreatedAt(), n1.getId());
+        NotificationCursorRequest cursor = new NotificationCursorRequest(n1.getCreatedAt(),
+            n1.getId());
         int size = 1;
         List<Notification> result = notificationSearchRepository.findUnconfirmedNotifications(
             cursor, size + 1, toUser.getId());
@@ -116,7 +117,8 @@ class NotificationSearchRepositoryImplTest {
     @Test
     @DisplayName("마지막 커서로 조회 시 결과 없음")
     void 마지막커서_조회() {
-        NotificationCursor cursor = new NotificationCursor(n3.getCreatedAt(), n3.getId());
+        NotificationCursorRequest cursor = new NotificationCursorRequest(n3.getCreatedAt(),
+            n3.getId());
         int size = 2;
         List<Notification> result = notificationSearchRepository.findUnconfirmedNotifications(
             cursor, size + 1, toUser.getId());
@@ -134,7 +136,7 @@ class NotificationSearchRepositoryImplTest {
                 LocalDateTime.of(2024, 6, 9, 11, 0)
             ));
 
-        NotificationCursor cursor = new NotificationCursor(null, null);
+        NotificationCursorRequest cursor = new NotificationCursorRequest(null, null);
         List<Notification> result = notificationSearchRepository.findUnconfirmedNotifications(
             cursor, 2, toUser.getId());
 
@@ -146,7 +148,7 @@ class NotificationSearchRepositoryImplTest {
     @DisplayName("알림이 없는 경우 정상 동작")
     void 알림없음_동작() {
         notificationRepository.deleteAll();
-        NotificationCursor cursor = new NotificationCursor(null, null);
+        NotificationCursorRequest cursor = new NotificationCursorRequest(null, null);
         List<Notification> result = notificationSearchRepository.findUnconfirmedNotifications(
             cursor, 2, toUser.getId());
         assertThat(result).isEmpty();
@@ -155,7 +157,7 @@ class NotificationSearchRepositoryImplTest {
     @Test
     @DisplayName("확인된 알림만 필터링")
     void 확인알림만_조회() {
-        NotificationCursor cursor = new NotificationCursor(null, null);
+        NotificationCursorRequest cursor = new NotificationCursorRequest(null, null);
         List<Notification> confirmed = notificationSearchRepository.findConfirmedNotifications(
             cursor, 2, toUser.getId());
 
@@ -177,7 +179,7 @@ class NotificationSearchRepositoryImplTest {
                 LocalDateTime.of(2024, 6, 9, 12, 0)
             ));
 
-        NotificationCursor cursor = new NotificationCursor(null, null);
+        NotificationCursorRequest cursor = new NotificationCursorRequest(null, null);
         List<Notification> result = notificationSearchRepository.findUnconfirmedNotifications(
             cursor, 2, toUser.getId());
 
