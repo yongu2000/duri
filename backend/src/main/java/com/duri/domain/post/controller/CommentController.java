@@ -2,25 +2,30 @@ package com.duri.domain.post.controller;
 
 import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.post.dto.comment.CommentCreateRequestDto;
+import com.duri.domain.post.dto.comment.CommentCursorRequestDto;
+import com.duri.domain.post.dto.comment.CommentCursorResponseDto;
 import com.duri.domain.post.dto.comment.CommentRepliesResponseDto;
 import com.duri.domain.post.dto.comment.CommentReplyCreateRequestDto;
+import com.duri.domain.post.dto.comment.CommentSearchOptions;
 import com.duri.domain.post.dto.comment.CommentUpdateRequestDto;
 import com.duri.domain.post.dto.comment.CommentUpdateResponseDto;
 import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
 import com.duri.domain.post.service.CommentService;
 import com.duri.global.annotation.DecryptId;
-import java.util.List;
+import com.duri.global.dto.CursorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -64,15 +69,22 @@ public class CommentController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<List<ParentCommentResponseDto>> getPostParentComments(
-        @PathVariable @DecryptId Long postId) {
-        return ResponseEntity.ok(commentService.getPostParentComments(postId));
+    public ResponseEntity<CursorResponse<ParentCommentResponseDto, CommentCursorResponseDto>> getPostParentComments(
+        @ModelAttribute CommentCursorRequestDto cursor,
+        @RequestParam(defaultValue = "10") int size,
+        @ModelAttribute CommentSearchOptions commentSearchOptions,
+        @PathVariable @DecryptId Long postId
+    ) {
+        return ResponseEntity.ok(
+            commentService.getParentComments(cursor, size, commentSearchOptions, postId));
     }
 
     @GetMapping("/reply/{commentId}")
-    public ResponseEntity<List<CommentRepliesResponseDto>> getCommentReplies(
+    public ResponseEntity<CursorResponse<CommentRepliesResponseDto, CommentCursorResponseDto>> getCommentReplies(
+        @ModelAttribute CommentCursorRequestDto cursor,
+        @RequestParam(defaultValue = "10") int size,
         @PathVariable @DecryptId Long commentId) {
-        return ResponseEntity.ok(commentService.getCommentReplies(commentId));
+        return ResponseEntity.ok(commentService.getCommentReplies(cursor, size, commentId));
     }
 
 }

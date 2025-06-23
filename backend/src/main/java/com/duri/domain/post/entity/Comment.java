@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -51,6 +52,9 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reply_to_comment_id")
     private Comment replyToComment;
+
+    @OneToOne(mappedBy = "comment", fetch = FetchType.LAZY)
+    private CommentStat commentStat;
 
     @Builder.Default
     @OneToMany(

@@ -52,10 +52,11 @@ public class CommentEventListener {
     @EventListener
     public void handleCommentReplyCreated(CommentReplyCreatedEvent event) {
         Comment comment = event.getComment();
+        Comment parentComment = event.getParentComment();
         Comment replyTo = event.getReplyTo();
         Post post = event.getPost();
 
-        commentStatService.increaseCommentCount(replyTo.getId());
+        commentStatService.increaseCommentCount(parentComment.getId());
         postStatService.increaseCommentCount(post.getId());
 
         String content =

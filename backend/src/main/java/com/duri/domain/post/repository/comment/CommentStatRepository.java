@@ -1,4 +1,4 @@
-package com.duri.domain.post.repository;
+package com.duri.domain.post.repository.comment;
 
 import com.duri.domain.post.entity.CommentStat;
 import java.util.Optional;

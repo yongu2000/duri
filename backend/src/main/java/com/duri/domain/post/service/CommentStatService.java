@@ -3,7 +3,7 @@ package com.duri.domain.post.service;
 import com.duri.domain.post.entity.Comment;
 import com.duri.domain.post.entity.CommentStat;
 import com.duri.domain.post.exception.CommentStatNotFoundException;
-import com.duri.domain.post.repository.CommentStatRepository;
+import com.duri.domain.post.repository.comment.CommentStatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

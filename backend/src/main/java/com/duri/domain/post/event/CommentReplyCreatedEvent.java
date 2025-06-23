@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 public class CommentReplyCreatedEvent {
 
     private final Comment comment;
+    private final Comment parentComment;
     private final Comment replyTo;
     private final Post post;
 

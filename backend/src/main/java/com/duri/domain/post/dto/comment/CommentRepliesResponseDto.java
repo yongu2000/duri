@@ -12,8 +12,8 @@ import lombok.Getter;
 @Builder
 public class CommentRepliesResponseDto {
 
-    private String commentIdToken;
-    private String parentCommentIdToken;
+    private String id;
+    private String parentCommentId;
     private String content;
     private String author;
     private String replyTo;
@@ -21,8 +21,8 @@ public class CommentRepliesResponseDto {
 
     public static CommentRepliesResponseDto from(Comment comment) {
         return CommentRepliesResponseDto.builder()
-            .commentIdToken(AESUtil.encrypt(String.valueOf(comment.getId())))
-            .parentCommentIdToken(
+            .id(AESUtil.encrypt(String.valueOf(comment.getId())))
+            .parentCommentId(
                 AESUtil.encrypt(String.valueOf(comment.getParentComment().getId())))
             .content(comment.getContent())
             .author(comment.getCouple().getName())

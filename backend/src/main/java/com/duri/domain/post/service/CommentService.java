@@ -4,20 +4,24 @@ import com.duri.domain.couple.entity.Couple;
 import com.duri.domain.couple.service.CoupleService;
 import com.duri.domain.post.annotation.CheckCommentPermission;
 import com.duri.domain.post.dto.comment.CommentCreateRequestDto;
+import com.duri.domain.post.dto.comment.CommentCursorRequestDto;
+import com.duri.domain.post.dto.comment.CommentCursorResponseDto;
 import com.duri.domain.post.dto.comment.CommentRepliesResponseDto;
 import com.duri.domain.post.dto.comment.CommentReplyCreateRequestDto;
+import com.duri.domain.post.dto.comment.CommentSearchOptions;
 import com.duri.domain.post.dto.comment.CommentUpdateRequestDto;
 import com.duri.domain.post.dto.comment.CommentUpdateResponseDto;
 import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
 import com.duri.domain.post.entity.Comment;
-import com.duri.domain.post.entity.CommentStat;
 import com.duri.domain.post.entity.Post;
 import com.duri.domain.post.event.CommentCreatedEvent;
 import com.duri.domain.post.event.CommentReplyCreatedEvent;
 import com.duri.domain.post.exception.CommentNotFoundException;
-import com.duri.domain.post.repository.CommentRepository;
+import com.duri.domain.post.repository.comment.CommentRepository;
+import com.duri.global.dto.CursorResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class CommentService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -62,9 +67,6 @@ public class CommentService {
             parentComment = replyTo.getParentComment();
         }
 
-        commentStatService.increaseCommentCount(parentComment.getId());
-        postStatService.increaseCommentCount(post.getId());
-
         Comment comment = commentRepository.save(Comment.builder()
             .content(request.getContent())
             .couple(couple)
@@ -74,7 +76,7 @@ public class CommentService {
             .build());
 
         applicationEventPublisher.publishEvent(
-            new CommentReplyCreatedEvent(comment, replyTo, post));
+            new CommentReplyCreatedEvent(comment, parentComment, replyTo, post));
     }
 
     @CheckCommentPermission
@@ -103,18 +105,51 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<ParentCommentResponseDto> getPostParentComments(Long postId) {
-        return commentRepository.findParentCommentsByPostId(postId).stream().map((comment) -> {
-                CommentStat commentStat = commentStatService.findByCommentId(comment.getId());
-                return ParentCommentResponseDto.from(comment, commentStat);
-            })
-            .toList();
+    public CursorResponse<ParentCommentResponseDto, CommentCursorResponseDto> getParentComments(
+        CommentCursorRequestDto cursor,
+        int size, CommentSearchOptions commentSearchOptions, Long postId) {
+
+        List<Comment> parentComments = commentRepository.findParentCommentsByPost(cursor,
+            size + 1, commentSearchOptions, postId);
+
+        boolean hasNext = parentComments.size() > size;
+        if (hasNext) {
+            parentComments = parentComments.subList(0, size);
+        }
+
+        CommentCursorResponseDto nextCursor = hasNext && !parentComments.isEmpty()
+            ? CommentCursorResponseDto.from(parentComments.getLast())
+            : null;
+
+        return new CursorResponse<>(parentComments.stream()
+            .map(ParentCommentResponseDto::from)
+            .toList(),
+            nextCursor, hasNext);
     }
 
     @Transactional(readOnly = true)
-    public List<CommentRepliesResponseDto> getCommentReplies(Long commentId) {
-        return commentRepository.findByParentCommentId(commentId).stream()
+    public CursorResponse<CommentRepliesResponseDto, CommentCursorResponseDto> getCommentReplies(
+        CommentCursorRequestDto cursor,
+        int size, Long commentId) {
+
+        log.info("Service - getCommentReplies Started");
+        List<Comment> replies = commentRepository.findCommentRepliesByPost(cursor,
+            size + 1, commentId);
+        log.info("Repository - findCommentRepliesByPost Ended");
+
+        boolean hasNext = replies.size() > size;
+        if (hasNext) {
+            replies = replies.subList(0, size);
+        }
+
+        CommentCursorResponseDto nextCursor = hasNext && !replies.isEmpty()
+            ? CommentCursorResponseDto.from(replies.getLast())
+            : null;
+
+        log.info("Service - getCommentReplies Ended");
+        return new CursorResponse<>(replies.stream()
             .map(CommentRepliesResponseDto::from)
-            .toList();
+            .toList(),
+            nextCursor, hasNext);
     }
 }

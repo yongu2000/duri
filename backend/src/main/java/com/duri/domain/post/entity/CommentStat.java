@@ -8,7 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,14 +32,14 @@ public class CommentStat extends BaseEntity {
     @Column(name = "comment_stat_id", updatable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id", nullable = false)
     private Comment comment;
 
     @ColumnDefault(value = "0")
     @Builder.Default
     private Long commentCount = 0L;
-    
+
     public void increaseCommentCount() {
         this.commentCount++;
     }

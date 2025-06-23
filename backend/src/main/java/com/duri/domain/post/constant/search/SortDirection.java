@@ -1,8 +1,8 @@
 package com.duri.domain.post.constant.search;
 
-public enum PostSortDirection {
+public enum SortDirection {
     ASC,
-    DESC;
+    DESC
 
 
 }
