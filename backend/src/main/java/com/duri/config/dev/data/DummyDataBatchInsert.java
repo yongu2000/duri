@@ -84,7 +84,6 @@ public class DummyDataBatchInsert implements CommandLineRunner {
         log.info("모든 데이터 삭제 완료");
     }
 
-
     public void insertDummyData() {
 
         logExecutionTime("유저 데이터 생성", () -> insertDummyUsers(userCount));
@@ -746,6 +745,45 @@ public class DummyDataBatchInsert implements CommandLineRunner {
         for (int offset = 0; offset < totalStats; offset += chunkSize) {
             int batchSize = Math.min(chunkSize, totalStats - offset);
             int offsetStart = offset + 1;
+
+            jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    int id = offsetStart + i;
+                    int count = (id == 1) ? extraCommentCount : 0;
+                    Timestamp timestamp = Timestamp.valueOf(randomDateTime(start, end, random));
+
+                    ps.setInt(1, id);
+                    ps.setInt(2, id);
+                    ps.setInt(3, count);
+                    ps.setTimestamp(4, timestamp);
+                    ps.setTimestamp(5, timestamp);
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return batchSize;
+                }
+            });
+
+            log.info("📈 comment_stat {}개 삽입 완료 ({}~{})", batchSize, offsetStart,
+                offsetStart + batchSize - 1);
+        }
+    }
+
+    private void insertCommentStats(int idStart, int totalStats, int chunkSize) {
+        String sql =
+            "INSERT INTO comment_stat (comment_stat_id, comment_id, comment_count, created_at, modified_at) "
+                +
+                "VALUES (?, ?, ?, ?, ?)";
+
+        Random random = new Random();
+        LocalDate start = LocalDate.of(2015, 1, 1);
+        LocalDate end = LocalDate.of(2025, 6, 15);
+
+        for (int offset = 0; offset < totalStats; offset += chunkSize) {
+            int batchSize = Math.min(chunkSize, totalStats - offset);
+            int offsetStart = idStart + offset;
 
             jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
                 @Override
