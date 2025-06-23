@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -66,6 +67,9 @@ public class Post extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private PostStatus status;
+
+    @OneToOne(mappedBy = "post", fetch = FetchType.LAZY)
+    private PostStat postStat;
 
     public void changeTitle(String title) {
         this.title = title;

@@ -2,7 +2,7 @@ package com.duri.domain.post.repository;
 
 
 import static com.duri.domain.couple.entity.QCouple.couple;
-import static com.duri.domain.post.constant.search.PostSortDirection.ASC;
+import static com.duri.domain.post.constant.search.SortDirection.ASC;
 import static com.duri.domain.post.entity.QPost.post;
 import static com.duri.domain.post.entity.QPostStat.postStat;
 import static com.duri.domain.user.entity.QUser.user;
@@ -11,7 +11,7 @@ import static org.springframework.util.StringUtils.hasText;
 import com.duri.domain.post.constant.PostStatus;
 import com.duri.domain.post.constant.Scope;
 import com.duri.domain.post.constant.search.PostSortBy;
-import com.duri.domain.post.constant.search.PostSortDirection;
+import com.duri.domain.post.constant.search.SortDirection;
 import com.duri.domain.post.dto.PostCursor;
 import com.duri.domain.post.dto.PostSearchOptions;
 import com.duri.domain.post.entity.Post;
@@ -31,7 +31,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Post> findCompletePostsBySearchOptions(PostCursor cursor, int size,
+    public List<Post> findCoupleCompletePostsBySearchOptions(PostCursor cursor, int size,
         PostSearchOptions searchOptions) {
         QUser user2 = new QUser("user2");
 
@@ -40,7 +40,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
             .leftJoin(post.couple, couple).fetchJoin()
             .leftJoin(couple.userLeft, user).fetchJoin()
             .leftJoin(couple.userRight, user2).fetchJoin()
-            .leftJoin(postStat).on(postStat.post.eq(post)).fetchJoin()
+            .leftJoin(post.postStat, postStat).fetchJoin()
             .where(
                 cursorDirection(cursor, searchOptions.getSortDirection(),
                     searchOptions.getSortBy()),
@@ -55,8 +55,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     }
 
     @Override
-    public List<Post> findCompletePostsBySearchOptions(PostCursor cursor, int size,
-        PostSearchOptions searchOptions, String coupleCode) {
+    public List<Post> findCoupleCompletePostsBySearchOptions(PostCursor cursor, int size,
+        PostSearchOptions searchOptions, Long targetCoupleId) {
         QUser user2 = new QUser("user2");
 
         return queryFactory
@@ -70,7 +70,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
                 searchKeywordContains(searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 post.status.eq(PostStatus.COMPLETE),
-                post.couple.code.eq(coupleCode)
+                post.couple.id.eq(targetCoupleId)
             )
             .orderBy(getOrderSpecifier(searchOptions.getSortBy(), searchOptions.getSortDirection()))
             .limit(size)
@@ -78,8 +78,8 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     }
 
     @Override
-    public List<Post> findPendingPostsBySearchOptions(PostCursor cursor, int size,
-        PostSearchOptions searchOptions, String coupleCode) {
+    public List<Post> findCouplePendingPostsBySearchOptions(PostCursor cursor, int size,
+        PostSearchOptions searchOptions, Long targetCoupleId) {
         QUser user2 = new QUser("user2");
 
         return queryFactory
@@ -93,14 +93,14 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
                 searchKeywordContains(searchOptions.getSearchKeyword()),
                 createdDateBetween(searchOptions.getStartDate(), searchOptions.getEndDate()),
                 post.status.eq(PostStatus.PENDING),
-                post.couple.code.eq(coupleCode)
+                post.couple.id.eq(targetCoupleId)
             )
             .orderBy(getOrderSpecifier(searchOptions.getSortBy(), searchOptions.getSortDirection()))
             .limit(size)
             .fetch();
     }
 
-    private BooleanExpression cursorDirection(PostCursor cursor, PostSortDirection sortDirection,
+    private BooleanExpression cursorDirection(PostCursor cursor, SortDirection sortDirection,
         PostSortBy sortBy) {
         if (cursor.getId() == null) {
             return null;
@@ -156,7 +156,7 @@ public class SearchPostRepositoryImpl implements SearchPostRepository {
     }
 
     private OrderSpecifier<?>[] getOrderSpecifier(PostSortBy sortBy,
-        PostSortDirection sortDirection) {
+        SortDirection sortDirection) {
         return switch (sortBy) {
             case RATE -> sortDirection == ASC
                 ? new OrderSpecifier[]{post.rate.asc(), post.date.desc(), post.id.desc()}

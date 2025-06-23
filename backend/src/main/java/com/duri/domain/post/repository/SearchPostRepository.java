@@ -7,14 +7,14 @@ import java.util.List;
 
 public interface SearchPostRepository {
 
-    List<Post> findCompletePostsBySearchOptions(PostCursor cursor, int size,
+    List<Post> findCoupleCompletePostsBySearchOptions(PostCursor cursor, int size,
         PostSearchOptions postSearchOptions);
 
-    List<Post> findCompletePostsBySearchOptions(PostCursor cursor, int size,
-        PostSearchOptions postSearchOptions, String coupleCode);
-    
-    List<Post> findPendingPostsBySearchOptions(PostCursor cursor, int size,
-        PostSearchOptions postSearchOptions, String coupleCode);
+    List<Post> findCoupleCompletePostsBySearchOptions(PostCursor cursor, int size,
+        PostSearchOptions postSearchOptions, Long coupleId);
+
+    List<Post> findCouplePendingPostsBySearchOptions(PostCursor cursor, int size,
+        PostSearchOptions postSearchOptions, Long coupleId);
 
 
 }

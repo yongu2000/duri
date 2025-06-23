@@ -1,7 +1,7 @@
 package com.duri.domain.post.dto;
 
 import com.duri.domain.post.constant.search.PostSortBy;
-import com.duri.domain.post.constant.search.PostSortDirection;
+import com.duri.domain.post.constant.search.SortDirection;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +25,6 @@ public class PostSearchOptions {
 
     // 정렬
     private PostSortBy sortBy = PostSortBy.DATE;   // 정렬 기준 (date, likes, comments)
-    private PostSortDirection sortDirection = PostSortDirection.DESC; // 정렬 방향 (asc, desc)
+    private SortDirection sortDirection = SortDirection.DESC; // 정렬 방향 (asc, desc)
 
 }

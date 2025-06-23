@@ -111,7 +111,7 @@ public class PostService {
         int size,
         PostSearchOptions searchOptions) {
         // 커서 기반 조회
-        List<Post> posts = postRepository.findCompletePostsBySearchOptions(cursor, size + 1,
+        List<Post> posts = postRepository.findCoupleCompletePostsBySearchOptions(cursor, size + 1,
             searchOptions);
 
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
@@ -138,8 +138,9 @@ public class PostService {
         PostSearchOptions searchOptions,
         String coupleCode) {
         // 커서 기반 조회
-        List<Post> posts = postRepository.findCompletePostsBySearchOptions(cursor, size + 1,
-            searchOptions, coupleCode);
+        Couple couple = coupleService.findByCode(coupleCode);
+        List<Post> posts = postRepository.findCoupleCompletePostsBySearchOptions(cursor, size + 1,
+            searchOptions, couple.getId());
 
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
         boolean hasNext = posts.size() > size;
@@ -163,8 +164,9 @@ public class PostService {
         PostSearchOptions searchOptions,
         String coupleCode) {
         // 커서 기반 조회
-        List<Post> posts = postRepository.findPendingPostsBySearchOptions(cursor, size + 1,
-            searchOptions, coupleCode);
+        Couple couple = coupleService.findByCode(coupleCode);
+        List<Post> posts = postRepository.findCouplePendingPostsBySearchOptions(cursor, size + 1,
+            searchOptions, couple.getId());
 
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
         boolean hasNext = posts.size() > size;

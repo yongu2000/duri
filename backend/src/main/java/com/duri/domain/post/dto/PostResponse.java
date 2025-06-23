@@ -2,7 +2,6 @@ package com.duri.domain.post.dto;
 
 import com.duri.domain.post.constant.Scope;
 import com.duri.domain.post.entity.Post;
-import com.duri.domain.post.entity.PostStat;
 import com.duri.domain.user.entity.Gender;
 import com.duri.global.util.AESUtil;
 import java.time.LocalDate;
@@ -76,40 +75,9 @@ public class PostResponse {
             .coupleName(post.getCouple().getName())
 
             .scope(post.getScope())
+            .likeCount(post.getPostStat().getLikeCount())
+            .commentCount(post.getPostStat().getCommentCount())
 
-            .build();
-    }
-
-    public static PostResponse from(Post post, PostStat postStat) {
-        return PostResponse.builder()
-            .idToken(AESUtil.encrypt(post.getId().toString()))
-            .title(post.getTitle())
-            .placeName(post.getPlaceName())
-            .address(post.getAddress())
-            .category(post.getCategory())
-            .date(post.getDate())
-            .rate(post.getRate())
-
-            .userLeftProfileImageUrl(post.getCouple().getUserLeft().getProfileImageUrl())
-            .userLeftGender(post.getCouple().getUserLeft().getGender())
-            .userLeftBirthday(post.getCouple().getUserLeft().getBirthday())
-            .userLeftName(post.getCouple().getUserLeft().getName())
-            .userLeftRate(post.getUserLeftRate())
-            .userLeftComment(post.getUserLeftComment())
-
-            .userRightProfileImageUrl(post.getCouple().getUserRight().getProfileImageUrl())
-            .userRightGender(post.getCouple().getUserRight().getGender())
-            .userRightBirthday(post.getCouple().getUserRight().getBirthday())
-            .userRightName(post.getCouple().getUserRight().getName())
-            .userRightRate(post.getUserRightRate())
-            .userRightComment(post.getUserRightComment())
-
-            .coupleCode(post.getCouple().getCode())
-            .coupleName(post.getCouple().getName())
-
-            .scope(post.getScope())
-            .likeCount(postStat.getLikeCount())
-            .commentCount(postStat.getCommentCount())
             .build();
     }
 
