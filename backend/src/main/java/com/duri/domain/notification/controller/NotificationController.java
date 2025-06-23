@@ -1,7 +1,8 @@
 package com.duri.domain.notification.controller;
 
 import com.duri.domain.auth.CustomUserDetails;
-import com.duri.domain.notification.dto.NotificationCursor;
+import com.duri.domain.notification.dto.NotificationCursorRequest;
+import com.duri.domain.notification.dto.NotificationCursorResponse;
 import com.duri.domain.notification.dto.NotificationResponse;
 import com.duri.domain.notification.dto.UnconfirmedNotificationsCountResponseDto;
 import com.duri.domain.notification.service.NotificationService;
@@ -37,8 +38,8 @@ public class NotificationController {
     }
 
     @GetMapping("/unconfirmed")
-    public ResponseEntity<CursorResponse<NotificationResponse, NotificationCursor>> getUnconfirmedNotifications(
-        @ModelAttribute NotificationCursor cursor,
+    public ResponseEntity<CursorResponse<NotificationResponse, NotificationCursorResponse>> getUnconfirmedNotifications(
+        @ModelAttribute NotificationCursorRequest cursor,
         @RequestParam(defaultValue = "10") int size,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(
@@ -46,8 +47,8 @@ public class NotificationController {
     }
 
     @GetMapping("/confirmed")
-    public ResponseEntity<CursorResponse<NotificationResponse, NotificationCursor>> getConfirmedNotifications(
-        @ModelAttribute NotificationCursor cursor,
+    public ResponseEntity<CursorResponse<NotificationResponse, NotificationCursorResponse>> getConfirmedNotifications(
+        @ModelAttribute NotificationCursorRequest cursor,
         @RequestParam(defaultValue = "10") int size,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(

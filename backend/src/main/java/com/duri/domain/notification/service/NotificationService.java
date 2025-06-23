@@ -1,7 +1,8 @@
 package com.duri.domain.notification.service;
 
 import com.duri.domain.notification.annotation.CheckNotificationPermission;
-import com.duri.domain.notification.dto.NotificationCursor;
+import com.duri.domain.notification.dto.NotificationCursorRequest;
+import com.duri.domain.notification.dto.NotificationCursorResponse;
 import com.duri.domain.notification.dto.NotificationResponse;
 import com.duri.domain.notification.dto.UnconfirmedNotificationsCountResponseDto;
 import com.duri.domain.notification.entity.Notification;
@@ -40,8 +41,8 @@ public class NotificationService {
     }
 
     @Transactional
-    public CursorResponse<NotificationResponse, NotificationCursor> getUnconfirmedNotifications(
-        NotificationCursor cursor, int size, Long userId) {
+    public CursorResponse<NotificationResponse, NotificationCursorResponse> getUnconfirmedNotifications(
+        NotificationCursorRequest cursor, int size, Long userId) {
         // 커서 기반 조회
         List<Notification> notifications = notificationRepository.findUnconfirmedNotifications(
             cursor, size + 1, userId);
@@ -55,8 +56,8 @@ public class NotificationService {
             notifications = notifications.subList(0, size);
         }
 
-        NotificationCursor nextCursor = hasNext && !notifications.isEmpty()
-            ? NotificationCursor.from(notifications.getLast())
+        NotificationCursorResponse nextCursor = hasNext && !notifications.isEmpty()
+            ? NotificationCursorResponse.from(notifications.getLast())
             : null;
 
         // 다음 커서는 마지막 게시글의 ID
@@ -75,8 +76,8 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public CursorResponse<NotificationResponse, NotificationCursor> getConfirmedNotifications(
-        NotificationCursor cursor, int size, Long userId) {
+    public CursorResponse<NotificationResponse, NotificationCursorResponse> getConfirmedNotifications(
+        NotificationCursorRequest cursor, int size, Long userId) {
         // 커서 기반 조회
         List<Notification> notifications = notificationRepository.findConfirmedNotifications(
             cursor, size + 1, userId);
@@ -87,8 +88,8 @@ public class NotificationService {
             notifications = notifications.subList(0, size);
         }
 
-        NotificationCursor nextCursor = hasNext && !notifications.isEmpty()
-            ? NotificationCursor.from(notifications.getLast())
+        NotificationCursorResponse nextCursor = hasNext && !notifications.isEmpty()
+            ? NotificationCursorResponse.from(notifications.getLast())
             : null;
 
         // 다음 커서는 마지막 게시글의 ID

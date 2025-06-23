@@ -3,7 +3,7 @@ package com.duri.domain.notification.repository;
 import static com.duri.domain.notification.entity.QNotification.notification;
 import static com.duri.domain.user.entity.QUser.user;
 
-import com.duri.domain.notification.dto.NotificationCursor;
+import com.duri.domain.notification.dto.NotificationCursorRequest;
 import com.duri.domain.notification.entity.Notification;
 import com.duri.domain.user.entity.QUser;
 import com.querydsl.core.types.OrderSpecifier;
@@ -20,7 +20,8 @@ public class NotificationSearchRepositoryImpl implements NotificationSearchRepos
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Notification> findUnconfirmedNotifications(NotificationCursor cursor, int limit,
+    public List<Notification> findUnconfirmedNotifications(NotificationCursorRequest cursor,
+        int limit,
         Long userId) {
         QUser user2 = new QUser("user2");
 
@@ -39,7 +40,8 @@ public class NotificationSearchRepositoryImpl implements NotificationSearchRepos
     }
 
     @Override
-    public List<Notification> findConfirmedNotifications(NotificationCursor cursor, int limit,
+    public List<Notification> findConfirmedNotifications(NotificationCursorRequest cursor,
+        int limit,
         Long userId) {
         QUser user2 = new QUser("user2");
 
@@ -57,13 +59,13 @@ public class NotificationSearchRepositoryImpl implements NotificationSearchRepos
             .fetch();
     }
 
-    private BooleanExpression cursorDirection(NotificationCursor cursor) {
-        if (cursor.getDate() == null || cursor.getId() == null) {
+    private BooleanExpression cursorDirection(NotificationCursorRequest cursor) {
+        if (cursor.getCreatedAt() == null || cursor.getId() == null) {
             return null; // 커서 없으면 전체 조회
         }
-        return notification.createdAt.lt(cursor.getDate())
+        return notification.createdAt.lt(cursor.getCreatedAt())
             .or(
-                notification.createdAt.eq(cursor.getDate())
+                notification.createdAt.eq(cursor.getCreatedAt())
                     .and(notification.id.lt(cursor.getId()))
             );
     }

@@ -1,7 +1,7 @@
 package com.duri.domain.notification.dto;
 
 import com.duri.domain.notification.entity.Notification;
-import com.duri.global.annotation.DecryptId;
+import com.duri.global.util.AESUtil;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,17 +10,16 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-public class NotificationCursor {
+public class NotificationCursorResponse {
 
-    private LocalDateTime date;
-    @DecryptId
-    private Long id;
+    private LocalDateTime createdAt;
+    private String id;
 
-    public static NotificationCursor from(Notification notification) {
+    public static NotificationCursorResponse from(Notification notification) {
         try {
-            return new NotificationCursor(
+            return new NotificationCursorResponse(
                 notification.getCreatedAt(),
-                notification.getId()
+                AESUtil.encrypt(String.valueOf(notification.getId()))
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
