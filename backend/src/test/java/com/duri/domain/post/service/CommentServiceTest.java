@@ -3,16 +3,20 @@ package com.duri.domain.post.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 import com.duri.domain.couple.entity.Couple;
 import com.duri.domain.couple.service.CoupleService;
+import com.duri.domain.post.constant.search.CommentSortBy;
+import com.duri.domain.post.constant.search.SortDirection;
 import com.duri.domain.post.dto.comment.CommentCreateRequestDto;
+import com.duri.domain.post.dto.comment.CommentCursorRequestDto;
+import com.duri.domain.post.dto.comment.CommentCursorResponseDto;
 import com.duri.domain.post.dto.comment.CommentRepliesResponseDto;
 import com.duri.domain.post.dto.comment.CommentReplyCreateRequestDto;
+import com.duri.domain.post.dto.comment.CommentSearchOptions;
 import com.duri.domain.post.dto.comment.CommentUpdateRequestDto;
 import com.duri.domain.post.dto.comment.CommentUpdateResponseDto;
 import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
@@ -20,7 +24,8 @@ import com.duri.domain.post.entity.Comment;
 import com.duri.domain.post.entity.CommentStat;
 import com.duri.domain.post.entity.Post;
 import com.duri.domain.post.exception.CommentNotFoundException;
-import com.duri.domain.post.repository.CommentRepository;
+import com.duri.domain.post.repository.comment.CommentRepository;
+import com.duri.global.dto.CursorResponse;
 import com.duri.global.util.AESUtilTestHelper;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +38,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 서비스 단위 테스트")
@@ -42,9 +46,6 @@ class CommentServiceTest {
 
     @InjectMocks
     private CommentService commentService;
-
-    @Mock
-    private ApplicationEventPublisher applicationEventPublisher;
 
     @Mock
     private CommentRepository commentRepository;
@@ -164,23 +165,34 @@ class CommentServiceTest {
             .id(1L)
             .content("첫번째 댓글")
             .couple(couple)
+            .commentStat(CommentStat.builder()
+                .build())
             .build();
 
         Comment comment2 = Comment.builder()
             .id(2L)
             .content("두번째 댓글")
             .couple(couple)
+            .commentStat(CommentStat.builder()
+                .build())
             .build();
 
-        given(commentRepository.findParentCommentsByPostId(postId)).willReturn(
+        CommentCursorRequestDto cursor = new CommentCursorRequestDto(null, null);
+        CommentSearchOptions searchOptions = new CommentSearchOptions(CommentSortBy.CREATED_AT,
+            SortDirection.DESC);
+
+        given(commentRepository.findParentCommentsByPost(cursor, 3, searchOptions,
+            postId)).willReturn(
             List.of(comment1, comment2));
-        given(commentStatService.findByCommentId(anyLong())).willReturn(mock(CommentStat.class));
 
         // when
-        List<ParentCommentResponseDto> result = commentService.getPostParentComments(postId);
+        CursorResponse<ParentCommentResponseDto, CommentCursorResponseDto> parentComments = commentService.getParentComments(
+            cursor, 2,
+            searchOptions,
+            postId);
 
         // then
-        assertThat(result).hasSize(2);
+        assertThat(parentComments.getItems()).hasSize(2);
     }
 
     @Test
@@ -259,18 +271,24 @@ class CommentServiceTest {
             .replyToComment(parent)
             .build();
 
-        given(commentRepository.findByParentCommentId(parentCommentId))
+        CommentCursorRequestDto cursor = new CommentCursorRequestDto(null, null);
+
+        given(commentRepository.findCommentRepliesByPost(cursor, 3,
+            parentCommentId))
             .willReturn(List.of(reply1, reply2));
 
         // when
-        List<CommentRepliesResponseDto> result = commentService.getCommentReplies(parentCommentId);
+        CursorResponse<CommentRepliesResponseDto, CommentCursorResponseDto> result = commentService.getCommentReplies(
+            cursor, 2,
+            parentCommentId);
 
         // then
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).getContent()).isEqualTo("첫 번째 대댓글");
-        assertThat(result.get(1).getContent()).isEqualTo("두 번째 대댓글");
+        assertThat(result.getItems()).hasSize(2);
+        assertThat(result.getItems().get(0).getContent()).isEqualTo("첫 번째 대댓글");
+        assertThat(result.getItems().get(1).getContent()).isEqualTo("두 번째 대댓글");
 
-        then(commentRepository).should().findByParentCommentId(parentCommentId);
+        then(commentRepository).should().findCommentRepliesByPost(cursor, 3,
+            parentCommentId);
     }
 
     @BeforeEach
