@@ -36,7 +36,7 @@ public class SearchCommentRepositoryImpl implements
             .leftJoin(comment.couple, couple).fetchJoin()
             .leftJoin(comment.commentStat, commentStat).fetchJoin()
             .where(
-                cursorDirection(cursor),
+                cursorDirection(cursor, searchOptions),
                 comment.post.id.eq(postId),
                 comment.parentComment.isNull()
             )
@@ -67,9 +67,19 @@ public class SearchCommentRepositoryImpl implements
             .fetch();
     }
 
-    private BooleanExpression cursorDirection(CommentCursorRequestDto cursor) {
+    private BooleanExpression cursorDirection(CommentCursorRequestDto cursor,
+        CommentSearchOptions searchOptions) {
         if (cursor.getCreatedAt() == null || cursor.getId() == null) {
             return null;
+        }
+
+        SortDirection sortDirection = searchOptions.getSortDirection();
+        if (sortDirection == ASC) {
+            return comment.createdAt.gt(cursor.getCreatedAt())
+                .or(
+                    comment.createdAt.eq(cursor.getCreatedAt())
+                        .and(comment.id.gt(cursor.getId()))
+                );
         }
         return comment.createdAt.lt(cursor.getCreatedAt())
             .or(
@@ -93,7 +103,7 @@ public class SearchCommentRepositoryImpl implements
         SortDirection sortDirection) {
         return switch (sortBy) {
             case CREATED_AT -> sortDirection == ASC
-                ? new OrderSpecifier[]{comment.createdAt.asc(), comment.id.desc()}
+                ? new OrderSpecifier[]{comment.createdAt.asc(), comment.id.asc()}
                 : new OrderSpecifier[]{comment.createdAt.desc(), comment.id.desc()};
         };
     }
