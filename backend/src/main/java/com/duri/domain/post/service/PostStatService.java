@@ -5,10 +5,14 @@ import com.duri.domain.post.entity.PostStat;
 import com.duri.domain.post.exception.PostStatNotFoundException;
 import com.duri.domain.post.repository.PostStatRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
+@Slf4j
 public class PostStatService {
 
     private final PostStatRepository postStatRepository;
@@ -24,26 +28,18 @@ public class PostStatService {
     }
 
     public void increaseLikeCount(Long postId) {
-        PostStat postStat = findByPostId(postId);
-
-        postStat.increaseLikeCount();
+        postStatRepository.increaseLikeCount(postId);
     }
 
     public void decreaseLikeCount(Long postId) {
-        PostStat postStat = findByPostId(postId);
-
-        postStat.decreaseLikeCount();
+        postStatRepository.decreaseLikeCount(postId);
     }
 
     public void increaseCommentCount(Long postId) {
-        PostStat postStat = findByPostId(postId);
-
-        postStat.increaseCommentCount();
+        postStatRepository.increaseCommentCount(postId);
     }
 
     public void decreaseCommentCount(Long postId) {
-        PostStat postStat = findByPostId(postId);
-
-        postStat.decreaseCommentCount();
+        postStatRepository.decreaseCommentCount(postId);
     }
 }

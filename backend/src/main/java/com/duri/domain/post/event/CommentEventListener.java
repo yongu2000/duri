@@ -10,16 +10,16 @@ import com.duri.domain.post.service.PostStatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
+@Transactional
 public class CommentEventListener {
 
     private final PostStatService postStatService;
     private final CommentStatService commentStatService;
     private final NotificationService notificationService;
-
-    // 외부 알림 서비스 (FCM) 연동되면 @Async 고려
 
     @EventListener
     public void handleCommentCreated(CommentCreatedEvent event) {

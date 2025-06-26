@@ -44,19 +44,4 @@ public class PostStat extends BaseEntity {
     @Builder.Default
     private Long commentCount = 0L;
 
-    public void increaseLikeCount() {
-        this.likeCount++;
-    }
-
-    public void decreaseLikeCount() {
-        this.likeCount--;
-    }
-
-    public void increaseCommentCount() {
-        this.commentCount++;
-    }
-
-    public void decreaseCommentCount() {
-        this.commentCount--;
-    }
 }
