@@ -20,6 +20,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, SearchPostRep
             JOIN FETCH p.couple c
             JOIN FETCH c.userLeft ul
             JOIN FETCH c.userRight ur
+            JOIN FETCH p.postStat ps
             WHERE p.id = :id
         """)
     Optional<Post> findById(@Param("id") Long id);

@@ -68,7 +68,7 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostStatus status;
 
-    @OneToOne(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true)
     private PostStat postStat;
 
     public void changeTitle(String title) {
