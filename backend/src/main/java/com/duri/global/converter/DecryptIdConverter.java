@@ -11,20 +11,17 @@ import org.springframework.core.convert.converter.ConditionalGenericConverter;
 public class DecryptIdConverter implements ConditionalGenericConverter {
 
     @Override
-    public boolean matches(final TypeDescriptor sourceType, final TypeDescriptor targetType) {
+    public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
         return targetType.hasAnnotation(DecryptId.class);
     }
 
     @Override
     public Set<ConvertiblePair> getConvertibleTypes() {
-        return Set.of(
-            new ConvertiblePair(String.class, Long.class)
-        );
+        return Set.of(new ConvertiblePair(String.class, Long.class));
     }
 
     @Override
-    public Object convert(final Object source, final TypeDescriptor sourceType,
-        final TypeDescriptor targetType) {
+    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
         return Long.parseLong(AESUtil.decrypt((String) source));
     }
 }

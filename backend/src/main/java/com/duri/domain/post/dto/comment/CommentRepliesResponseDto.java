@@ -1,6 +1,7 @@
 package com.duri.domain.post.dto.comment;
 
 import com.duri.domain.post.entity.Comment;
+import com.duri.global.annotation.EncryptId;
 import com.duri.global.util.AESUtil;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,8 @@ import lombok.Getter;
 @Builder
 public class CommentRepliesResponseDto {
 
-    private String id;
+    @EncryptId
+    private Long id;
     private String parentCommentId;
     private String content;
     private String author;
@@ -21,7 +23,7 @@ public class CommentRepliesResponseDto {
 
     public static CommentRepliesResponseDto from(Comment comment) {
         return CommentRepliesResponseDto.builder()
-            .id(AESUtil.encrypt(String.valueOf(comment.getId())))
+            .id(comment.getId())
             .parentCommentId(
                 AESUtil.encrypt(String.valueOf(comment.getParentComment().getId())))
             .content(comment.getContent())
