@@ -13,6 +13,7 @@ import com.duri.domain.user.exception.UserNotFoundException;
 import com.duri.domain.user.repository.UserRepository;
 import com.duri.global.dto.DuplicateCheckResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,8 +44,9 @@ public class UserService {
         return new DuplicateCheckResponse(false);
     }
 
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    @Cacheable(value = "USER:findById", key = "#userId")
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
     public User findByUsername(String username) {
@@ -68,6 +70,7 @@ public class UserService {
     }
 
     // 자기 자신 OR Admin만 수정할 수 있도록 권한 부여
+//    @CacheEvict(value = "USER:findById", key = "#userId") 리팩토링 필요
     public void editUserProfile(String username, UserProfileEditRequest request) {
         User user = findByUsername(username);
         user.updateName(request.getName());
