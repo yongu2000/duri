@@ -273,9 +273,10 @@ class CommentServiceTest {
 
         CommentCursorRequestDto cursor = new CommentCursorRequestDto(null, null);
 
-        given(commentRepository.findCommentRepliesByPost(cursor, 3,
+        given(commentRepository.findCommentRepliesByComment(cursor, 3,
             parentCommentId))
-            .willReturn(List.of(reply1, reply2));
+            .willReturn(List.of(CommentRepliesResponseDto.from(reply1),
+                CommentRepliesResponseDto.from(reply2)));
 
         // when
         CursorResponse<CommentRepliesResponseDto, CommentCursorResponseDto> result = commentService.getCommentReplies(
@@ -287,7 +288,7 @@ class CommentServiceTest {
         assertThat(result.getItems().get(0).getContent()).isEqualTo("첫 번째 대댓글");
         assertThat(result.getItems().get(1).getContent()).isEqualTo("두 번째 대댓글");
 
-        then(commentRepository).should().findCommentRepliesByPost(cursor, 3,
+        then(commentRepository).should().findCommentRepliesByComment(cursor, 3,
             parentCommentId);
     }
 

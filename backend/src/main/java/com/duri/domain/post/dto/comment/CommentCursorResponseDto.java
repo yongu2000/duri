@@ -19,4 +19,8 @@ public class CommentCursorResponseDto {
     public static CommentCursorResponseDto from(Comment comment) {
         return new CommentCursorResponseDto(comment.getCreatedAt(), comment.getId());
     }
+
+    public static CommentCursorResponseDto from(CommentRepliesResponseDto comment) {
+        return new CommentCursorResponseDto(comment.getCreatedAt(), comment.getId());
+    }
 }

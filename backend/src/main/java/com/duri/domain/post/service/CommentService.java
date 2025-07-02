@@ -74,6 +74,7 @@ public class CommentService {
             .parentComment(parentComment)
             .replyToComment(replyTo)
             .build());
+        commentStatService.create(comment);
 
         applicationEventPublisher.publishEvent(
             new CommentReplyCreatedEvent(comment, parentComment, replyTo, post));
@@ -132,10 +133,9 @@ public class CommentService {
         CommentCursorRequestDto cursor,
         int size, Long commentId) {
 
-        log.info("Service - getCommentReplies Started");
-        List<Comment> replies = commentRepository.findCommentRepliesByPost(cursor,
+        List<CommentRepliesResponseDto> replies = commentRepository.findCommentRepliesByComment(
+            cursor,
             size + 1, commentId);
-        log.info("Repository - findCommentRepliesByPost Ended");
 
         boolean hasNext = replies.size() > size;
         if (hasNext) {
@@ -146,9 +146,7 @@ public class CommentService {
             ? CommentCursorResponseDto.from(replies.getLast())
             : null;
 
-        log.info("Service - getCommentReplies Ended");
         return new CursorResponse<>(replies.stream()
-            .map(CommentRepliesResponseDto::from)
             .toList(),
             nextCursor, hasNext);
     }

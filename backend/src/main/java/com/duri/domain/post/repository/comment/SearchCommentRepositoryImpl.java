@@ -9,10 +9,12 @@ import com.duri.domain.couple.entity.QCouple;
 import com.duri.domain.post.constant.search.CommentSortBy;
 import com.duri.domain.post.constant.search.SortDirection;
 import com.duri.domain.post.dto.comment.CommentCursorRequestDto;
+import com.duri.domain.post.dto.comment.CommentRepliesResponseDto;
 import com.duri.domain.post.dto.comment.CommentSearchOptions;
 import com.duri.domain.post.entity.Comment;
 import com.duri.domain.post.entity.QComment;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -46,18 +48,27 @@ public class SearchCommentRepositoryImpl implements
     }
 
     @Override
-    public List<Comment> findCommentRepliesByPost(CommentCursorRequestDto cursor, int size,
+    public List<CommentRepliesResponseDto> findCommentRepliesByComment(
+        CommentCursorRequestDto cursor,
+        int size,
         Long parentCommentId) {
-        log.info("Repository - findCommentRepliesByPost Started");
 
         QComment replyTo = new QComment("replyTo");
         QCouple replyToCouple = new QCouple("replyToCouple");
 
         return queryFactory
-            .selectFrom(comment)
-            .leftJoin(comment.couple, couple).fetchJoin()
-            .leftJoin(comment.replyToComment, replyTo).fetchJoin() // N+1
-            .leftJoin(replyTo.couple, replyToCouple).fetchJoin() // N+1
+            .select(Projections.constructor(CommentRepliesResponseDto.class,
+                comment.id,
+                comment.parentComment.id,
+                comment.content,
+                couple.name,             // author
+                replyToCouple.name,      // replyTo
+                comment.createdAt
+            ))
+            .from(comment)
+            .leftJoin(comment.couple, couple)
+            .leftJoin(comment.replyToComment, replyTo)// N+1
+            .leftJoin(replyTo.couple, replyToCouple) // N+1
             .where(
                 replyCursorDirection(cursor),
                 comment.parentComment.id.eq(parentCommentId)
