@@ -10,18 +10,20 @@ import com.duri.domain.post.service.PostStatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-@Transactional
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class CommentEventListener {
 
     private final PostStatService postStatService;
     private final CommentStatService commentStatService;
     private final NotificationService notificationService;
 
-    @EventListener
+    @TransactionalEventListener
     public void handleCommentCreated(CommentCreatedEvent event) {
         Comment comment = event.getComment();
         Post post = event.getPost();
