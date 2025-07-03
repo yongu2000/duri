@@ -183,7 +183,6 @@ public class PostService {
             nextCursor, hasNext);
     }
 
-
     @Transactional(readOnly = true)
     public List<PostImageUrlResponse> getPostImages(Long postId) {
         return imageService.findByPostId(postId).stream()

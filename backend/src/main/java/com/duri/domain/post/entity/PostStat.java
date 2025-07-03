@@ -43,5 +43,5 @@ public class PostStat extends BaseEntity {
     @ColumnDefault(value = "0")
     @Builder.Default
     private Long commentCount = 0L;
-
+    
 }
