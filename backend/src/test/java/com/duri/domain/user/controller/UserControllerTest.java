@@ -12,11 +12,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.duri.domain.auth.CustomUserDetails;
 import com.duri.domain.user.dto.PasswordResetRequest;
 import com.duri.domain.user.dto.UserProfileEditRequest;
 import com.duri.domain.user.dto.UserResponse;
 import com.duri.domain.user.entity.Gender;
 import com.duri.domain.user.entity.Position;
+import com.duri.domain.user.entity.User;
 import com.duri.domain.user.service.UserService;
 import com.duri.global.dto.DuplicateCheckResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +27,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -61,12 +66,33 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @AfterEach
+    void clearSecurityContextHolder() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
     @DisplayName("/user/my - 유저 정보 가져오기")
     void getUserProfile() throws Exception {
         // given
-        UserResponse response = new UserResponse(testEmail, testUsername, testName, testCoupleCode,
-            testProfileImageUrl, testBirthday, testGender, testPosition, testCreatedAt);
+        User user = User.builder()
+            .email(testEmail)
+            .username(testUsername)
+            .name(testName)
+            .coupleCode(testCoupleCode)
+            .profileImageUrl(testProfileImageUrl)
+            .birthday(testBirthday)
+            .gender(testGender)
+            .position(testPosition)
+            .build();
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth =
+            new UsernamePasswordAuthenticationToken(userDetails, null,
+                userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        UserResponse response = UserResponse.from(user);
         given(userService.getUserProfile()).willReturn(response);
 
         // expect

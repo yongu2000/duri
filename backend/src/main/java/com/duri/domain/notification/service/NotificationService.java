@@ -48,7 +48,7 @@ public class NotificationService {
             cursor, size + 1, userId);
 
         // 읽음으로 변경
-//        confirmNotification(notifications);
+        confirmNotification(notifications);
 
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
         boolean hasNext = notifications.size() > size;

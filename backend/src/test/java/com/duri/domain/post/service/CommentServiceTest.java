@@ -23,6 +23,8 @@ import com.duri.domain.post.dto.comment.ParentCommentResponseDto;
 import com.duri.domain.post.entity.Comment;
 import com.duri.domain.post.entity.CommentStat;
 import com.duri.domain.post.entity.Post;
+import com.duri.domain.post.event.CommentCreatedEvent;
+import com.duri.domain.post.event.CommentReplyCreatedEvent;
 import com.duri.domain.post.exception.CommentNotFoundException;
 import com.duri.domain.post.repository.comment.CommentRepository;
 import com.duri.global.dto.CursorResponse;
@@ -38,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("댓글 서비스 단위 테스트")
@@ -62,6 +65,9 @@ class CommentServiceTest {
     @Mock
     private PostStatService postStatService;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     @Test
     void 댓글_생성_성공() {
         // given
@@ -85,6 +91,7 @@ class CommentServiceTest {
         // then
         then(commentRepository).should().save(any(Comment.class));
         then(commentStatService).should().create(any(Comment.class));
+        then(eventPublisher).should().publishEvent(any(CommentCreatedEvent.class));
 
     }
 
@@ -221,8 +228,7 @@ class CommentServiceTest {
 
         // then
         then(commentRepository).should().save(any(Comment.class));
-        then(postStatService).should().increaseCommentCount(post.getId());
-        then(commentStatService).should().increaseCommentCount(parentComment.getId());
+        then(eventPublisher).should().publishEvent(any(CommentReplyCreatedEvent.class));
     }
 
     @Test
