@@ -111,8 +111,15 @@ public class PostService {
         int size,
         PostSearchOptions searchOptions) {
         // 커서 기반 조회
-        List<Post> posts = postRepository.findCoupleCompletePostsBySearchOptions(cursor, size + 1,
-            searchOptions);
+
+        List<Post> posts;
+        if (searchOptions.getSearchKeyword() != null) {
+            posts = postRepository.findCoupleCompletePostsBySearchOptions(cursor, size + 1,
+                searchOptions);
+        } else {
+            posts = postRepository.findCoupleCompletePostsBySearchKeyword(cursor, size + 1,
+                searchOptions);
+        }
 
         // hasNext 확인을 위해 size + 1개를 조회했으므로, 실제 응답에는 size개만 포함
         boolean hasNext = posts.size() > size;

@@ -7,6 +7,9 @@ import java.util.List;
 
 public interface SearchPostRepository {
 
+    List<Post> findCoupleCompletePostsBySearchKeyword(PostCursor cursor, int size,
+        PostSearchOptions postSearchOptions);
+
     List<Post> findCoupleCompletePostsBySearchOptions(PostCursor cursor, int size,
         PostSearchOptions postSearchOptions);
 

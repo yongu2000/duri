@@ -18,6 +18,8 @@ import com.duri.domain.post.entity.Post;
 import com.duri.domain.user.entity.QUser;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +31,38 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchPostRepositoryImpl implements SearchPostRepository {
 
     private final JPAQueryFactory queryFactory;
+
+    @Override
+    public List<Post> findCoupleCompletePostsBySearchKeyword(PostCursor cursor, int size,
+        PostSearchOptions searchOptions) {
+
+        NumberTemplate<Double> score = Expressions.numberTemplate(
+            Double.class,
+            "function('match_against', {0}, {1}, {2}, {3}, {4})",
+            post.title,
+            post.address,
+            post.placeName,
+            post.category,
+            searchOptions.getSearchKeyword()
+        );
+        BooleanExpression matchCondition = score.gt(0);
+        QUser user2 = new QUser("user2");
+
+        return queryFactory
+            .selectFrom(post)
+            .leftJoin(post.couple, couple).fetchJoin()
+            .leftJoin(couple.userLeft, user).fetchJoin()
+            .leftJoin(couple.userRight, user2).fetchJoin()
+            .leftJoin(post.postStat, postStat).fetchJoin()
+            .where(
+                matchCondition,
+                post.status.eq(PostStatus.COMPLETE),
+                post.scope.eq(Scope.PUBLIC)
+            )
+            .orderBy(score.desc())
+            .limit(size)
+            .fetch();
+    }
 
     @Override
     public List<Post> findCoupleCompletePostsBySearchOptions(PostCursor cursor, int size,
